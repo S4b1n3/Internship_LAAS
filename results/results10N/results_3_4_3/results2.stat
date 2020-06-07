@@ -1,0 +1,231 @@
+
+run time 85.5214
+status 4
+objective 13
+best bound 13
+booleans 3146
+conflicts 11919
+propagation 9510503
+integer propagation 37762306
+branches 105217
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 31.7541
+status 4
+objective 13
+best bound 13
+booleans 3081
+conflicts 1500
+propagation 355077
+integer propagation 1384666
+branches 38083
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 1200.03
+status 2
+objective 14
+best bound 10
+booleans 3100
+conflicts 79665
+propagation 41912137
+integer propagation 155576639
+branches 496174
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 52.9905
+status 4
+objective 13
+best bound 13
+booleans 3074
+conflicts 3382
+propagation 2455377
+integer propagation 9453071
+branches 26739
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 95.2756
+status 4
+objective 13
+best bound 13
+booleans 3080
+conflicts 8825
+propagation 10390680
+integer propagation 41809259
+branches 46903
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 9.38438
+status 4
+objective 9
+best bound 9
+booleans 3074
+conflicts 84
+propagation 27973
+integer propagation 145445
+branches 15812
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 1200.01
+status 2
+objective 14
+best bound 10
+booleans 3096
+conflicts 41939
+propagation 16205752
+integer propagation 59964939
+branches 333136
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 1200.01
+status 2
+objective 14
+best bound 10
+booleans 3102
+conflicts 62449
+propagation 27658062
+integer propagation 97235903
+branches 361094
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 1200
+status 2
+objective 14
+best bound 10
+booleans 3104
+conflicts 65362
+propagation 27571862
+integer propagation 108325584
+branches 476559
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+
+run time 1200
+status 2
+objective 14
+best bound 10
+booleans 3082
+conflicts 58620
+propagation 18429111
+integer propagation 69756485
+branches 418396
+Optimization model '':
+#Variables: 5256 (2406 in objective)
+ - 108 in [-2,2]
+ - 40 in [-1][1]
+ - 2554 in [-1,1]
+ - 2446 in [0,1]
+ - 108 in [0,2]
+#kIntMax: 2514
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 108
+#kLinear3: 108
+#kLinearN: 40
+
+----------

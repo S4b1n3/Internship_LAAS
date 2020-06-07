@@ -1,0 +1,231 @@
+
+run time 1202.4
+status 2
+objective 24
+best bound 1
+booleans 9285
+conflicts 44596
+propagation 44069797
+integer propagation 178678429
+branches 1044746
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 1200.96
+status 2
+objective 22
+best bound 1
+booleans 9215
+conflicts 35710
+propagation 36679501
+integer propagation 155700973
+branches 582020
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 1202.28
+status 2
+objective 25
+best bound 1
+booleans 9287
+conflicts 75923
+propagation 48909744
+integer propagation 176542444
+branches 740202
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 1200.13
+status 2
+objective 24
+best bound 1
+booleans 9208
+conflicts 39157
+propagation 85299432
+integer propagation 347469003
+branches 522915
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 1201.69
+status 2
+objective 15
+best bound 0
+booleans 9242
+conflicts 41214
+propagation 75838134
+integer propagation 303036927
+branches 578346
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 795.921
+status 4
+objective 11
+best bound 11
+booleans 9231
+conflicts 28048
+propagation 17056829
+integer propagation 69117650
+branches 388861
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 1200.89
+status 2
+objective 19
+best bound 1
+booleans 9244
+conflicts 34313
+propagation 13339492
+integer propagation 60031865
+branches 784716
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 1201.62
+status 2
+objective 18
+best bound 1
+booleans 9174
+conflicts 73236
+propagation 69426918
+integer propagation 278405118
+branches 611485
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 1200.11
+status 2
+objective 18
+best bound 1
+booleans 9248
+conflicts 46857
+propagation 80102817
+integer propagation 324203689
+branches 509099
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+
+run time 1200
+status 2
+objective 17
+best bound 1
+booleans 9223
+conflicts 31587
+propagation 58394650
+integer propagation 240114532
+branches 559633
+Optimization model '':
+#Variables: 16600 (7940 in objective)
+ - 200 in [-2,2]
+ - 40 in [-1][1]
+ - 8180 in [-1,1]
+ - 7980 in [0,1]
+ - 200 in [0,2]
+#kIntMax: 8140
+#kLinear1: 180 (#enforced: 160)
+#kLinear2: 200
+#kLinear3: 200
+#kLinearN: 40
+
+----------

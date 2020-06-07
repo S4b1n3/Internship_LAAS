@@ -1,0 +1,231 @@
+
+run time 1200.7
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 5789
+propagation 738012
+integer propagation 1201475
+branches 70204
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1200.13
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 11943
+propagation 1455255
+integer propagation 1959692
+branches 65638
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1200.7
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 17944
+propagation 2100071
+integer propagation 2669921
+branches 55155
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1200.04
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 7415
+propagation 934713
+integer propagation 1348442
+branches 60257
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1200.13
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 2274
+propagation 304779
+integer propagation 1109297
+branches 95632
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1200.03
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 10523
+propagation 1114176
+integer propagation 1473800
+branches 48029
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1200.24
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 1566
+propagation 240391
+integer propagation 640655
+branches 62922
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1200.23
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 2717
+propagation 361876
+integer propagation 652668
+branches 49342
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1200.06
+status 0
+objective 7940
+best bound 1
+booleans 11600
+conflicts 14917
+propagation 1455997
+integer propagation 1976053
+branches 52825
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+
+run time 1199.96
+status 0
+objective 7940
+best bound 1
+booleans 11606
+conflicts 3880
+propagation 496873
+integer propagation 1252147
+branches 92190
+Optimization model '':
+#Variables: 18040 (7940 in objective)
+ - 600 in [-2,2]
+ - 120 in [-1][1]
+ - 8660 in [-1,1]
+ - 8060 in [0,1]
+ - 600 in [0,2]
+#kIntMax: 8540
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 600
+#kLinear3: 600
+#kLinearN: 120
+
+----------

@@ -1,0 +1,254 @@
+
+run time 2.16125
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 2
+propagation 23856
+integer propagation 116223
+branches 7007
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 2.86184
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 302
+propagation 199795
+integer propagation 845693
+branches 11793
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 1.48598
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 21
+propagation 3769
+integer propagation 39387
+branches 8418
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 2.60597
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 3
+propagation 15380
+integer propagation 90150
+branches 8545
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 1.74403
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 7
+propagation 11924
+integer propagation 66560
+branches 6927
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 3.70035
+status 4
+objective 9
+best bound 9
+booleans 1763
+conflicts 103
+propagation 12570
+integer propagation 107847
+branches 13507
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 1.44678
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 10
+propagation 8514
+integer propagation 53791
+branches 8399
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 2.27391
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 51
+propagation 26497
+integer propagation 139178
+branches 9829
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 0.926621
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 7
+propagation 5213
+integer propagation 34538
+branches 6866
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 1.54657
+status 4
+objective 9
+best bound 9
+booleans 1749
+conflicts 8
+propagation 10080
+integer propagation 58275
+branches 6816
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+
+run time 0.950397
+status 4
+objective 9
+best bound 9
+booleans 1756
+conflicts 63
+propagation 8491
+integer propagation 61218
+branches 11601
+Optimization model '':
+#Variables: 3376 (1604 in objective)
+ - 36 in [-2,2]
+ - 20 in [-1][1]
+ - 1660 in [-1,1]
+ - 1624 in [0,1]
+ - 36 in [0,2]
+#kIntMax: 1640
+#kLinear1: 90 (#enforced: 80)
+#kLinear2: 36
+#kLinear3: 54
+#kLinearN: 2
+
+----------

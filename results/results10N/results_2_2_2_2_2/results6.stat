@@ -1,0 +1,254 @@
+
+run time 1.31356
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 12
+propagation 8126
+integer propagation 25300
+branches 4962
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 1.39047
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 17
+propagation 7988
+integer propagation 24948
+branches 4970
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 2.17318
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 20
+propagation 8927
+integer propagation 26810
+branches 4972
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 1.57221
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 22
+propagation 8460
+integer propagation 25605
+branches 4973
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 1.83377
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 16
+propagation 8099
+integer propagation 25307
+branches 4968
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 3.92055
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 16
+propagation 8092
+integer propagation 25964
+branches 4968
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 1.73994
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 16
+propagation 8037
+integer propagation 25465
+branches 4967
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 3.13329
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 16
+propagation 8299
+integer propagation 26150
+branches 4969
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 1.27198
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 13
+propagation 7621
+integer propagation 24321
+branches 4965
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 1.64816
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 18
+propagation 7965
+integer propagation 24650
+branches 4969
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+
+run time 2.22837
+status 3
+objective 0
+best bound 0
+booleans 2474
+conflicts 12
+propagation 8056
+integer propagation 25044
+branches 4964
+Optimization model '':
+#Variables: 4216 (1604 in objective)
+ - 216 in [-2,2]
+ - 120 in [-1][1]
+ - 1940 in [-1,1]
+ - 1724 in [0,1]
+ - 216 in [0,2]
+#kIntMax: 1820
+#kLinear1: 540 (#enforced: 480)
+#kLinear2: 216
+#kLinear3: 324
+#kLinearN: 12
+
+----------
