@@ -19,7 +19,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-
 #define MNIST_DATA_LOCATION "mnist-master"
 //#define MNIST_DATA_LOCATION "/home/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/mnist-master"
 
@@ -138,7 +137,7 @@ public:
   - _activation : activation values for each neuron returned by the solver
   - index_example : index of the input in the training set
   */
-  Solution(const std::vector<int> &archi, const std::vector<std::vector<std::vector<int>>> &_weights, const std::vector<std::vector<int>> &_activation, const std::vector<std::vector<int>> &_preactivation, const int &index_example):
+  Solution(const std::vector<int> &archi, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &index_example):
   bnn_data(archi), weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
     nb_layers = bnn_data.get_layers();
     example_label = (int)bnn_data.get_dataset().training_labels[index_example];
@@ -336,6 +335,8 @@ namespace operations_research{
       const std::string file_out_extension;
       std::ofstream file;
 
+      int index_rand;
+
 
     public:
 
@@ -352,9 +353,7 @@ namespace operations_research{
         std::cout << "number of layers : "<<bnn_data.get_layers() << '\n';
         bnn_data.print_archi();
         bnn_data.print_dataset();
-        for (size_t i = 0; i < nb_examples; i++) {
-          std::cout << "Label : "<< (int)bnn_data.get_dataset().training_labels[i] << '\n';
-        }
+        index_rand = rand()%60000;
       }
 
       /* Getters */
@@ -382,10 +381,11 @@ namespace operations_research{
       void declare_activation_variables(const int &index_example){
         assert(index_example>=0);
         assert(index_example<nb_examples);
+
         activation_first_layer.resize(nb_examples);
-        activation_first_layer[index_example].resize(bnn_data.get_dataset().training_images[index_example].size());
+        activation_first_layer[index_example].resize(bnn_data.get_dataset().training_images[index_example+index_rand].size());
         for(size_t j = 0; j < bnn_data.get_archi(0); ++j){
-          activation_first_layer[index_example][j] = (int64)bnn_data.get_dataset().training_images[index_example][j];
+          activation_first_layer[index_example][j] = (int64)bnn_data.get_dataset().training_images[index_example+index_rand][j];
         }
         activation.resize(nb_examples);
         activation[index_example].resize(bnn_data.get_layers()-1);
@@ -570,7 +570,7 @@ namespace operations_research{
       void model_output_constraint(const int &index_examples){
         assert(index_examples >= 0);
         assert(index_example < nb_examples);
-        const int label = (int)bnn_data.get_dataset().training_labels[index_examples];
+        const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
         cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1);
         for (size_t i = 0; i < bnn_data.get_archi(bnn_data.get_layers()-1); i++) {
           if (i != label) {
@@ -612,7 +612,7 @@ namespace operations_research{
 
       }
 
-      void check(const CpSolverResponse &r, const int &index){
+      void check(const CpSolverResponse &r, const std::string &filename, const int &index=0){
 
         weights_solution.resize(bnn_data.get_layers());
         for (size_t l = 1; l < bnn_data.get_layers(); ++l) {
@@ -648,9 +648,9 @@ namespace operations_research{
             }
           }
 
-          Solution check_solution(bnn_data.get_archi(), weights_solution, activation_solution, preactivation_solution, i);
-          std::cout << "Verification de la solution "<<index<<" : ";
-          check_solution.run_solution();
+          Solution check_solution(bnn_data.get_archi(), weights_solution, activation_solution, preactivation_solution, i+index_rand);
+          std::cout << "Checking solution : "<<index<<" : ";
+          bool checking = check_solution.run_solution();
         }
       }
 
@@ -664,7 +664,7 @@ namespace operations_research{
       void print_header_solution(const int &num_sol){
         assert(num_sol>=0);
         file.open(file_out+std::to_string(num_sol)+file_out_extension, std::ios::out);
-        if (file.bad()) std::cout<<"Erreur ouverture"<<std::endl;
+        if (file.bad()) std::cout<<"Error oppening file"<<std::endl;
         else{
           file <<"\\documentclass{article}"<<std::endl;
           file <<"\\usepackage{tikz}"<<std::endl;
@@ -705,12 +705,34 @@ namespace operations_research{
       // Print some statistics from the solver: Runtime, number of nodes, number of propagation (filtering, pruning), memory,
       // Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
       // Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
-      void print_statistics(){
+      void print_statistics(const std::string &filename){
         response = SolveCpModel(cp_model.Build(), &model);
+        std::ofstream parser(filename.c_str(), std::ios::app);
         std::cout << "\nSome statistics on the solver response : " << '\n';
         LOG(INFO) << CpSolverResponseStats(response);
         std::cout << "\nSome statistics on the model : " << '\n';
         LOG(INFO) << CpModelStats(cp_model.Build());
+        if(parser){
+          parser << std::endl << "run time " << response.wall_time() << std::endl;
+          parser << "status "<<response.status() << std::endl;
+          if (response.status()== CpSolverStatus::OPTIMAL)
+            parser << "objective "<<response.objective_value() << std::endl;
+          else
+            parser << "objective "<<response.objective_value() << std::endl;
+          parser << "best bound "<<response.best_objective_bound() << std::endl;
+          parser << "booleans " << response.num_booleans() << std::endl;
+          parser << "conflicts " << response.num_conflicts() << std::endl;
+          parser << "propagation " << response.num_binary_propagations() << std::endl;
+          parser << "integer propagation " << response.num_integer_propagations() << std::endl;
+          parser << "branches " << response.num_branches() << std::endl;
+          parser << CpModelStats(cp_model.Build()) << std::endl;
+          parser << std::endl;
+        }
+        else
+          std::cout << "Error opening parser file" << '\n';
+        if (response.status()== CpSolverStatus::OPTIMAL || response.status() == CpSolverStatus::FEASIBLE) {
+          check(response, filename);
+        }
       }
 
 
@@ -791,7 +813,7 @@ namespace operations_research{
           }
           file.close();
 
-          check(r, index);
+
         }
         if(r.status()==CpSolverStatus::MODEL_INVALID){
           LOG(INFO) << ValidateCpModel(cp_model.Build());
@@ -825,23 +847,44 @@ namespace operations_research{
 
 
 
-int main() {
+int main(int argc, char **argv) {
 
   srand(time(NULL));
 
-  const std::vector<int> archi_test = {784, 5, 5, 10};
-  int nb_examples;
-  std::cout << "How much examples to test ?" << '\n';
-  std::cin >> nb_examples;
+  for (int i = 0; i < argc; ++i)
+    std::cout << argv[i] << " ";
+
+
+  std::vector<int> archi_test;
+  int nb_neurons = 0;
+
+  archi_test.push_back(784);
+  int nb_examples = std::stoi(argv[1]);
+  for (int i = 2; i < argc; ++i) {
+    archi_test.push_back(std::stoi(argv[i]));
+    nb_neurons += std::stoi(argv[i]);
+  }
+  archi_test.push_back(10);
+
+  std::string filename("BNN/results/results"+std::to_string(nb_neurons)+"N/results");
+  for (size_t i = 2; i < argc; i++) {
+    filename.append("_"+std::string(argv[i]));
+  }
+
+  filename.append("/results"+std::to_string(nb_examples)+".stat");
+
+  std::cout << filename << std::endl;
+
+
   operations_research::sat::CPModel first_model(archi_test, nb_examples);
 
   std::cout<<std::endl<<std::endl;
 
   first_model.run(1200.0) ;
 
-  first_model.print_statistics() ;
+  first_model.print_statistics(filename) ;
   //first_model.print_solution_bis(first_model.get_response());
-  first_model.print_all_solutions() ;
+  //first_model.print_all_solutions() ;
 
   /*std::vector<std::vector <std::vector<int>>> solution = first_model.get_solution();
   Solution first_solution(archi_test, solution, 0);
