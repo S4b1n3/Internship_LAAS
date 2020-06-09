@@ -57,6 +57,10 @@ namespace operations_research{
 
         int index_rand;
 
+        const BoolVar a = cp_model.NewBoolVar();
+        const BoolVar b = cp_model.NewBoolVar();
+        const BoolVar c = cp_model.NewBoolVar();
+
       public :
 
       /*
@@ -277,15 +281,11 @@ namespace operations_research{
       void model_output_constraint(const int &index_examples){
         assert(index_examples >= 0);
         assert(index_example < nb_examples);
-        const BoolVar a = cp_model.NewBoolVar();
-        const BoolVar b = cp_model.NewBoolVar();
-        const BoolVar c = cp_model.NewBoolVar();
+
         LinearExpr last_layer(0);
-        LinearExpr temp(0);
         const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
 
         cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1).OnlyEnforceIf(a);
-        temp.AddVar(a);
 
         for (size_t i = 0; i < bnn_data.get_archi(bnn_data.get_layers()-1); i++) {
           if (i != label) {
@@ -294,9 +294,7 @@ namespace operations_research{
         }
 
         cp_model.AddEquality(last_layer, -9).OnlyEnforceIf(b);
-        temp.AddVar(b);
-        cp_model.AddEquality(temp, 2).OnlyEnforceIf(c);
-        cp_model.AddEquality(classification[index_examples], 1).OnlyEnforceIf(c);
+        cp_model.AddEquality(classification[index_examples], 1).OnlyEnforceIf({a, b});
 
       }
 
@@ -419,6 +417,21 @@ namespace operations_research{
           std::cout << "Error opening parser file" << '\n';
         if (response.status()== CpSolverStatus::OPTIMAL || response.status() == CpSolverStatus::FEASIBLE) {
           check(response, filename);
+        }
+      }
+
+      void print_solution(const CpSolverResponse &r, const int &index = 0){
+        assert(index >=0);
+        if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
+          std::cout << "Activation 1 for neuron[label] : " << SolutionIntegerValue(r, a) << std::endl;
+          std::cout << "Activation -1 for other neurons : " << SolutionIntegerValue(r, b) << std::endl;
+          for (size_t i = 0; i < nb_examples; i++) {
+            std::cout << "classification[i] : " << SolutionIntegerValue(r, classification[i]) << std::endl;
+          }
+
+        }
+        if(r.status()==CpSolverStatus::MODEL_INVALID){
+          LOG(INFO) << ValidateCpModel(cp_model.Build());
         }
       }
 

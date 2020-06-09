@@ -123,7 +123,7 @@ public:
     }
     if(compt > 1){
       result =  false;
-      std::cout<<"There is" << compt << "activated activated neurons on the output layer : "<<std::endl;
+      std::cout<<"There is " << compt << " activated neurons on the output layer : "<<std::endl;
       std::cout<<"True neuron to be activated is " <<  example_label << std::endl;
         for (size_t i = 0; i < bnn_data.get_archi(nb_layers-1); i++)
           if(activation[nb_layers-1][i]== 1)
@@ -198,6 +198,3 @@ public:
 
 
 #endif
-
-
-
