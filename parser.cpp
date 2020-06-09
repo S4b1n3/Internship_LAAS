@@ -581,11 +581,11 @@ public:
 };
 
 
-int main() {
+int main(int argc, char **argv) {
     num_expe = 1;
     //const std::string path("/home/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
     const std::string path_file("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
-    const std::string path_folder("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/results/results10N");
+    const std::string path_folder("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/results/"+std::string(argv[1]));
     Parser_Container first_test(path_folder);
     first_test.create_parsers();
     //first_test.end_expe();

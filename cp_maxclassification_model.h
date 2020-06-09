@@ -1,13 +1,5 @@
-/*
- * cp_minweight_model.h
- *
- *  Created on: Jun 7, 2020
- *      Author: msiala
- */
-
-
-#ifndef EXAMPLES_CPP_CP_MINWEIGHT_MODEL_H_
-#define EXAMPLES_CPP_CP_MINWEIGHT_MODEL_H_
+#ifndef EXAMPLES_CPP_CP_MAXCLASSIFICATION_MODEL_H_
+#define EXAMPLES_CPP_CP_MAXCLASSIFICATION_MODEL_H_
 
 #include "ortools/sat/cp_model.h"
 #include "ortools/sat/model.h"
@@ -33,59 +25,39 @@
 namespace operations_research{
   namespace sat{
 
-    /* CPModel_MinWeight contains the constraint programming model for the full classification and minweight problem
-    Atributs
-    - bnn_data : data of the problem
-    - cp_model : the CP-SAT model proto
-    - nb_examples : number of examples to test
-    - weights : variable of the problem that represents the value of the weight
-      for each arc between the neurons
-    - activation : the value of the activation of each neuron on each layer (except hte first one)
-    - preactivation : the value of the preactivation of each neuron on each layer
-    - activation_first_layer : the value of the activation of each neuron on the first layer
-    - domain : the domain of the variables [-1, 1]
-    - activation_domain : the domain of the activation variables (-1,1)
-    - objectif : LinearExpr used to find the objective
-    - response : contains the informations of the solver after calling
-    - model : used to print all the solutions
-    - parameters : parameters for the sat solver
-    - file_out : name of the output file
-    - file : ostream used to manipulate the output file
-    */
-    class CPModel_MinWeight {
+    class CPModel_MaxClassification {
+      private :
+        Data bnn_data;
+        CpModelBuilder cp_model;
+        int nb_examples;
 
-    private:
+        //weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
+        std::vector<std::vector <std::vector<IntVar>>> weights;
+        std::vector<std::vector <std::vector<int>>> weights_solution;
 
-      Data bnn_data;
-      CpModelBuilder cp_model;
-      int nb_examples;
+        std::vector<BoolVar> classification;
 
-      //weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
-      std::vector<std::vector <std::vector<IntVar>>> weights;
-      std::vector<std::vector <std::vector<int>>> weights_solution;
+        std::vector <std::vector<std::vector<IntVar>>> activation;
+        std::vector <std::vector<std::vector<IntVar>>> preactivation;
+        std::vector <std::vector<int>> activation_solution;
+        std::vector <std::vector<int>> preactivation_solution;
+        //ORTools requires coefitions to be int64
+        std::vector<std::vector<int64>> activation_first_layer;
 
-      std::vector <std::vector<std::vector<IntVar>>> activation;
-      std::vector <std::vector<std::vector<IntVar>>> preactivation;
-      std::vector <std::vector<int>> activation_solution;
-      std::vector <std::vector<int>> preactivation_solution;
-      //ORTools requires coefitions to be int64
-      std::vector<std::vector<int64>> activation_first_layer;
+        const Domain domain;
+        const Domain activation_domain;
+        LinearExpr objectif;
+        CpSolverResponse response;
+        Model model;
+        SatParameters parameters;
 
-      const Domain domain;
-      const Domain activation_domain;
-      LinearExpr objectif;
-      CpSolverResponse response;
-      Model model;
-      SatParameters parameters;
+        const std::string file_out;
+        const std::string file_out_extension;
+        std::ofstream file;
 
-      const std::string file_out;
-      const std::string file_out_extension;
-      std::ofstream file;
+        int index_rand;
 
-      int index_rand;
-
-
-    public:
+      public :
 
       /*
       Constructor of the class CPModel
@@ -95,7 +67,7 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_MinWeight(const std::vector<int> &_archi, const int &_nb_examples):
+      CPModel_MaxClassification(const std::vector<int> &_archi, const int &_nb_examples):
         bnn_data(_archi), domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), file_out_extension(".tex"), nb_examples(_nb_examples){
         std::cout << "number of layers : "<<bnn_data.get_layers() << '\n';
         bnn_data.print_archi();
@@ -144,7 +116,6 @@ namespace operations_research{
         }
       }
 
-
       /* declare_preactivation_variable method
       Parameters :
       - index_example : index of the training example to classifie
@@ -182,7 +153,6 @@ namespace operations_research{
         return preactivation[index_example][l-1][j];
       }
 
-
       /* declare_weight_variables method
       This method initialize the weight variables
       weights[a][b][c] is the weight variable of the edge between neuron b on layer a-1 and neuron c on layer a
@@ -209,7 +179,6 @@ namespace operations_research{
         }
       }
 
-
       /* get_w_ilj method
       Parameters :
       - i : neuron on layer l-1 \in [0, bnn_data.get_archi(l-1)]
@@ -226,24 +195,6 @@ namespace operations_research{
         assert(j>=0);
         assert(j<bnn_data.get_archi(l));
         return weights[l-1][i][j];
-      }
-
-
-      /* model_objective_minimize_weight method
-      This function sums all the weights in the LinearExpr objectif
-      Parameters : None
-      Output : None
-      */
-      void model_objective_minimize_weight(){
-        for (size_t l = 1; l < bnn_data.get_layers(); l++) {
-          for(size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
-            for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
-              IntVar abs = cp_model.NewIntVar(Domain(0,1));
-              cp_model.AddAbsEquality(abs, weights[l-1][i][j]);
-              objectif.AddVar(abs);
-            }
-          }
-        }
       }
 
       /* model_activation_constraint method
@@ -307,25 +258,59 @@ namespace operations_research{
           }
       }
 
+      void declare_classification_variable(){
+        classification.resize(nb_examples);
+        for (size_t i = 0; i < nb_examples; i++) {
+          classification[i] = cp_model.NewBoolVar();
+        }
+      }
 
       /* model_output_constraint method
-      This function forces the output to match the label
+
+         activation[index_examples][bnn_data.get_layers()-2][label] == 1 and
+         activation[index_examples][bnn_data.get_layers()-2][i] == -1 => the example is well classified
+
       Parameters :
-      - index_examples : index of examples
+       - index_example : index of the example to classifie
       Output : None
       */
       void model_output_constraint(const int &index_examples){
         assert(index_examples >= 0);
         assert(index_example < nb_examples);
+        const BoolVar a = cp_model.NewBoolVar();
+        const BoolVar b = cp_model.NewBoolVar();
+        const BoolVar c = cp_model.NewBoolVar();
+        LinearExpr last_layer(0);
+        LinearExpr temp(0);
         const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
-        cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1);
+
+        cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1).OnlyEnforceIf(a);
+        temp.AddVar(a);
+
         for (size_t i = 0; i < bnn_data.get_archi(bnn_data.get_layers()-1); i++) {
           if (i != label) {
-            cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][i], -1);
+            last_layer.AddVar(activation[index_examples][bnn_data.get_layers()-2][i]);
           }
         }
+
+        cp_model.AddEquality(last_layer, -9).OnlyEnforceIf(b);
+        temp.AddVar(b);
+        cp_model.AddEquality(temp, 2).OnlyEnforceIf(c);
+        cp_model.AddEquality(classification[index_examples], 1).OnlyEnforceIf(c);
+
       }
 
+
+      /* model_objective_maximize_classification method
+      This function sums all the values of classification in the LinearExpr objectif
+      Parameters : None
+      Output : None
+      */
+      void model_objective_maximize_classification(){
+        for (size_t i = 0; i < nb_examples; i++) {
+          objectif.AddVar(classification[i]);
+        }
+      }
 
       /* run method
       This function calls all the necessary methods to run the solver
@@ -336,7 +321,9 @@ namespace operations_research{
       */
       void run(const double &nb_seconds){
         assert(nb_seconds>0);
-        declare_weight_variables();                         //initialization of the variables
+        declare_weight_variables();
+        //initialization of the variables
+        declare_classification_variable();
         for (size_t i = 0; i < nb_examples; i++) {
           declare_preactivation_variables(i);
           declare_activation_variables(i);
@@ -352,12 +339,13 @@ namespace operations_research{
         for (size_t i = 0; i < nb_examples; i++) {
           model_output_constraint(i);
         }
-        model_objective_minimize_weight() ;                 //initialization of the objective
+        model_objective_maximize_classification();                //initialization of the objective
         parameters.set_max_time_in_seconds(nb_seconds);     //Add a timelimit
         model.Add(NewSatParameters(parameters));
-        cp_model.Minimize(objectif);                        //objective function
+        cp_model.Maximize(objectif);                        //objective function
 
       }
+
 
       void check(const CpSolverResponse &r, const std::string &filename, const int &index=0){
 
@@ -401,54 +389,6 @@ namespace operations_research{
         }
       }
 
-
-      /*print_header_solution method
-      This function writes on the output file the latex header
-      Parameters :
-      - num_sol : the index of the solution
-      Output ; None
-      */
-      void print_header_solution(const int &num_sol){
-        assert(num_sol>=0);
-        file.open(file_out+std::to_string(num_sol)+file_out_extension, std::ios::out);
-        if (file.bad()) std::cout<<"Error oppening file"<<std::endl;
-        else{
-          file <<"\\documentclass{article}"<<std::endl;
-          file <<"\\usepackage{tikz}"<<std::endl;
-          file <<"\\usetikzlibrary{arrows.meta}"<<std::endl;
-          file <<"\\begin{document}"<<std::endl;
-          file <<"\\begin{tikzpicture}"<<std::endl;
-        }
-        file.close();
-      }
-
-      /* print_node mehod
-      This function creates a node in latex
-      Parameters :
-      - name : name of the node
-      - x, y : position of the node
-      Output : a string containing the latex command that will create the node
-      */
-      std::string print_node(const std::string &name, const int &x, const int &y){
-        assert(x >= 0);
-        assert(y >= 0);
-        return "\\node ("+name+") at ("+std::to_string(x)+","+std::to_string(y)+") {"+name+"};";
-      }
-
-      /* print_arc mehod
-      This function creates an arc in latex
-      Parameters :
-      - origin : origin node of the arc
-      - target : target node of the arc
-      - weight : value of the weight for this arc
-      Output : a string containing the latex command that will create the arc
-      */
-      std::string print_arc(const std::string &origin, const std::string &target, const int &weight){
-        assert(weight>=-1);
-        assert(weight<=1);
-        return "\\path [->] ("+origin+") edge node {$"+std::to_string(weight)+"$} ("+target+");";
-      }
-
       // Print some statistics from the solver: Runtime, number of nodes, number of propagation (filtering, pruning), memory,
       // Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
       // Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
@@ -482,103 +422,11 @@ namespace operations_research{
         }
       }
 
+    }; // close class CPModel
 
-
-      void print_solution(const CpSolverResponse &r, const int &index = 0){
-        assert(index >=0);
-        if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
-          std::cout << "\nSolution "<< index << " : \n";
-          for (size_t l = 1; l < bnn_data.get_layers(); ++l) {
-            std::cout << "Layer "<< l << ": \n";
-            for (size_t i = 0; i < bnn_data.get_archi(l-1); ++i) {
-              for (size_t j = 0; j < bnn_data.get_archi(l); ++j) {
-                std::cout << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " <<SolutionIntegerValue(r, weights[l-1][i][j]);
-              }
-              std::cout << '\n';
-            }
-            std::cout << '\n';
-          }
-        }
-        if(r.status()==CpSolverStatus::MODEL_INVALID){
-          LOG(INFO) << ValidateCpModel(cp_model.Build());
-        }
-      }
-
-      /* print_solution method
-      This function prints a solution returned by the solver
-      if this solution is feasible or optimal
-      Parameters :
-      - r : response of the solver
-      - index : index of the solution (default : 0)
-      Output : None
-      */
-      void print_solution_bis(const CpSolverResponse &r, const int &index = 0){
-        assert(index >= 0);
-        if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
-          print_header_solution(index);
-          file.open(file_out+std::to_string(index)+file_out_extension, std::ios::app);
-          if (file.bad()) std::cout<<"Erreur ouverture"<<std::endl;
-          else{
-            file <<"\\begin{scope}[every node/.style={circle,thick,draw}]" << std::endl;
-            int height = 0;
-            for (size_t l = 0; l < bnn_data.get_layers(); l++) {
-              for (size_t i = 0; i < bnn_data.get_archi(l); i++) {
-                std::string name("N"+std::to_string(l)+std::to_string(i));
-                file << print_node(name, 2*l, height)<<std::endl;
-                height -= 2;
-              }
-              height = 0;
-            }
-            file << "\\end{scope}"<<std::endl;
-            file << "\\begin{scope}[>={Stealth[black]}, every node/.style={fill=white,circle}, every edge/.style={draw=red,very thick}]" << std::endl;
-            for (size_t l = 1; l < bnn_data.get_layers(); l++) {
-              for (size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
-                for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
-                  std::string origin("N"+std::to_string(l-1)+std::to_string(i));
-                  std::string target("N"+std::to_string(l)+std::to_string(j));
-                  file << print_arc(origin, target, SolutionIntegerValue(r, weights[l-1][i][j]))<<std::endl;
-                }
-              }
-            }
-
-            file << "\\end{scope}"<<std::endl;
-            file <<"\\end{tikzpicture}"<<std::endl;
-            file <<"\\end{document}"<<std::endl;
-          }
-          file.close();
-
-
-        }
-        if(r.status()==CpSolverStatus::MODEL_INVALID){
-          LOG(INFO) << ValidateCpModel(cp_model.Build());
-        }
-      }
-
-      /* print_all_solutions method
-      This function prints all feasible or optimal solutions returned by the solver
-      Parameters : None
-      Output : None
-      */
-      void print_all_solutions(){
-        int num_solutions = 0;
-        Model _model;
-        _model.Add(NewFeasibleSolutionObserver([&](const CpSolverResponse& r) {
-          print_solution_bis(r, num_solutions);
-          num_solutions++;
-        }));
-        parameters.set_enumerate_all_solutions(true);
-        _model.Add(NewSatParameters(parameters));
-        response = SolveCpModel(cp_model.Build(), &_model);
-        LOG(INFO) << "Number of solutions found: " << num_solutions;
-      }
-
-    } ; //close class CPModel
-  } //close namespace sat
-} //close namespace operations_research
+  } // close namespace sat
+} // close namespace operations_research
 
 
 
-
-
-
-#endif /* EXAMPLES_CPP_CP_MINWEIGHT_MODEL_H_ */
+#endif /* EXAMPLES_CPP_CP_MAXCLASSIFICATION_MODEL_H_ */

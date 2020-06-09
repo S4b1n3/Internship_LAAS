@@ -2,6 +2,7 @@
 #include "data.h"
 #include "solution.h"
 #include "cp_minweight_model.h"
+#include "cp_maxclassification_model.h"
 
 #include <string>
 #include <vector>
@@ -36,19 +37,19 @@ int main(int argc, char **argv) {
   std::cout << filename << std::endl;
 
 
-  operations_research::sat::CPModel_MinWeight first_model(archi_test, nb_examples);
+  //operations_research::sat::CPModel_MinWeight first_model(archi_test, nb_examples);
+  operations_research::sat::CPModel_MaxClassification second_model(archi_test, nb_examples);
 
   std::cout<<std::endl<<std::endl;
 
-  first_model.run(1200.0) ;
+  second_model.run(1200.0) ;
 
-  first_model.print_statistics(filename) ;
+  second_model.print_statistics(filename) ;
+
+
   //first_model.print_solution_bis(first_model.get_response());
   //first_model.print_all_solutions() ;
 
-  /*std::vector<std::vector <std::vector<int>>> solution = first_model.get_solution();
-  Solution first_solution(archi_test, solution, 0);
-  std::cout << "Verification de la solution : "<<first_solution.predict() << '\n';*/
 
   return EXIT_SUCCESS;
 }
