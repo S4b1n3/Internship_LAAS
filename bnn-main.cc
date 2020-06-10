@@ -11,10 +11,9 @@
 int main(int argc, char **argv) {
 
   srand(time(NULL));
-
+  
   for (int i = 0; i < argc; ++i)
     std::cout << argv[i] << " ";
-
 
   std::vector<int> archi_test;
   int nb_neurons = 0;

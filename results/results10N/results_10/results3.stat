@@ -229,3 +229,25 @@ Optimization model '':
 #kLinearN: 60
 
 ----------
+run time 1200
+status 0
+objective -0
+best bound 3
+booleans 6905
+conflicts 86141
+propagation 10720522
+integer propagation 11006866
+branches 2462843
+Optimization model '':
+#Variables: 9026 (3 in objective)
+ - 300 in [-2,2]
+ - 60 in [-1][1]
+ - 8300 in [-1,1]
+ - 66 in [0,1]
+ - 300 in [0,2]
+#kIntMax: 300
+#kLinear1: 243 (#enforced: 243)
+#kLinear2: 300
+#kLinear3: 300
+#kLinearN: 63 (#enforced: 3)
+

@@ -229,3 +229,48 @@ Optimization model '':
 #kLinearN: 20
 
 ----------
+run time 7.19922
+status 4
+objective 1
+best bound 1
+booleans 2469
+conflicts 71
+propagation 24544
+integer propagation 45865
+branches 18900
+Optimization model '':
+#Variables: 8302 (1 in objective)
+ - 100 in [-2,2]
+ - 20 in [-1][1]
+ - 8060 in [-1,1]
+ - 22 in [0,1]
+ - 100 in [0,2]
+#kIntMax: 100
+#kLinear1: 81 (#enforced: 81)
+#kLinear2: 100
+#kLinear3: 100
+#kLinearN: 21 (#enforced: 1)
+
+
+run time 0.2086
+status 4
+objective 1
+best bound 1
+booleans 830
+conflicts 0
+propagation 7517
+integer propagation 7485
+branches 1775
+Optimization model '':
+#Variables: 8301 (1 in objective)
+ - 100 in [-2,2]
+ - 20 in [-1][1]
+ - 8060 in [-1,1]
+ - 21 in [0,1]
+ - 100 in [0,2]
+#kIntMax: 100
+#kLinear1: 81 (#enforced: 81)
+#kLinear2: 100
+#kLinear3: 100
+#kLinearN: 21 (#enforced: 1)
+

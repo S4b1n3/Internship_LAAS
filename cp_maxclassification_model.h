@@ -57,10 +57,6 @@ namespace operations_research{
 
         int index_rand;
 
-        const BoolVar a = cp_model.NewBoolVar();
-        const BoolVar b = cp_model.NewBoolVar();
-        const BoolVar c = cp_model.NewBoolVar();
-
       public :
 
       /*
@@ -271,8 +267,8 @@ namespace operations_research{
 
       /* model_output_constraint method
 
-         activation[index_examples][bnn_data.get_layers()-2][label] == 1 and
-         activation[index_examples][bnn_data.get_layers()-2][i] == -1 => the example is well classified
+         the example is well classified => activation[index_examples][bnn_data.get_layers()-2][label] == 1 and
+                                           activation[index_examples][bnn_data.get_layers()-2][i] == -1
 
       Parameters :
        - index_example : index of the example to classifie
@@ -284,17 +280,14 @@ namespace operations_research{
 
         LinearExpr last_layer(0);
         const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
-
-        cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1).OnlyEnforceIf(a);
-
         for (size_t i = 0; i < bnn_data.get_archi(bnn_data.get_layers()-1); i++) {
           if (i != label) {
             last_layer.AddVar(activation[index_examples][bnn_data.get_layers()-2][i]);
           }
         }
 
-        cp_model.AddEquality(last_layer, -9).OnlyEnforceIf(b);
-        cp_model.AddEquality(classification[index_examples], 1).OnlyEnforceIf({a, b});
+        cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1).OnlyEnforceIf(classification[index_examples]);
+        cp_model.AddEquality(last_layer, -9).OnlyEnforceIf(classification[index_examples]);
 
       }
 
@@ -423,8 +416,8 @@ namespace operations_research{
       void print_solution(const CpSolverResponse &r, const int &index = 0){
         assert(index >=0);
         if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
-          std::cout << "Activation 1 for neuron[label] : " << SolutionIntegerValue(r, a) << std::endl;
-          std::cout << "Activation -1 for other neurons : " << SolutionIntegerValue(r, b) << std::endl;
+          //std::cout << "Activation 1 for neuron[label] : " << SolutionIntegerValue(r, a) << std::endl;
+          //std::cout << "Activation -1 for other neurons : " << SolutionIntegerValue(r, b) << std::endl;
           for (size_t i = 0; i < nb_examples; i++) {
             std::cout << "classification[i] : " << SolutionIntegerValue(r, classification[i]) << std::endl;
           }
