@@ -14,6 +14,7 @@ using namespace TCLAP;
 int _nb_examples;
 std::vector<int> architecture;
 int _nb_neurons;
+bool _prod_constraint;
 
 void parseOptions(int argc, char** argv);
 
@@ -35,8 +36,7 @@ int main(int argc, char **argv) {
 
   std::cout << filename << std::endl;
 
-
-  operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples);
+  operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint);
   //operations_research::sat::CPModel_MaxClassification second_model(archi_test, nb_examples);
 
   std::cout<<std::endl<<std::endl;
@@ -48,7 +48,6 @@ int main(int argc, char **argv) {
 
   //second_model.print_statistics(filename) ;
   //second_model.print_solution(second_model.get_response());
-
 
   //first_model.print_solution_bis(first_model.get_response());
   //first_model.print_all_solutions() ;
@@ -73,6 +72,9 @@ void parseOptions(int argc, char** argv)
 	UnlabeledMultiArg<int> mtest("archi", "Architecture of the model", false, "int");
 	cmd.add( mtest );
 
+  SwitchArg btest("C","use_prod_constraint", "bool tests the use of product constraints", false);
+	cmd.add( btest );
+
 	//
 	// Parse the command line.
 	//
@@ -82,6 +84,7 @@ void parseOptions(int argc, char** argv)
 	// Set variables
 	//
 	_nb_examples = itest.getValue();
+  _prod_constraint = btest.getValue();
 
 	std::vector<int> v = mtest.getValue();
 	for ( int i = 0; static_cast<unsigned int>(i) < v.size(); i++ ){

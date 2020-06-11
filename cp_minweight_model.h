@@ -83,6 +83,7 @@ namespace operations_research{
       std::ofstream file;
 
       int index_rand;
+      const bool prod_constraint;
 
 
     public:
@@ -95,8 +96,9 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_MinWeight(const std::vector<int> &_archi, const int &_nb_examples):
-        bnn_data(_archi), domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), file_out_extension(".tex"), nb_examples(_nb_examples){
+      CPModel_MinWeight(const std::vector<int> &_archi, const int &_nb_examples, const bool _prod_constraint):
+        bnn_data(_archi), domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"),
+        file_out_extension(".tex"), nb_examples(_nb_examples), prod_constraint(_prod_constraint){
         std::cout << "number of layers : "<<bnn_data.get_layers() << '\n';
         bnn_data.print_archi();
         bnn_data.print_dataset();
@@ -297,14 +299,20 @@ namespace operations_research{
           std::vector<IntVar> temp(bnn_data.get_archi(l-1));
           for (size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
             temp[i] = cp_model.NewIntVar(domain);
-            IntVar sum_weights_activation = cp_model.NewIntVar(Domain(-2,2));
-            IntVar sum_temp_1 = cp_model.NewIntVar(Domain(0, 2));
-            cp_model.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
-            cp_model.AddEquality(sum_temp_1, temp[i].AddConstant(1));
-            cp_model.AddAbsEquality(sum_temp_1, sum_weights_activation);
+            if(!prod_constraint){
+
+              IntVar sum_weights_activation = cp_model.NewIntVar(Domain(-2,2));
+              IntVar sum_temp_1 = cp_model.NewIntVar(Domain(0, 2));
+              cp_model.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
+              cp_model.AddEquality(sum_temp_1, temp[i].AddConstant(1));
+              cp_model.AddAbsEquality(sum_temp_1, sum_weights_activation);
+            }
+            else {
+              cp_model.AddProductEquality(temp[i], {get_w_ilj(i, l, j), activation[index_example][l-2][i]});
+            }
           }
           cp_model.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp));
-          }
+        }
       }
 
 
