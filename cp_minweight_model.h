@@ -16,6 +16,10 @@
 #include "ortools/util/sorted_interval_list.h"
 #include "ortools/sat/cp_model_checker.h"
 
+#include <memory>
+#include "ortools/port/sysinfo.h"
+
+
 
 #include <typeinfo>
 #include <cmath>
@@ -306,9 +310,19 @@ namespace operations_research{
               cp_model.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
               cp_model.AddEquality(sum_temp_1, temp[i].AddConstant(1));
               cp_model.AddAbsEquality(sum_temp_1, sum_weights_activation);
+
             }
             else {
-              cp_model.AddProductEquality(temp[i], {get_w_ilj(i, l, j), activation[index_example][l-2][i]});
+
+              //(C == 0 ) => ( weight == 0)
+              //(C == 1 ) => ( a == b)
+
+              const BoolVar _temp_bool = cp_model.NewBoolVar();
+              cp_model.AddEquality(temp[i], 0).OnlyEnforceIf(_temp_bool);
+              cp_model.AddEquality(temp[i], 1).OnlyEnforceIf(Not(_temp_bool));
+              cp_model.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(_temp_bool);
+              cp_model.AddEquality(activation[index_example][l-2][i], get_w_ilj(i, l, j)).OnlyEnforceIf(Not(_temp_bool));
+
             }
           }
           cp_model.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp));
@@ -469,6 +483,7 @@ namespace operations_research{
         LOG(INFO) << CpModelStats(cp_model.Build());
         if(parser){
           parser << std::endl << "run time " << response.wall_time() << std::endl;
+          parser << "memory " << sysinfo::MemoryUsageProcess() << std::endl;
           parser << "status "<<response.status() << std::endl;
           if (response.status()== CpSolverStatus::OPTIMAL)
             parser << "objective "<<response.objective_value() << std::endl;

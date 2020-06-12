@@ -18,7 +18,6 @@ bool _prod_constraint;
 
 void parseOptions(int argc, char** argv);
 
-
 int main(int argc, char **argv) {
 
   srand(time(NULL));
@@ -43,7 +42,6 @@ int main(int argc, char **argv) {
 
   //second_model.run(1200.0) ;
   first_model.run(1200.0) ;
-
   first_model.print_statistics(filename);
 
   //second_model.print_statistics(filename) ;
@@ -51,8 +49,6 @@ int main(int argc, char **argv) {
 
   //first_model.print_solution_bis(first_model.get_response());
   //first_model.print_all_solutions() ;
-
-
   return EXIT_SUCCESS;
 }
 
@@ -61,7 +57,7 @@ void parseOptions(int argc, char** argv)
 	try {
 
 	CmdLine cmd("BNN Parameters", ' ', "0.99" );
-
+  
 	//
 	// Define arguments
 	//
@@ -91,7 +87,6 @@ void parseOptions(int argc, char** argv)
       architecture.push_back(v[i]);
       _nb_neurons += v[i];
   }
-
 
 	} catch ( ArgException& e )
 	{ std::cout << "ERROR: " << e.error() << " " << e.argId() << std::endl; }

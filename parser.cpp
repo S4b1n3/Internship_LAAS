@@ -56,6 +56,7 @@ Attributs :
 Statistics of the solver :
 - status : array that contains the number of status for each codes
 - run time : mean of CPU time
+- memory : mean memory usage
 - nb_variables : mean of number of variables
 - nb_constraints : mean of number of constraints
 - objective_value : mean of the objective value when a solution has been returned
@@ -68,6 +69,7 @@ private:
 
     std::vector<int> status = {0, 0, 0, 0};
     int run_time = 0;
+    int memory = 0;
     int nb_variables = 0;
     int nb_constraints = 0;
     int objective_value = 0;
@@ -110,6 +112,11 @@ public:
         return run_time;
     }
 
+    //returns the mean memory usage
+    int get_memory() const{
+      return memory;
+    }
+
     //returns the mean of the number of variables
     int get_nb_variables() const{
         return nb_variables;
@@ -150,6 +157,9 @@ public:
                     if(line.substr(0, 9) == "run time "){
                         run_time += std::stoi(line.substr(9));
                         count +=1;
+                    }
+                    if (line.substr(0, 7) == "memory ") {
+                      memory += std::stoi(line.substr(7));
                     }
                     if(line.substr(0, 7) == "status "){
                         int status_temp = std::stoi(line.substr(7));
@@ -197,12 +207,19 @@ public:
             }
         } else
             std::cout << "File is not open" << std::endl;
-        run_time = std::round(run_time/count);
-        nb_variables /= count;
-        nb_constraints /= count;
+        if(count != 0){
+          run_time = std::round(run_time/count);
+          memory = std::round(memory/count);
+          nb_variables /= count;
+          nb_constraints /= count;
+          nb_branches /= count;
+        } else {
+          std::cout << "No experiment written in output files" << '\n';
+        }
+
         if (count_objective != 0)
             objective_value /= count_objective;
-        nb_branches /= count;
+
         for (int i = 0; i < STATUS.size(); ++i) {
             status[i] = std::round(status[i]*100.0/count);
         }
@@ -242,6 +259,11 @@ public:
         archi.resize(folders.size());
         std::string temp;
         for (int i = 0; i < folders.size(); ++i) {
+            if (folders[i].size() < 8){
+              archi[i].push_back(0);
+              break;
+            }
+
             std::string folder_temp = folders[i].substr(8);
             for (char j : folder_temp) {
                 if(j == '_'){
@@ -330,6 +352,7 @@ public:
     void read_subfolders(){
         files.resize(folders.size());
         for (int i = 0; i < folders.size(); ++i) {
+          std::cout << path+"/"+folders[i] << '\n';
             files[i] = read_folder(path+"/"+folders[i]);
         }
     }
@@ -497,7 +520,7 @@ public:
     Output :
     - header : string containg the header commands in latex*/
     static std::string print_header_table() {
-        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c| } \hline Architecture & \N & \V & \C & \B & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T  \\ \hline)");
+        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c| } \hline Architecture & \N & \V & \C & \B & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M \\ \hline)");
         return header;
     }
 
@@ -550,7 +573,8 @@ public:
         if (temp->get_run_time() < 1)
             parser.append("$<$1 \\\\ ");
         else
-            parser.append(std::to_string(temp->get_run_time())+" \\\\ ");
+            parser.append(std::to_string(temp->get_run_time())+" & ");
+        parser.append(std::to_string(temp->get_memory())+ " \\\\ ");
         return parser;
     }
 
@@ -582,13 +606,14 @@ public:
 
 
 int main(int argc, char **argv) {
-    num_expe = 1;
+    num_expe = std::stoi(argv[2]);
     //const std::string path("/home/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
     const std::string path_file("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
     const std::string path_folder("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/results/"+std::string(argv[1]));
+    std::cout << path_folder <<std::endl;
     Parser_Container first_test(path_folder);
     first_test.create_parsers();
-    //first_test.end_expe();
+    first_test.end_expe();
 
     Writer first_writer(path_folder, first_test);
     std::cout << first_writer.get_filename();
