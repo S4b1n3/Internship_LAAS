@@ -2,13 +2,15 @@
 
 bnn-main.cc : is the file that runs the cp model. It takes as parameter: 
 
- */ param1 : number of input examples 
+ */ param1 : boolean which define the type of constraint used  to compute the value of the preactivation
+
+ */ param2 : number of input examples 
  
- */ param2 : boolean which define the type of constraint used  to compute the value of the preactivation
+ */ param3 : index of the model to run
  
- */ param3 : number of neurons on the first hidden layer
+ */ param4 : number of neurons on the first hidden layer
  
- */ param4 : number of neurons on the second hidden layer
+ */ param5 : number of neurons on the second hidden layer
  
  */ paramX : number of neurons on the Xth hidden layer
  
@@ -23,11 +25,13 @@ To run the cp model, first compile the bnn-main.cc file from ORTools folder with
   
 Then use the command from the same folder
 
-  `./bin/bnn-main  [-C] -X <int> [--] [--version] [-h] <int> ...`
+  `./bin/bnn-main  [-C] -X <int> -M <int> [--] [--version] [-h] <int> ...`
   
- where the argument after the flag -X is param1 and is mandatory.
+ where the argument after the flag -X (respectively -M) is param1 (respectively param2) and is mandatory. 
  
 If the flag -C is written, the product constraint will be used to compute the preactivation values.
+
+The order of the flags is not important, just be careful to write the value corresponding to a flag just after the right one.
 
 The next int variables are optional and correspond to the other variables. The order that the arguments are added to the command line is the order that they will be parsed and added in the architecture.
 
