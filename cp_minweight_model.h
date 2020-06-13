@@ -55,6 +55,8 @@ namespace operations_research{
     - parameters : parameters for the sat solver
     - file_out : name of the output file
     - file : ostream used to manipulate the output file
+    - index_rand : random number used to select the example
+    - prod_constraint : boolean that indicates which constraints to use to compute the preactivation
     */
     class CPModel_MinWeight {
 
@@ -97,6 +99,7 @@ namespace operations_research{
       Argument :
       - a vector representing the architecture of a BNN
       - nb_examples : number of examples to test
+      - _prod_constraint : boolean that indicates which constraints to use to compute the preactivation
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
@@ -271,7 +274,7 @@ namespace operations_research{
         assert (j<bnn_data.get_archi(l));
           //_temp_bool is true iff preactivation[l][j] < 0
           //_temp_bool is false iff preactivation[l][j] >= 0
-        const BoolVar _temp_bool = cp_model.NewBoolVar();
+        BoolVar _temp_bool = cp_model.NewBoolVar();
         cp_model.AddLessThan(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(_temp_bool);
         cp_model.AddGreaterOrEqual(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(Not(_temp_bool));
         cp_model.AddEquality(activation[index_example][l-1][j], -1).OnlyEnforceIf(_temp_bool);
@@ -314,14 +317,44 @@ namespace operations_research{
             }
             else {
 
-              //(C == 0 ) => ( weight == 0)
-              //(C == 1 ) => ( a == b)
+              /*
+                (C == 0) ssi (weights == 0)
+                  (C == 0) => (weights == 0) et (weights == 0) => (C == 0)
+                  Not(weights == 0) => Not(C == 0) et Not(C == 0) => (Not weights == 0)
+                (C == 1) ssi (a == b)
+                  (C == 1) => (a == b) et (a == b) => (C == 1)
+                  Not(a == b) => Not(C == 1) et Not(C == 1) => Not(a == b)
 
-              const BoolVar _temp_bool = cp_model.NewBoolVar();
-              cp_model.AddEquality(temp[i], 0).OnlyEnforceIf(_temp_bool);
-              cp_model.AddEquality(temp[i], 1).OnlyEnforceIf(Not(_temp_bool));
-              cp_model.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(_temp_bool);
-              cp_model.AddEquality(activation[index_example][l-2][i], get_w_ilj(i, l, j)).OnlyEnforceIf(Not(_temp_bool));
+              */
+
+              BoolVar b1 = cp_model.NewBoolVar();
+              BoolVar b2 = cp_model.NewBoolVar();
+
+              // Implement b1 == (temp[i] == 0)
+              cp_model.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
+              cp_model.AddNotEqual(temp[i], LinearExpr(0)).OnlyEnforceIf(Not(b1));
+              //Implement b2 == (weights == 0)
+              cp_model.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b2);
+              cp_model.AddNotEqual(get_w_ilj(i, l, j), LinearExpr(0)).OnlyEnforceIf(Not(b2));
+
+              // b1 implies b2 and b2 implies b1
+              cp_model.AddImplication(b2, b1);
+              cp_model.AddImplication(b1, b2);
+
+              BoolVar b3 = cp_model.NewBoolVar();
+              BoolVar b4 = cp_model.NewBoolVar();
+
+              // Implement b3 == (temp[i] == 1)
+              cp_model.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
+              cp_model.AddNotEqual(temp[i], LinearExpr(1)).OnlyEnforceIf(Not(b3));
+              //Implement b4 == (weights == activation)
+              cp_model.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b4);
+              cp_model.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b4));
+
+
+              // b3 implies b4 and b4 implies b3
+              cp_model.AddImplication(b3, b4);
+              cp_model.AddImplication(b4, b3);
 
             }
           }
@@ -521,6 +554,22 @@ namespace operations_research{
             }
             std::cout << '\n';
           }
+
+          for (size_t l = 0; l < bnn_data.get_layers()-1; l++) {
+            for(size_t j = 0; j < bnn_data.get_archi(l+1); j++){
+              std::cout << "preactivation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,preactivation[0][l][j])<<std::endl;
+            }
+          }
+
+          for(size_t j = 0; j < bnn_data.get_archi(0); ++j){
+            std::cout << "activation_first_layer["<<j<<"] = " << SolutionIntegerValue(r,activation_first_layer[0][j]) << std::endl;
+          }
+          for (size_t l = 0; l < bnn_data.get_layers()-1; ++l) {
+            for(size_t j = 0; j < bnn_data.get_archi(l+1); ++j){
+              std::cout << "activation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,activation[0][l][j])<<std::endl;
+            }
+          }
+
         }
         if(r.status()==CpSolverStatus::MODEL_INVALID){
           LOG(INFO) << ValidateCpModel(cp_model.Build());

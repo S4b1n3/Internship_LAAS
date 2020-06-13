@@ -11,6 +11,7 @@
 
 using namespace TCLAP;
 
+int _index_model;
 int _nb_examples;
 std::vector<int> architecture;
 int _nb_neurons;
@@ -30,25 +31,42 @@ int main(int argc, char **argv) {
   for (size_t i = 1; i < architecture.size()-1; i++) {
     filename.append("_"+std::to_string(architecture[i]));
   }
+  if (architecture.size()-2 == 0) {
+    filename.append("_0");
+  }
 
   filename.append("/results"+std::to_string(_nb_examples)+".stat");
 
   std::cout << filename << std::endl;
 
-  operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint);
-  //operations_research::sat::CPModel_MaxClassification second_model(archi_test, nb_examples);
+  switch (_index_model) {
+    case 1:
+      {
+        operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint);
+        std::cout<<std::endl<<std::endl;
+        first_model.run(1200.0) ;
+        first_model.print_statistics(filename);
+        //first_model.print_solution(first_model.get_response());
+        //first_model.print_solution_bis(first_model.get_response());
+        //first_model.print_all_solutions() ;
+        break;
+      }
+    case 2:
+      {
+        operations_research::sat::CPModel_MaxClassification second_model(architecture, _nb_examples, _prod_constraint);
+        std::cout<<std::endl<<std::endl;
+        second_model.run(1200.0);
+        second_model.print_statistics(filename);
+        break;
+      }
+    default:
+      {
+        std::cout << "There is no model with index "<< _index_model << '\n';
+        std::cout << "Please select 1 or 2" << '\n';
+      }
 
-  std::cout<<std::endl<<std::endl;
+  }
 
-  //second_model.run(1200.0) ;
-  first_model.run(1200.0) ;
-  first_model.print_statistics(filename);
-
-  //second_model.print_statistics(filename) ;
-  //second_model.print_solution(second_model.get_response());
-
-  //first_model.print_solution_bis(first_model.get_response());
-  //first_model.print_all_solutions() ;
   return EXIT_SUCCESS;
 }
 
@@ -57,19 +75,21 @@ void parseOptions(int argc, char** argv)
 	try {
 
 	CmdLine cmd("BNN Parameters", ' ', "0.99" );
-  
+
 	//
 	// Define arguments
 	//
+  ValueArg<int> imodel ("M", "index_model", "Index of the model to run", true, 1, "int");
+  cmd.add(imodel);
 
-	ValueArg<int> itest("X", "nb_examples", "Number of examples", true, 1, "int");
-	cmd.add( itest );
+	ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", true, 1, "int");
+	cmd.add(nb_ex);
 
-	UnlabeledMultiArg<int> mtest("archi", "Architecture of the model", false, "int");
-	cmd.add( mtest );
+	UnlabeledMultiArg<int> archi("archi", "Architecture of the model", false, "int");
+	cmd.add(archi);
 
-  SwitchArg btest("C","use_prod_constraint", "bool tests the use of product constraints", false);
-	cmd.add( btest );
+  SwitchArg bool_prod("C","use_prod_constraint", "bool tests the use of product constraints", false);
+	cmd.add(bool_prod);
 
 	//
 	// Parse the command line.
@@ -79,10 +99,11 @@ void parseOptions(int argc, char** argv)
 	//
 	// Set variables
 	//
-	_nb_examples = itest.getValue();
-  _prod_constraint = btest.getValue();
+  _index_model = imodel.getValue();
+	_nb_examples = nb_ex.getValue();
+  _prod_constraint = bool_prod.getValue();
 
-	std::vector<int> v = mtest.getValue();
+	std::vector<int> v = archi.getValue();
 	for ( int i = 0; static_cast<unsigned int>(i) < v.size(); i++ ){
       architecture.push_back(v[i]);
       _nb_neurons += v[i];
