@@ -42,8 +42,8 @@ void SimpleSatProgram() {
 
 
   // [START variables]
-  IntVar a = cp_model.NewIntVar(Domain(-1)).WithName("a");
-  IntVar b = cp_model.NewIntVar(Domain(-1)).WithName("b");
+  IntVar a = cp_model.NewIntVar(domain).WithName("a");
+  IntVar b = cp_model.NewIntVar(second_domain).WithName("b");
 
   IntVar c = cp_model.NewIntVar(domain).WithName("c");
   // [END variables]
@@ -61,9 +61,6 @@ void SimpleSatProgram() {
 
   BoolVar b1 = cp_model.NewBoolVar();
   BoolVar b2 = cp_model.NewBoolVar();
-
-  IntVar abs_one = cp_model.NewIntVar(second_domain);
-  IntVar zero_or_minus_one = cp_model.NewIntVar(Domain(-1,0));
 
   // Implement b1 == (C == 0)
   cp_model.AddEquality(c, 0).OnlyEnforceIf(b1);
