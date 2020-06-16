@@ -16,6 +16,7 @@ int _nb_examples;
 std::vector<int> architecture;
 int _nb_neurons;
 bool _prod_constraint;
+std::string _output_path;
 
 void parseOptions(int argc, char** argv);
 
@@ -27,7 +28,14 @@ int main(int argc, char **argv) {
   parseOptions(argc, argv);
   architecture.push_back(10);
 
-  std::string filename("BNN/results/results"+std::to_string(_nb_neurons)+"N/results");
+  std::string filename;
+
+
+  filename.append(_output_path);
+
+  filename.append("/results/results"+std::to_string(_nb_neurons)+"N/results");
+
+
   for (size_t i = 1; i < architecture.size()-1; i++) {
     filename.append("_"+std::to_string(architecture[i]));
   }
@@ -35,17 +43,20 @@ int main(int argc, char **argv) {
     filename.append("_0");
   }
 
-  filename.append("/results"+std::to_string(_nb_examples)+".stat");
+  filename.append("/resultsM"+std::to_string(_index_model));
+
+  std::string cmd("mkdir -p "+filename);
+  system(cmd.c_str());
 
   std::cout << filename << std::endl;
 
   switch (_index_model) {
     case 1:
       {
-        operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint);
+        operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint, filename);
         std::cout<<std::endl<<std::endl;
         first_model.run(1200.0) ;
-        first_model.print_statistics(filename);
+        first_model.print_statistics();
         //first_model.print_solution(first_model.get_response());
         //first_model.print_solution_bis(first_model.get_response());
         //first_model.print_all_solutions() ;
@@ -53,10 +64,10 @@ int main(int argc, char **argv) {
       }
     case 2:
       {
-        operations_research::sat::CPModel_MaxClassification second_model(architecture, _nb_examples, _prod_constraint);
+        operations_research::sat::CPModel_MaxClassification second_model(architecture, _nb_examples, _prod_constraint, filename);
         std::cout<<std::endl<<std::endl;
         second_model.run(1200.0);
-        second_model.print_statistics(filename);
+        second_model.print_statistics();
         break;
       }
     default:
@@ -91,6 +102,9 @@ void parseOptions(int argc, char** argv)
   SwitchArg bool_prod("C","use_prod_constraint", "bool tests the use of product constraints", false);
 	cmd.add(bool_prod);
 
+  ValueArg<std::string> out_file("O", "output_file", "Path of the output file", false, "BNN", "string");
+  cmd.add(out_file);
+
 	//
 	// Parse the command line.
 	//
@@ -102,6 +116,7 @@ void parseOptions(int argc, char** argv)
   _index_model = imodel.getValue();
 	_nb_examples = nb_ex.getValue();
   _prod_constraint = bool_prod.getValue();
+  _output_path = out_file.getValue();
 
 	std::vector<int> v = archi.getValue();
 	for ( int i = 0; static_cast<unsigned int>(i) < v.size(); i++ ){

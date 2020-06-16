@@ -83,7 +83,7 @@ public:
     From the path, the method gets the number of examples
     */
     Parser(const std::string& _path):input_file(_path){
-        size_t index, index2;
+        size_t index;
         index = _path.find_last_of("/");
         std::string filename = _path.substr(index+1);
         nb_examples = std::stoi(filename.substr(7, filename.size()-5));

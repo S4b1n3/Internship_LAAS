@@ -57,6 +57,7 @@ namespace operations_research{
     - file : ostream used to manipulate the output file
     - index_rand : random number used to select the example
     - prod_constraint : boolean that indicates which constraints to use to compute the preactivation
+    - output_path : path of the output files (results and solution)
     */
     class CPModel_MinWeight {
 
@@ -90,6 +91,7 @@ namespace operations_research{
 
       int index_rand;
       const bool prod_constraint;
+      const std::string output_path;
 
 
     public:
@@ -103,9 +105,9 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_MinWeight(const std::vector<int> &_archi, const int &_nb_examples, const bool _prod_constraint):
+      CPModel_MinWeight(const std::vector<int> &_archi, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
         bnn_data(_archi), domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"),
-        file_out_extension(".tex"), nb_examples(_nb_examples), prod_constraint(_prod_constraint){
+        file_out_extension(".tex"), nb_examples(_nb_examples), prod_constraint(_prod_constraint), output_path(_output_path){
         std::cout << "number of layers : "<<bnn_data.get_layers() << '\n';
         bnn_data.print_archi();
         bnn_data.print_dataset();
@@ -414,31 +416,46 @@ namespace operations_research{
 
       }
 
-      void check(const CpSolverResponse &r, const std::string &filename, const int &index=0){
+      void check(const CpSolverResponse &r, const int &index=0){
+        std::string solution_file = output_path+"/solution"+std::to_string(nb_examples)+".txt";
+        std::ofstream solution(solution_file.c_str(), std::ios::app);
 
+        solution << "Weights : " << std::endl;
         weights_solution.resize(bnn_data.get_layers());
         for (size_t l = 1; l < bnn_data.get_layers(); ++l) {
+          solution << "#Layer "<< l << std::endl;
           weights_solution[l-1].resize(bnn_data.get_archi(l-1));
           for (size_t i = 0; i < bnn_data.get_archi(l-1); ++i) {
+            solution << "#Neuron " << i << std::endl;
             weights_solution[l-1][i].resize(bnn_data.get_archi(l));
             for (size_t j = 0; j < bnn_data.get_archi(l); ++j) {
               weights_solution[l-1][i][j] = SolutionIntegerValue(r, weights[l-1][i][j]);
+              solution << weights_solution[l-1][i][j] << "  " ;
             }
+            solution << std::endl;
           }
+          solution << std::endl;
         }
 
         for (size_t i = 0; i < nb_examples; i++) {
-
+          const int label = (int)bnn_data.get_dataset().training_labels[i+index_rand];
+          solution << "#Example " << i << "(label " << label << ")" << std::endl;
+          solution << "#Preactivation values" << std::endl;
           preactivation_solution.resize(bnn_data.get_layers()-1);
           for (size_t l = 0; l < bnn_data.get_layers()-1; l++) {
+            solution << "#Layer " << l+1 << std::endl;
             preactivation_solution[l].resize(bnn_data.get_archi(l+1));
             for(size_t j = 0; j < bnn_data.get_archi(l+1); j++){
               preactivation_solution[l][j] = SolutionIntegerValue(r, preactivation[i][l][j]);
+              solution << preactivation_solution[l][j] << "  ";
             }
+            solution << std::endl;
           }
 
+          solution << "#Activation values" << std::endl;
           activation_solution.resize(bnn_data.get_layers());
           for (size_t l = 0; l < bnn_data.get_layers(); l++) {
+            solution << "#Layer " << l << std::endl;
             activation_solution[l].resize(bnn_data.get_archi(l));
             for(size_t j = 0; j < bnn_data.get_archi(l); j++){
               if(l == 0){
@@ -447,8 +464,11 @@ namespace operations_research{
               else{
                 activation_solution[l][j] = SolutionIntegerValue(r, activation[i][l-1][j]);
               }
+              solution << activation_solution[l][j] << "  ";
             }
+            solution << std::endl;
           }
+
 
           Solution check_solution(bnn_data.get_archi(), weights_solution, activation_solution, preactivation_solution, i+index_rand);
           std::cout << "Checking solution : "<<index<<" : ";
@@ -507,9 +527,10 @@ namespace operations_research{
       // Print some statistics from the solver: Runtime, number of nodes, number of propagation (filtering, pruning), memory,
       // Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
       // Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
-      void print_statistics(const std::string &filename){
+      void print_statistics(){
         response = SolveCpModel(cp_model.Build(), &model);
-        std::ofstream parser(filename.c_str(), std::ios::app);
+        std::string result_file = output_path+"/results"+std::to_string(nb_examples)+".stat";
+        std::ofstream parser(result_file.c_str(), std::ios::app);
         std::cout << "\nSome statistics on the solver response : " << '\n';
         LOG(INFO) << CpSolverResponseStats(response);
         std::cout << "\nSome statistics on the model : " << '\n';
@@ -534,7 +555,7 @@ namespace operations_research{
         else
           std::cout << "Error opening parser file" << '\n';
         if (response.status()== CpSolverStatus::OPTIMAL || response.status() == CpSolverStatus::FEASIBLE) {
-          check(response, filename);
+          check(response);
         }
       }
 
