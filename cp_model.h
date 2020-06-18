@@ -381,6 +381,7 @@ namespace operations_research{
           }
           model_declare_objective() ;                 //initialization of the objective
           parameters.set_max_time_in_seconds(nb_seconds);     //Add a timelimit
+          parameters.set_random_seed(1000);
           model.Add(NewSatParameters(parameters));                       //objective function
 
         }
@@ -441,7 +442,7 @@ namespace operations_research{
 
             Solution check_solution(bnn_data.get_archi(), weights_solution, activation_solution, preactivation_solution, i+index_rand);
             std::cout << "Checking solution : "<<index<<" : ";
-            bool checking = check_solution.run_solution();
+            bool checking = check_solution.run_solution(true);
           }
         }
 

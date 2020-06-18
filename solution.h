@@ -40,13 +40,14 @@ private:
 
 public:
 
-  /* Constructor of the class Solution
+  /* Constructors of the class Solution
   Arguments :
   - archi : architecture of the network
   - _weights : solution that has to be tested
   - _preactivation : preactivation values for each neuron returned by the solver
   - _activation : activation values for each neuron returned by the solver
   - index_example : index of the input in the training set
+  - test_set : booean that indicates which dataset to use for the tests
   */
   Solution(const std::vector<int> &archi, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &index_example):
   bnn_data(archi), weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
@@ -56,6 +57,34 @@ public:
       example_images.push_back((int)bnn_data.get_dataset().training_images[index_example][i]);
     }
   }
+
+  Solution(const std::vector<int> &archi, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example):
+  bnn_data(archi), weights(std::move(_weights)){
+    nb_layers = bnn_data.get_layers();
+    example_label = (int)bnn_data.get_dataset().training_labels[index_example];
+    for (size_t i = 0; i < bnn_data.get_dataset().training_images[index_example].size(); i++) {
+      example_images.push_back((int)bnn_data.get_dataset().training_images[index_example][i]);
+    }
+  }
+
+
+    Solution(const std::vector<int> &archi, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example, const bool test_set):
+    bnn_data(archi), weights(std::move(_weights)){
+      nb_layers = bnn_data.get_layers();
+      if(test_set){
+        example_label = (int)bnn_data.get_dataset().test_labels[index_example];
+        for (size_t i = 0; i < bnn_data.get_dataset().test_images[index_example].size(); i++) {
+          example_images.push_back((int)bnn_data.get_dataset().test_images[index_example][i]);
+        }
+      }
+      else{
+        example_label = (int)bnn_data.get_dataset().training_labels[index_example];
+        for (size_t i = 0; i < bnn_data.get_dataset().training_images[index_example].size(); i++) {
+          example_images.push_back((int)bnn_data.get_dataset().training_images[index_example][i]);
+        }
+      }
+
+    }
 
   /* activation_function method
   Given an preactivation x, returns 1 if the preactivation is positive and -1 either
@@ -179,11 +208,15 @@ public:
   Parameters : None
   Output : boolean -> true if the methods both return true
   */
-  bool run_solution(){
-    bool pred, act_preact;
+  bool run_solution(const bool &check_act_preact){
+    bool pred;
+    bool act_preact = true;
     init();
     pred = predict();
-    act_preact = check_activation_preactivation();
+    if (check_act_preact) {
+      act_preact = check_activation_preactivation();
+    }
+
     if (pred && act_preact) {
       std::cout << "OK" << '\n';
     }

@@ -3,6 +3,7 @@
 #include "solution.h"
 #include "cp_minweight_model.h"
 #include "cp_maxclassification_model.h"
+#include "evaluation.h"
 
 #include "/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/tclap/CmdLine.h"
 
@@ -50,6 +51,7 @@ int main(int argc, char **argv) {
 
   std::cout << filename << std::endl;
 
+  double accuracy_train, accuracy_test;
   switch (_index_model) {
     case 1:
       {
@@ -60,6 +62,9 @@ int main(int argc, char **argv) {
         //first_model.print_solution(first_model.get_response());
         //first_model.print_solution_bis(first_model.get_response());
         //first_model.print_all_solutions() ;
+        Evaluation test(100, first_model.get_weights_solution(), architecture);
+        accuracy_test = test.run_evaluation_test_set();
+        accuracy_train = test.run_evaluation_train_set();
         break;
       }
     case 2:
@@ -68,6 +73,9 @@ int main(int argc, char **argv) {
         std::cout<<std::endl<<std::endl;
         second_model.run(1200.0);
         second_model.print_statistics();
+        Evaluation test(100, second_model.get_weights_solution(), architecture);
+        accuracy_test = test.run_evaluation_test_set();
+        accuracy_train = test.run_evaluation_train_set();
         break;
       }
     default:
@@ -77,6 +85,13 @@ int main(int argc, char **argv) {
       }
 
   }
+
+  std::cout << "Testing accuracy of the model : "<< accuracy_test << '\n';
+  std::cout << "Training accuracy of the model : "<< accuracy_train << '\n';
+  std::string result_file = filename+"/results"+std::to_string(nb_examples)+".stat";
+  std::ofstream results(result_file.c_str(), std::ios::app);
+  results << "test accuracy " << accuracy_test << std::endl;
+  results << "train accuracy " << accuracy_train << std::endl;
 
   return EXIT_SUCCESS;
 }

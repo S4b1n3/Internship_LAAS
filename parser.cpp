@@ -61,6 +61,8 @@ Statistics of the solver :
 - nb_constraints : mean of number of constraints
 - objective_value : mean of the objective value when a solution has been returned
 - nb_branches : mean of the number of branches in the search tree
+- test_accuracy : accuracy on the testing set
+- train_accuracy : accuracy on the testing set
 */
 class Parser{
 private:
@@ -74,6 +76,8 @@ private:
     int nb_constraints = 0;
     int objective_value = 0;
     int nb_branches = 0;
+    int test_accuracy = 0;
+    int train_accuracy = 0;
 
 public:
 
@@ -135,6 +139,16 @@ public:
     //returns the mean of the number of branches
     int get_nb_branches() const{
         return nb_branches;
+    }
+
+    //returns the mean of the accuray on the testing set
+    int get_test_accuracy() const{
+      return test_accuracy;
+    }
+
+    //returns the mean of the accuray on the training set
+    int get_train_accuracy() const{
+      return train_accuracy;
     }
 
     /* read_file method
@@ -199,6 +213,13 @@ public:
                         split(line, temp, ' ');
                         nb_constraints += std::stoi(temp[1]);
                     }
+                    if (line.substr(0, 14) == "test accuracy ") {
+                      test_accuracy += std::stoi(line.substr(14));
+                    }
+
+                    if (line.substr(0, 15) == "train accuracy ") {
+                      train_accuracy += std::stoi(line.substr(15));
+                    }
                 } else {
                     if (line == "----------")
                         expe_temp--;
@@ -213,6 +234,8 @@ public:
           nb_variables /= count;
           nb_constraints /= count;
           nb_branches /= count;
+          test_accuracy /= count;
+          train_accuracy /= count;
         } else {
           std::cout << "No experiment written in output files" << '\n';
         }
@@ -520,7 +543,7 @@ public:
     Output :
     - header : string containg the header commands in latex*/
     static std::string print_header_table() {
-        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c| } \hline Architecture & \N & \V & \C & \B & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M \\ \hline)");
+        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c|c|c| } \hline Architecture & \N & \V & \C & \B & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M & \TSA & \TRA \\ \hline)");
         return header;
     }
 
@@ -574,7 +597,10 @@ public:
             parser.append("$<$1 \\\\ ");
         else
             parser.append(std::to_string(temp->get_run_time())+" & ");
-        parser.append(std::to_string(temp->get_memory())+ " \\\\ ");
+        parser.append(std::to_string(temp->get_memory())+ " & ");
+        parser.append(std::to_string(temp->get_test_accuracy())+ "\\% & ");
+        parser.append(std::to_string(temp->get_train_accuracy())+ "\\% \\\\ ");
+
         return parser;
     }
 
