@@ -301,6 +301,7 @@ public:
         reorder_folders();
         read_subfolders();
         reorder_files();
+        std::cout << "Test 04" << '\n';
     }
 
 
@@ -416,7 +417,8 @@ public:
         for (int j = 0; j < files.size(); ++j) {
             nb_examples_temp[j].resize(files[j].size());
             for (int i = 0; i < files[j].size(); ++i) {
-                nb_examples_temp[j][i] = std::stoi(files[j][i].substr(7, files[i].size()-5));
+                //std::cout << "stoi1 :"<< files[j][i].substr(7, files[j][i].size()-12) << '\n';
+                nb_examples_temp[j][i] = std::stoi(files[j][i].substr(7, files[j][i].size()-5));
             }
         }
         for (int i = 0; i < files.size(); ++i) {
@@ -426,6 +428,7 @@ public:
         for (int i = 0; i < nb_examples_temp.size(); ++i) {
             for (int j = 0; j < nb_examples_temp[i].size(); ++j) {
                 for (int k = 0; k < files[i].size(); ++k) {
+                    //std::cout << "stoi2 :"<< files[i][k].substr(7, files[i][k].size()-12) << '\n';
                     if (std::stoi(files[i][k].substr(7, files[i][k].size()-5)) == nb_examples_temp[i][j]){
                         temp[i].push_back(files[i][k]);
                     }
@@ -594,7 +597,7 @@ public:
         else
             parser.append(" & ");
         if (temp->get_run_time() < 1)
-            parser.append("$<$1 \\\\ ");
+            parser.append("$<$1 & ");
         else
             parser.append(std::to_string(temp->get_run_time())+" & ");
         parser.append(std::to_string(temp->get_memory())+ " & ");
@@ -636,9 +639,11 @@ int main(int argc, char **argv) {
     //const std::string path("/home/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
     const std::string path_file("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
     const std::string path_folder("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/results/"+std::string(argv[1]));
-    std::cout << path_folder <<std::endl;
+    std::cout << path_folder <<std::endl << std::endl;
     Parser_Container first_test(path_folder);
+    std::cout << "Test 1" << '\n';
     first_test.create_parsers();
+    std::cout << "Test 2" << '\n';
     first_test.end_expe();
 
     Writer first_writer(path_folder, first_test);

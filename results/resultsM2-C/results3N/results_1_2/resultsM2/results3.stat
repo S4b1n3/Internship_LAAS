@@ -1,0 +1,714 @@
+
+run time 0.894007
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 1235
+conflicts 399
+propagation 25588
+integer propagation 18666
+branches 3794
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 2.07507
+memory 46722048
+status 4
+objective 3
+best bound 3
+booleans 979
+conflicts 1024
+propagation 54774
+integer propagation 45253
+branches 8613
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.516535
+memory 46691328
+status 4
+objective 3
+best bound 3
+booleans 1069
+conflicts 166
+propagation 11948
+integer propagation 17945
+branches 3340
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.206702
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 520
+conflicts 78
+propagation 4429
+integer propagation 6422
+branches 1537
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.356265
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 722
+conflicts 92
+propagation 11625
+integer propagation 19772
+branches 2146
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.786049
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 576
+conflicts 854
+propagation 14841
+integer propagation 14133
+branches 2785
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.836402
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 749
+conflicts 102
+propagation 9468
+integer propagation 15183
+branches 2028
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.694921
+memory 46722048
+status 4
+objective 3
+best bound 3
+booleans 677
+conflicts 63
+propagation 2766
+integer propagation 3048
+branches 1569
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 1.81776
+memory 46691328
+status 4
+objective 3
+best bound 3
+booleans 885
+conflicts 4035
+propagation 148924
+integer propagation 61330
+branches 8450
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.635881
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 571
+conflicts 2061
+propagation 69327
+integer propagation 119386
+branches 8159
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.376005
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 713
+conflicts 96
+propagation 9794
+integer propagation 15962
+branches 2123
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 3.51324
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 962
+conflicts 7747
+propagation 263384
+integer propagation 143771
+branches 24450
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 4.6661
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 1155
+conflicts 10725
+propagation 264832
+integer propagation 159860
+branches 27094
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 1.00325
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 984
+conflicts 380
+propagation 18577
+integer propagation 14826
+branches 5004
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.619029
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 1149
+conflicts 128
+propagation 11454
+integer propagation 16522
+branches 3782
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 2.68699
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 1026
+conflicts 6192
+propagation 215887
+integer propagation 89160
+branches 12500
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.88851
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 1202
+conflicts 268
+propagation 30367
+integer propagation 32985
+branches 5495
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.548695
+memory 46722048
+status 4
+objective 3
+best bound 3
+booleans 885
+conflicts 115
+propagation 6524
+integer propagation 6165
+branches 2347
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.47907
+memory 46691328
+status 4
+objective 3
+best bound 3
+booleans 1065
+conflicts 111
+propagation 9292
+integer propagation 13184
+branches 2879
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 1.09307
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 1034
+conflicts 259
+propagation 11625
+integer propagation 9857
+branches 4089
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.764546
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 1235
+conflicts 399
+propagation 25588
+integer propagation 18666
+branches 3794
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 1.90427
+memory 46722048
+status 4
+objective 3
+best bound 3
+booleans 979
+conflicts 1024
+propagation 54774
+integer propagation 45253
+branches 8613
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.510563
+memory 46691328
+status 4
+objective 3
+best bound 3
+booleans 1069
+conflicts 166
+propagation 11948
+integer propagation 17945
+branches 3340
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.230472
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 520
+conflicts 78
+propagation 4429
+integer propagation 6422
+branches 1537
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.333803
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 722
+conflicts 92
+propagation 11625
+integer propagation 19772
+branches 2146
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.895441
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 576
+conflicts 854
+propagation 14841
+integer propagation 14133
+branches 2785
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.828498
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 749
+conflicts 102
+propagation 9468
+integer propagation 15183
+branches 2028
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.691477
+memory 46722048
+status 4
+objective 3
+best bound 3
+booleans 677
+conflicts 63
+propagation 2766
+integer propagation 3048
+branches 1569
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 1.60627
+memory 46691328
+status 4
+objective 3
+best bound 3
+booleans 885
+conflicts 4035
+propagation 148924
+integer propagation 61330
+branches 8450
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.587097
+memory 46722048
+status 4
+objective 2
+best bound 2
+booleans 571
+conflicts 2061
+propagation 69327
+integer propagation 119386
+branches 8159
+Optimization model '':
+#Variables: 1256 (3 in objective)
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 306 in [0,1]
+#kBoolOr: 264 (#literals: 528)
+#kLinear1: 555 (#enforced: 555)
+#kLinear2: 138 (#enforced: 132)
+#kLinear3: 30
+#kLinearN: 6 (#enforced: 3)
+
+
+run time 0.36809
+memory 46691328
+status 4
+objective 2
+best bound 2
+booleans 713
+conflicts 96
+propagation 9794
+integer propagation 15962
+branches 2123
+Optimization model '':
+#Variables: 1124 (3 in objective)
+ - 66 in [-2,2]
+ - 39 in [-1][1]
+ - 911 in [-1,1]
+ - 42 in [0,1]
+ - 66 in [0,2]
+#kIntMax: 66
+#kLinear1: 159 (#enforced: 159)
+#kLinear2: 72
+#kLinear3: 96
+#kLinearN: 6 (#enforced: 3)
+

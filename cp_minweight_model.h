@@ -97,21 +97,6 @@ namespace operations_research{
             }
           }
         }
-        sum.resize(nb_examples);
-        sum[index_example].resize(bnn_data.get_archi(1));
-        for (size_t i = 0; i < bnn_data.get_archi(1); i++) {
-          sum[index_example][i] = cp_model.NewIntVar(Domain(-255*bnn_data.get_archi(0),255*bnn_data.get_archi(0)));
-          std::vector<IntVar> temp(bnn_data.get_archi(0));
-          for (size_t j = 0; j < bnn_data.get_archi(0); j++) {
-            temp[j] = cp_model.NewIntVar(Domain(-255,255));
-            IntVar e_i = cp_model.NewIntVar(Domain(0,255));
-            cp_model.AddEquality(e_i, (int64)bnn_data.get_dataset().training_images[index_example+index_rand][j]);
-            cp_model.AddProductEquality(temp[j], {get_w_ilj(j, 1, i), e_i});
-          }
-          cp_model.AddEquality(sum[index_example][i], LinearExpr::Sum(temp));
-        }
-
-
       }
 
       /* model_output_constraint method
@@ -137,7 +122,6 @@ namespace operations_research{
       This function calls all the necessary methods to run the solver
       Parameters :
       - nb_seconds : Sets a time limit of nb_seconds
-      - nb_examples : number of examples
       Output : None
       */
       void run(const double &nb_seconds){

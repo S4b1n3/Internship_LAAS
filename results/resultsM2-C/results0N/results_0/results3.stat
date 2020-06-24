@@ -1,0 +1,228 @@
+
+run time 15.6448
+memory 47558656
+status 4
+objective 3
+best bound 3
+booleans 4131
+conflicts 3168
+propagation 491964
+integer propagation 662050
+branches 326602
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 13.4181
+memory 47558656
+status 4
+objective 3
+best bound 3
+booleans 4131
+conflicts 3168
+propagation 491964
+integer propagation 662050
+branches 326602
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 26.4327
+memory 52221952
+status 4
+objective 3
+best bound 3
+booleans 3815
+conflicts 64754
+propagation 822176
+integer propagation 797899
+branches 302731
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 30.4849
+memory 52220928
+status 4
+objective 3
+best bound 3
+booleans 3815
+conflicts 64754
+propagation 822176
+integer propagation 797899
+branches 302731
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 30.872
+memory 46961664
+status 4
+objective 3
+best bound 3
+booleans 4344
+conflicts 9283
+propagation 936429
+integer propagation 1558679
+branches 612445
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 35.8601
+memory 46961664
+status 4
+objective 3
+best bound 3
+booleans 4344
+conflicts 9283
+propagation 936429
+integer propagation 1558679
+branches 612445
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 16.3831
+memory 47557632
+status 4
+objective 3
+best bound 3
+booleans 4131
+conflicts 3168
+propagation 491964
+integer propagation 662050
+branches 326602
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 15.69
+memory 47557632
+status 4
+objective 3
+best bound 3
+booleans 4131
+conflicts 3168
+propagation 491964
+integer propagation 662050
+branches 326602
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 27.5626
+memory 52221952
+status 4
+objective 3
+best bound 3
+booleans 3815
+conflicts 64754
+propagation 822176
+integer propagation 797899
+branches 302731
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 26.4839
+memory 52220928
+status 4
+objective 3
+best bound 3
+booleans 3815
+conflicts 64754
+propagation 822176
+integer propagation 797899
+branches 302731
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 27.7268
+memory 46961664
+status 4
+objective 3
+best bound 3
+booleans 4344
+conflicts 9283
+propagation 936429
+integer propagation 1558679
+branches 612445
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+
+
+run time 33.6037
+memory 46961664
+status 4
+objective 3
+best bound 3
+booleans 4344
+conflicts 9283
+propagation 936429
+integer propagation 1558679
+branches 612445
+Optimization model '':
+#Variables: 7933 (3 in objective)
+ - 30 in [-1][1]
+ - 7870 in [-1,1]
+ - 33 in [0,1]
+#kLinear1: 123 (#enforced: 123)
+#kLinearN: 33 (#enforced: 3)
+

@@ -241,7 +241,7 @@ namespace operations_research{
           return weights[l-1][i][j];
         }
 
-        virtual void model_declare_objective() = 0;
+        virtual void model_declare_objective(const int &index_example) = 0;
 
         /* model_activation_constraint method
         Parameters :
@@ -358,7 +358,6 @@ namespace operations_research{
         This function calls all the necessary methods to run the solver
         Parameters :
         - nb_seconds : Sets a time limit of nb_seconds
-        - nb_examples : number of examples
         Output : None
         */
         void run(const double &nb_seconds){
@@ -378,8 +377,8 @@ namespace operations_research{
           }
           for (size_t i = 0; i < nb_examples; i++) {
             model_output_constraint(i);
+            model_declare_objective(i) ;                 //initialization of the objective
           }
-          model_declare_objective() ;                 //initialization of the objective
           parameters.set_max_time_in_seconds(nb_seconds);     //Add a timelimit
           parameters.set_random_seed(1000);
           model.Add(NewSatParameters(parameters));                       //objective function
