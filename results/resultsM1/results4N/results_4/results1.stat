@@ -1,0 +1,24 @@
+
+run time 4.71967
+memory 117512192
+status 4
+objective 9
+best bound 9
+booleans 3426
+conflicts 255
+propagation 48584
+integer propagation 242527
+branches 22631
+Optimization model '':
+#Variables: 6514 (3176 in objective)
+ - 40 in [-2,2]
+ - 14 in [-1][1]
+ - 3230 in [-1,1]
+ - 3190 in [0,1]
+ - 40 in [0,2]
+#kIntMax: 3216
+#kLinear1: 66 (#enforced: 56)
+#kLinear2: 40
+#kLinear3: 40
+#kLinearN: 14
+

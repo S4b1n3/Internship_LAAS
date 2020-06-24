@@ -496,7 +496,7 @@ namespace operations_research{
         // Print some statistics from the solver: Runtime, number of nodes, number of propagation (filtering, pruning), memory,
         // Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
         // Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
-        void print_statistics(){
+        int print_statistics(){
           response = SolveCpModel(cp_model.Build(), &model);
           std::string result_file = output_path+"/results"+std::to_string(nb_examples)+".stat";
           std::ofstream parser(result_file.c_str(), std::ios::app);
@@ -526,6 +526,7 @@ namespace operations_research{
           if (response.status()== CpSolverStatus::OPTIMAL || response.status() == CpSolverStatus::FEASIBLE) {
             check(response);
           }
+          return response.status();
         }
 
 
