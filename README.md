@@ -1,5 +1,12 @@
 # Internship_LAAS
 
+TODO : add compilation instructions (and pre-requirements)
+TDOD : add tclap source code here
+TODO : update the parameters part since we use tclap
+TODO : add parameter for architecture
+TODO: add an example of execution:  bin/bnn-main  --nb_examples 1 --seed 323  --index_model 1  1 1 1  
+TODO : add parameter to indiquate if we want to check the solution 
+
 bnn-main.cc : is the file that runs the cp model. It takes as parameter:
 
  */ param1 : boolean which define the type of constraint used  to compute the value of the preactivation

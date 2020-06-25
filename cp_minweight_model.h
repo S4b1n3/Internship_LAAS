@@ -87,7 +87,7 @@ namespace operations_research{
       Parameters : None
       Output : None
       */
-      void model_declare_objective(const int &index_example){
+      void model_declare_objective(){
         for (size_t l = 1; l < bnn_data.get_layers(); l++) {
           for(size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
             for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
@@ -124,10 +124,9 @@ namespace operations_research{
       - nb_seconds : Sets a time limit of nb_seconds
       Output : None
       */
-      void run(const double &nb_seconds){
-        CP_Model::run(nb_seconds);
+      void run(const double &nb_seconds , std::string _strategy){
+        CP_Model::run(nb_seconds,_strategy);
         cp_model.Minimize(objectif);                        //objective function
-
       }
 
 
