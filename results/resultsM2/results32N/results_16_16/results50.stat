@@ -1,11 +1,9 @@
-test accuracy 6.93804e-310
-train accuracy 5.54107e-317
 
-run time 0.509735
-memory 72068096
+run time 0.457975
+memory 66600960
 status 0
-objective inf
-best bound -inf
+objective -inf
+best bound inf
 booleans 0
 conflicts 0
 propagation 0
@@ -13,17 +11,17 @@ integer propagation 0
 branches 0
 Optimization model '':
 Search strategy: on 12960 variables, CHOOSE_FIRST, SELECT_MAX_VALUE
-#Variables: 94620 (12960 in objective)
+#Variables: 81710 (50 in objective)
  - 20800 in [-2,2]
  - 2100 in [-1][1]
  - 35860 in [-1,1]
- - 15060 in [0,1]
+ - 2150 in [0,1]
  - 20800 in [0,2]
-#kIntMax: 33760
-#kLinear1: 8900 (#enforced: 8400)
+#kIntMax: 20800
+#kLinear1: 8450 (#enforced: 8450)
 #kLinear2: 20800
 #kLinear3: 20800
-#kLinearN: 2100
+#kLinearN: 2150 (#enforced: 50)
 
 test accuracy 2.094e-231
-train accuracy 6.92345e-310
+train accuracy 6.93667e-310

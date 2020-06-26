@@ -63,6 +63,8 @@ protected:
 	CpModelBuilder cp_model_builder;
 	int nb_examples;
 
+	std::vector<std::vector<uint8_t>> inputs;
+
 	//weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
 	std::vector<std::vector <std::vector<IntVar>>> weights;
 	std::vector<std::vector <std::vector<int>>> weights_solution;
@@ -108,6 +110,32 @@ public:
 		bnn_data.print_archi();
 		bnn_data.print_dataset();
 		index_rand = rand()%50000;
+		inputs.resize(nb_examples);
+		for (size_t i = 0; i < nb_examples; i++) {
+			inputs[i] = bnn_data.get_dataset().training_images[index_rand+i];
+		}
+	}
+
+	CP_Model(const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
+		bnn_data(_archi), domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"),
+		file_out_extension(".tex"), nb_examples(100), prod_constraint(_prod_constraint), output_path(_output_path){
+		std::cout << "number of layers : "<<bnn_data.get_layers() << '\n';
+		bnn_data.print_archi();
+		bnn_data.print_dataset();
+		index_rand = rand()%50000;
+
+		inputs.resize(100);
+		for (size_t i = 0; i < 10; i++) {
+			int compt = 0, j = index_rand;
+			while (compt < 10) {
+				int label = (int)bnn_data.get_dataset().training_labels[j];
+				if (label == i) {
+					inputs[i] = bnn_data.get_dataset().training_images[j];
+					compt++;
+				}
+				j++;
+			}
+		}
 	}
 
 	/* Getters */
@@ -144,13 +172,12 @@ public:
 		assert(index_example>=0);
 		assert(index_example<nb_examples);
 
-		std::vector<uint8_t> temp = bnn_data.get_dataset().training_images[index_example+index_rand];
-		int size = temp.size();
+		int size = inputs[index_example].size();
 		activation_first_layer.resize(nb_examples);
 
 		activation_first_layer[index_example].resize(size);
 		for (size_t i = 0; i < size; i++) {
-			activation_first_layer[index_example][i] = (int)temp[i];
+			activation_first_layer[index_example][i] = (int)inputs[index_example][i];
 		}
 
 
@@ -217,7 +244,7 @@ public:
 	 */
 	void declare_weight_variables() {
 
-		//Initialization of the variable
+		//Initialization of the variables
 
 		int tmp = bnn_data.get_layers();
 		weights.resize(tmp);
@@ -392,11 +419,14 @@ public:
 			}
 		}
 
+		std::vector<IntVar> reverse_w(w);
+		std::reverse(std::begin(reverse_w), std::end(reverse_w));
+
 
 
 		std::cout << " c number of branching variables is "  << w.size()  << std::endl;
 
-		if (strategy == "lex0"){
+		if (strategy == "lex_max_0"){
 			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MAX_VALUE "  << std::endl;
@@ -404,30 +434,136 @@ public:
 		}
 
 
-		if (strategy == "lex1"){
+		if (strategy == "lex_max_1"){
 			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MAX_VALUE "  << std::endl;
 			parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
 		}
 
-		if (strategy == "lex2"){
+		if (strategy == "lex_max_2"){
 			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  PORTFOLIO_SEARCH  SELECT_MAX_VALUE "  << std::endl;
 			parameters.set_search_branching(SatParameters::PORTFOLIO_SEARCH );
 		}
-		if (strategy == "lex3"){
+		if (strategy == "lex_max_3"){
 			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  HINT_SEARCH SELECT_MAX_VALUE"  << std::endl;
 			parameters.set_search_branching(SatParameters::HINT_SEARCH );
 		}
 
-		if (strategy == "lex4"){
+		if (strategy == "lex_max_4"){
 			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  FIXED_SEARCH SELECT_MAX_VALUE"  << std::endl;
+			parameters.set_search_branching(SatParameters::FIXED_SEARCH );
+		}
+
+		if (strategy == "antilex_max_0"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse_w : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MAX_VALUE "  << std::endl;
+			//parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
+		}
+
+
+		if (strategy == "antilex_max_1"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse_w : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MAX_VALUE "  << std::endl;
+			parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
+		}
+
+		if (strategy == "antilex_max_2"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse : lex  PORTFOLIO_SEARCH  SELECT_MAX_VALUE "  << std::endl;
+			parameters.set_search_branching(SatParameters::PORTFOLIO_SEARCH );
+		}
+		if (strategy == "antilex_max_3"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse w: lex  HINT_SEARCH SELECT_MAX_VALUE"  << std::endl;
+			parameters.set_search_branching(SatParameters::HINT_SEARCH );
+		}
+
+		if (strategy == "antilex_max_4"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse_w : lex  FIXED_SEARCH SELECT_MAX_VALUE"  << std::endl;
+			parameters.set_search_branching(SatParameters::FIXED_SEARCH );
+		}
+
+
+		if (strategy == "lex_median_0"){
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MEDIAN_VALUE "  << std::endl;
+			//parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
+		}
+
+
+		if (strategy == "lex_median_1"){
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MEDIAN_VALUE "  << std::endl;
+			parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
+		}
+
+		if (strategy == "lex_median_2"){
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching : lex  PORTFOLIO_SEARCH  SELECT_MEDIAN_VALUE "  << std::endl;
+			parameters.set_search_branching(SatParameters::PORTFOLIO_SEARCH );
+		}
+		if (strategy == "lex_median_3"){
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching : lex  HINT_SEARCH SELECT_MEDIAN_VALUE"  << std::endl;
+			parameters.set_search_branching(SatParameters::HINT_SEARCH );
+		}
+
+		if (strategy == "lex_median_4"){
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching : lex  FIXED_SEARCH SELECT_MEDIAN_VALUE"  << std::endl;
+			parameters.set_search_branching(SatParameters::FIXED_SEARCH );
+		}
+
+		if (strategy == "antilex_median_0"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse_w : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MEDIAN_VALUE "  << std::endl;
+			//parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
+		}
+
+
+		if (strategy == "antilex_median_1"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse_w : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MEDIAN_VALUE "  << std::endl;
+			parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
+		}
+
+		if (strategy == "antilex_median_2"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse : lex  PORTFOLIO_SEARCH  SELECT_MEDIAN_VALUE "  << std::endl;
+			parameters.set_search_branching(SatParameters::PORTFOLIO_SEARCH );
+		}
+		if (strategy == "antilex_median_3"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse w: lex  HINT_SEARCH SELECT_MEDIAN_VALUE"  << std::endl;
+			parameters.set_search_branching(SatParameters::HINT_SEARCH );
+		}
+
+		if (strategy == "antilex_median_4"){
+			cp_model_builder.AddDecisionStrategy(reverse_w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching on reverse_w : lex  FIXED_SEARCH SELECT_MEDIAN_VALUE"  << std::endl;
 			parameters.set_search_branching(SatParameters::FIXED_SEARCH );
 		}
 
@@ -506,6 +642,11 @@ public:
 		std::clock_t c_end = std::clock();
 
 		//long_double time_elapsed_ms = 1000.0 * ;
+
+		std::string result_file = output_path+"/results"+std::to_string(nb_examples)+".stat";
+		std::ofstream parser(result_file.c_str(), std::ios::app);
+		parser << "setup time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+		parser.close();
 
 		std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
 		std::cout<< " c running the solver.. " <<std::endl;
@@ -635,6 +776,7 @@ public:
 			parser << "branches " << response.num_branches() << std::endl;
 			parser << CpModelStats(cp_model_builder.Build()) << std::endl;
 			parser << std::endl;
+			parser.close();
 		}
 		else
 			std::cout << "Error opening parser file" << '\n';

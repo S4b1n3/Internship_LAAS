@@ -53,6 +53,7 @@ namespace operations_research{
     class CPModel_MaxClassification : public CP_Model{
       protected :
         std::vector<BoolVar> classification;
+        std::vector<int> classification_solution;
 
       public :
 
@@ -73,6 +74,7 @@ namespace operations_research{
 
       void declare_classification_variable(){
         classification.resize(nb_examples);
+        classification_solution.resize(nb_examples);
         for (size_t i = 0; i < nb_examples; i++) {
           classification[i] = cp_model_builder.NewBoolVar();
         }
@@ -132,6 +134,58 @@ namespace operations_research{
         CP_Model::run(nb_seconds, _strategy);
         cp_model_builder.Maximize(objectif);                        //objective function
       }
+
+      void check(const CpSolverResponse &r, const int &index=0){
+
+    		int tmp = bnn_data.get_layers();
+    		weights_solution.resize(tmp);
+    		for (size_t l = 1; l < tmp; ++l) {
+    			int tmp2 = bnn_data.get_archi(l-1);
+    			weights_solution[l-1].resize(tmp2);
+    			for (size_t i = 0; i < tmp2; ++i) {
+    				int tmp3 = bnn_data.get_archi(l);
+    				weights_solution[l-1][i].resize(tmp3);
+    				for (size_t j = 0; j < tmp3; ++j) {
+    					weights_solution[l-1][i][j] = SolutionIntegerValue(r, weights[l-1][i][j]);
+    				}
+    			}
+    		}
+
+
+    		for (size_t i = 0; i < nb_examples; i++) {
+
+          classification_solution[i] = SolutionIntegerValue(r, classification[i]);
+
+    			preactivation_solution.resize(tmp-1);
+    			for (size_t l = 0; l < tmp-1; l++) {
+    				int tmp2 = bnn_data.get_archi(l+1);
+    				preactivation_solution[l].resize(tmp2);
+    				for(size_t j = 0; j < tmp2; j++){
+    					preactivation_solution[l][j] = SolutionIntegerValue(r, preactivation[i][l][j]);
+    				}
+    			}
+
+    			activation_solution.resize(tmp);
+    			for (size_t l = 0; l < tmp; l++) {
+    				int tmp2 = bnn_data.get_archi(l);
+    				activation_solution[l].resize(tmp2);
+    				for(size_t j = 0; j < tmp2; j++){
+    					if(l == 0){
+    						activation_solution[l][j] = (int)activation_first_layer[i][j];
+    					}
+    					else{
+    						activation_solution[l][j] = SolutionIntegerValue(r, activation[i][l-1][j]);
+    					}
+    				}
+    			}
+
+          if (classification_solution[i] == 1) {
+            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
+      			std::cout << "Checking solution : "<<index<<" : ";
+      			bool checking = check_solution.run_solution(true);
+          }
+    		}
+    	}
 
 
       void print_solution(const CpSolverResponse &r, const int &index = 0){

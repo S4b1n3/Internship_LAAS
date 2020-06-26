@@ -1,0 +1,24 @@
+setup time0
+
+run time 1.0416
+memory 59024384
+status 0
+objective -inf
+best bound inf
+booleans 0
+conflicts 0
+propagation 0
+integer propagation 0
+branches 0
+Optimization model '':
+#Variables: 13550 (10 in objective)
+ - 200 in [-1][1]
+ - 9140 in [-1,1]
+ - 4210 in [0,1]
+#kBoolOr: 4000 (#literals: 8000)
+#kLinear1: 6810 (#enforced: 6810)
+#kLinear2: 2000 (#enforced: 2000)
+#kLinearN: 210 (#enforced: 10)
+
+test accuracy -4.74762e+43
+train accuracy 5.39813e-116

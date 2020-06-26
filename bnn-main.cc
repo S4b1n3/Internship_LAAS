@@ -38,9 +38,9 @@ int main(int argc, char **argv) {
 	filename.append(_output_path);
 
 	if(_prod_constraint)
-		filename.append("/results/resultsM"+std::to_string(_index_model)+"-C/results"+std::to_string(_nb_neurons)+"N/results");
+		filename.append("/results/resultsM"+std::to_string(_index_model)+"-C/results");
 	else
-		filename.append("/results/resultsM"+std::to_string(_index_model)+"/results"+std::to_string(_nb_neurons)+"N/results");
+		filename.append("/results/resultsM"+std::to_string(_index_model)+"/results");
 
 	for (size_t i = 1; i < architecture.size()-1; i++) {
 		filename.append("_"+std::to_string(architecture[i]));
@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
 	if (architecture.size()-2 == 0) {
 		filename.append("_0");
 	}
+
+	filename.append("/"+_strategy);
 
 	std::string cmd("mkdir -p "+filename);
 	system(cmd.c_str());
@@ -59,14 +61,13 @@ int main(int argc, char **argv) {
 	case 1:
 	{
 		operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint, filename);
-
 		first_model.run(_time, _strategy) ;
 		int status = first_model.print_statistics();
 		first_model.print_solution(first_model.get_response());
 		first_model.print_solution_bis(first_model.get_response());
 		first_model.print_all_solutions() ;
 		if(status == 2 || status == 4){
-			Evaluation test(100, first_model.get_weights_solution(), first_model.get_data());
+			Evaluation test(first_model.get_weights_solution(), first_model.get_data());
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
 		second_model.run(_time , _strategy) ;
 		int status = second_model.print_statistics();
 		if(status == 2 || status == 4){
-			Evaluation test(100, second_model.get_weights_solution(), second_model.get_data());
+			Evaluation test(second_model.get_weights_solution(), second_model.get_data());
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
@@ -92,7 +93,7 @@ int main(int argc, char **argv) {
 		third_model.run(_time ,  _strategy) ;
 		int status = third_model.print_statistics();
 		if(status == 2 || status == 4){
-			Evaluation test(100, third_model.get_weights_solution(), third_model.get_data());
+			Evaluation test(third_model.get_weights_solution(), third_model.get_data());
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
