@@ -1,0 +1,27 @@
+
+run time 0.102294
+memory 49147904
+status 0
+objective -inf
+best bound inf
+booleans 0
+conflicts 0
+propagation 0
+integer propagation 0
+branches 0
+Optimization model '':
+Search strategy: on 12960 variables, CHOOSE_FIRST, SELECT_MAX_VALUE
+#Variables: 26710 (10 in objective)
+ - 4160 in [-2,2]
+ - 420 in [-1][1]
+ - 17540 in [-1,1]
+ - 430 in [0,1]
+ - 4160 in [0,2]
+#kIntMax: 4160
+#kLinear1: 1690 (#enforced: 1690)
+#kLinear2: 4160
+#kLinear3: 4160
+#kLinearN: 430 (#enforced: 10)
+
+test accuracy 6.94769e-310
+train accuracy 5.54107e-317

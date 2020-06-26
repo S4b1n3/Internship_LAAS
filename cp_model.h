@@ -107,7 +107,7 @@ public:
 		std::cout << "number of layers : "<<bnn_data.get_layers() << '\n';
 		bnn_data.print_archi();
 		bnn_data.print_dataset();
-		index_rand = rand()%60000;
+		index_rand = rand()%50000;
 	}
 
 	/* Getters */
@@ -144,16 +144,24 @@ public:
 		assert(index_example>=0);
 		assert(index_example<nb_examples);
 
+		std::vector<uint8_t> temp = bnn_data.get_dataset().training_images[index_example+index_rand];
+		int size = temp.size();
 		activation_first_layer.resize(nb_examples);
-		activation_first_layer[index_example].resize(bnn_data.get_dataset().training_images[index_example+index_rand].size());
-		for(size_t j = 0; j < bnn_data.get_archi(0); ++j){
-			activation_first_layer[index_example][j] = (int64)bnn_data.get_dataset().training_images[index_example+index_rand][j];
+
+		activation_first_layer[index_example].resize(size);
+		for (size_t i = 0; i < size; i++) {
+			activation_first_layer[index_example][i] = (int)temp[i];
 		}
+
+
+
 		activation.resize(nb_examples);
-		activation[index_example].resize(bnn_data.get_layers()-1);
-		for (size_t l = 0; l < bnn_data.get_layers()-1; ++l) {
-			activation[index_example][l].resize(bnn_data.get_archi(l+1));
-			for(size_t j = 0; j < bnn_data.get_archi(l+1); ++j){
+		int tmp = bnn_data.get_layers()-1;
+		activation[index_example].resize(tmp);
+		for (size_t l = 0; l < tmp; ++l) {
+			int tmp2 = bnn_data.get_archi(l+1);
+			activation[index_example][l].resize(tmp2);
+			for(size_t j = 0; j < tmp2; ++j){
 				activation[index_example][l][j] = cp_model_builder.NewIntVar(activation_domain);
 			}
 		}
@@ -170,10 +178,13 @@ public:
 		assert(index_example>=0);
 		assert(index_example<nb_examples);
 		preactivation.resize(nb_examples);
-		preactivation[index_example].resize(bnn_data.get_layers()-1);
-		for (size_t l = 0; l < bnn_data.get_layers()-1; l++) {
-			preactivation[index_example][l].resize(bnn_data.get_archi(l+1));
-			for(size_t j = 0; j < bnn_data.get_archi(l+1); j++){
+
+		int tmp = bnn_data.get_layers()-1;
+		preactivation[index_example].resize(tmp);
+		for (size_t l = 0; l < tmp; l++) {
+			int tmp2 = bnn_data.get_archi(l+1);
+			preactivation[index_example][l].resize(tmp2);
+			for(size_t j = 0; j < tmp2; j++){
 				preactivation[index_example][l][j] = cp_model_builder.NewIntVar(domain);
 			}
 		}
@@ -208,12 +219,15 @@ public:
 
 		//Initialization of the variable
 
-		weights.resize(bnn_data.get_layers());
-		for (size_t l = 1; l < bnn_data.get_layers(); l++) {
-			weights[l-1].resize(bnn_data.get_archi(l-1));
-			for(size_t i = 0; i < bnn_data.get_archi(l-1); i++){
-				weights[l-1][i].resize(bnn_data.get_archi(l));
-				for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
+		int tmp = bnn_data.get_layers();
+		weights.resize(tmp);
+		for (size_t l = 1; l < tmp; l++) {
+			int tmp2 = bnn_data.get_archi(l-1);
+			weights[l-1].resize(tmp2);
+			for(size_t i = 0; i < tmp2; i++){
+				int tmp3 = bnn_data.get_archi(l);
+				weights[l-1][i].resize(tmp3);
+				for (size_t j = 0; j < tmp3; j++) {
 
 					/*One weight for each connection between the neurons i of layer
                   l-1 and the neuron j of layer l : N(i) * N(i+1) connections*/
@@ -256,12 +270,13 @@ public:
         Output : None
 	 */
 	void model_activation_constraint(const int &index_example, const int &l, const int &j){
-		assert (index_example>=0);
+		/*assert (index_example>=0);
 		assert (index_example<nb_examples);
 		assert (l>0);
 		assert (l<bnn_data.get_layers());
 		assert (j>=0);
-		assert (j<bnn_data.get_archi(l));
+		assert (j<bnn_data.get_archi(l));*/
+
 		//_temp_bool is true iff preactivation[l][j] < 0
 		//_temp_bool is false iff preactivation[l][j] >= 0
 		BoolVar _temp_bool = cp_model_builder.NewBoolVar();
@@ -279,8 +294,8 @@ public:
         Output : None
 	 */
 	void model_preactivation_constraint(const int &index_example, const int &l, const int &j){
-		assert(index_example>=0);
-		assert(index_example<nb_examples);
+		//assert(index_example>=0);
+		//assert(index_example<nb_examples);
 		//No need for this
 		//assert(l>0);
 		//No need for this
@@ -367,12 +382,27 @@ public:
 
 
 		std::vector<IntVar> w;
-		for (size_t l = 1; l < bnn_data.get_layers(); l++)
-			for(size_t i = 0; i < bnn_data.get_archi(l-1); i++)
-				for (size_t j = 0; j < bnn_data.get_archi(l); j++)
+		int tmp = bnn_data.get_layers();
+		for (size_t l = 1; l < tmp; l++){
+			int tmp2 = bnn_data.get_archi(l-1);
+			for(size_t i = 0; i < tmp2; i++){
+				int tmp3 = bnn_data.get_archi(l);
+				for (size_t j = 0; j < tmp3; j++)
 					w.push_back( weights[l-1][i][j] );
+			}
+		}
+
+
 
 		std::cout << " c number of branching variables is "  << w.size()  << std::endl;
+
+		if (strategy == "lex0"){
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
+			std::cout << " setting branching : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MAX_VALUE "  << std::endl;
+			//parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
+		}
+
 
 		if (strategy == "lex1"){
 			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
@@ -477,63 +507,51 @@ public:
 
 		//long_double time_elapsed_ms = 1000.0 * ;
 
-		std::cout << "c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
+		std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
 		std::cout<< " c running the solver.. " <<std::endl;
 	}
 
 	void check(const CpSolverResponse &r, const int &index=0){
-		std::string solution_file = output_path+"/solution"+std::to_string(nb_examples)+".txt";
-		std::ofstream solution(solution_file.c_str(), std::ios::app);
 
-		solution << "#Weights : " << std::endl;
-		weights_solution.resize(bnn_data.get_layers());
-		for (size_t l = 1; l < bnn_data.get_layers(); ++l) {
-			solution << "#Layer "<< l << std::endl;
-			weights_solution[l-1].resize(bnn_data.get_archi(l-1));
-			for (size_t i = 0; i < bnn_data.get_archi(l-1); ++i) {
-				solution << "#Neuron " << i << std::endl;
-				weights_solution[l-1][i].resize(bnn_data.get_archi(l));
-				for (size_t j = 0; j < bnn_data.get_archi(l); ++j) {
+		int tmp = bnn_data.get_layers();
+		weights_solution.resize(tmp);
+		for (size_t l = 1; l < tmp; ++l) {
+			int tmp2 = bnn_data.get_archi(l-1);
+			weights_solution[l-1].resize(tmp2);
+			for (size_t i = 0; i < tmp2; ++i) {
+				int tmp3 = bnn_data.get_archi(l);
+				weights_solution[l-1][i].resize(tmp3);
+				for (size_t j = 0; j < tmp3; ++j) {
 					weights_solution[l-1][i][j] = SolutionIntegerValue(r, weights[l-1][i][j]);
-					solution << weights_solution[l-1][i][j] << "  " ;
 				}
-				solution << std::endl;
 			}
-			solution << std::endl;
 		}
 
+
 		for (size_t i = 0; i < nb_examples; i++) {
-			const int label = (int)bnn_data.get_dataset().training_labels[i+index_rand];
-			solution << "#Example " << i << "(label " << label << ")" << std::endl;
-			solution << "#Preactivation values" << std::endl;
-			preactivation_solution.resize(bnn_data.get_layers()-1);
-			for (size_t l = 0; l < bnn_data.get_layers()-1; l++) {
-				solution << "#Layer " << l+1 << std::endl;
-				preactivation_solution[l].resize(bnn_data.get_archi(l+1));
-				for(size_t j = 0; j < bnn_data.get_archi(l+1); j++){
+
+			preactivation_solution.resize(tmp-1);
+			for (size_t l = 0; l < tmp-1; l++) {
+				int tmp2 = bnn_data.get_archi(l+1);
+				preactivation_solution[l].resize(tmp2);
+				for(size_t j = 0; j < tmp2; j++){
 					preactivation_solution[l][j] = SolutionIntegerValue(r, preactivation[i][l][j]);
-					solution << preactivation_solution[l][j] << "  ";
 				}
-				solution << std::endl;
 			}
 
-			solution << "#Activation values" << std::endl;
-			activation_solution.resize(bnn_data.get_layers());
-			for (size_t l = 0; l < bnn_data.get_layers(); l++) {
-				solution << "#Layer " << l << std::endl;
-				activation_solution[l].resize(bnn_data.get_archi(l));
-				for(size_t j = 0; j < bnn_data.get_archi(l); j++){
+			activation_solution.resize(tmp);
+			for (size_t l = 0; l < tmp; l++) {
+				int tmp2 = bnn_data.get_archi(l);
+				activation_solution[l].resize(tmp2);
+				for(size_t j = 0; j < tmp2; j++){
 					if(l == 0){
 						activation_solution[l][j] = (int)activation_first_layer[i][j];
 					}
 					else{
 						activation_solution[l][j] = SolutionIntegerValue(r, activation[i][l-1][j]);
 					}
-					solution << activation_solution[l][j] << "  ";
 				}
-				solution << std::endl;
 			}
-			solution << std::endl << std::endl;
 
 			Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
 			std::cout << "Checking solution : "<<index<<" : ";

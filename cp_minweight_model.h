@@ -88,9 +88,12 @@ namespace operations_research{
       Output : None
       */
       void model_declare_objective(){
-        for (size_t l = 1; l < bnn_data.get_layers(); l++) {
-          for(size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
-            for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
+        int tmp = bnn_data.get_layers();
+        for (size_t l = 1; l < tmp; l++) {
+          int tmp2 = bnn_data.get_archi(l-1);
+          for(size_t i = 0; i < tmp2; i++) {
+            int tmp3 = bnn_data.get_archi(l);
+            for (size_t j = 0; j < tmp3; j++) {
               IntVar abs = cp_model_builder.NewIntVar(Domain(0,1));
               cp_model_builder.AddAbsEquality(abs, weights[l-1][i][j]);
               objectif.AddVar(abs);
@@ -106,13 +109,15 @@ namespace operations_research{
       Output : None
       */
       void model_output_constraint(const int &index_examples){
-        assert(index_examples >= 0);
-        assert(index_example < nb_examples);
+        /*assert(index_examples >= 0);
+        assert(index_example < nb_examples);*/
         const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
         cp_model_builder.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1);
-        for (size_t i = 0; i < bnn_data.get_archi(bnn_data.get_layers()-1); i++) {
+        int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
+        int tmp2 = bnn_data.get_layers()-2;
+        for (size_t i = 0; i < tmp; i++) {
           if (i != label) {
-            cp_model_builder.AddEquality(activation[index_examples][bnn_data.get_layers()-2][i], -1);
+            cp_model_builder.AddEquality(activation[index_examples][tmp2][i], -1);
           }
         }
       }

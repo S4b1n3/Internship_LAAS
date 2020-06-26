@@ -72,23 +72,26 @@ namespace operations_research{
       activation values on the first layer instead of compute it again
       */
       void model_preactivation_constraint(const int &index_example, const int &l, const int &j){
-        assert(index_example>=0);
+        /*assert(index_example>=0);
         assert(index_example<nb_examples);
         assert(l>0);
         assert(l<bnn_data.get_layers());
         assert(j>=0);
-        assert(j<bnn_data.get_archi(l));
+        assert(j<bnn_data.get_archi(l));*/
+
         if(l == 1){
           LinearExpr temp(0);
-          for (size_t i = 0; i < bnn_data.get_archi(0); i++) {
+          int tmp = bnn_data.get_archi(0);
+          for (size_t i = 0; i < tmp; i++) {
             temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
           }
           cp_model_builder.AddEquality(sum_weights_example[index_example], temp);               //new instruction
           cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp);
           }
         else{
-          std::vector<IntVar> temp(bnn_data.get_archi(l-1));
-          for (size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
+          int tmp = bnn_data.get_archi(l-1);
+          std::vector<IntVar> temp(tmp);
+          for (size_t i = 0; i < tmp; i++) {
             temp[i] = cp_model_builder.NewIntVar(domain);
             if(!prod_constraint){
 

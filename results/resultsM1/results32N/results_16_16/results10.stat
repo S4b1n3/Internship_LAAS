@@ -1,0 +1,60 @@
+test accuracy 2.094e-231
+train accuracy 6.95101e-310
+test accuracy 6.9185e-310
+train accuracy 5.54107e-317
+test accuracy 6.93914e-310
+train accuracy 5.54107e-317
+test accuracy 2.094e-231
+train accuracy -4.5178e+214
+
+run time 3.84694
+memory 906434560
+status 0
+objective inf
+best bound -inf
+booleans 38240
+conflicts 0
+propagation 166400
+integer propagation 297026
+branches 76480
+Optimization model '':
+Search strategy: on 12960 variables, CHOOSE_FIRST, SELECT_MAX_VALUE
+#Variables: 39660 (12960 in objective)
+ - 4160 in [-2,2]
+ - 420 in [-1][1]
+ - 17540 in [-1,1]
+ - 13380 in [0,1]
+ - 4160 in [0,2]
+#kIntMax: 17120
+#kLinear1: 1780 (#enforced: 1680)
+#kLinear2: 4160
+#kLinear3: 4160
+#kLinearN: 420
+
+
+run time 0.169991
+memory 49147904
+status 0
+objective inf
+best bound -inf
+booleans 0
+conflicts 0
+propagation 0
+integer propagation 0
+branches 0
+Optimization model '':
+Search strategy: on 12960 variables, CHOOSE_FIRST, SELECT_MAX_VALUE
+#Variables: 39660 (12960 in objective)
+ - 4160 in [-2,2]
+ - 420 in [-1][1]
+ - 17540 in [-1,1]
+ - 13380 in [0,1]
+ - 4160 in [0,2]
+#kIntMax: 17120
+#kLinear1: 1780 (#enforced: 1680)
+#kLinear2: 4160
+#kLinear3: 4160
+#kLinearN: 420
+
+test accuracy 2.094e-231
+train accuracy 6.93294e-310

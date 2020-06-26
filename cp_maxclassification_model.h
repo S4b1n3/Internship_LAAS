@@ -91,18 +91,20 @@ namespace operations_research{
       Output : None
       */
       void model_output_constraint(const int &index_examples){
-        assert(index_examples >= 0);
-        assert(index_example < nb_examples);
+        /*assert(index_examples >= 0);
+        assert(index_example < nb_examples);*/
 
         LinearExpr last_layer(0);
         const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
-        for (size_t i = 0; i < bnn_data.get_archi(bnn_data.get_layers()-1); i++) {
+        int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
+        int tmp2 = bnn_data.get_layers()-2;
+        for (size_t i = 0; i < tmp; i++) {
           if (i != label) {
-            last_layer.AddVar(activation[index_examples][bnn_data.get_layers()-2][i]);
+            last_layer.AddVar(activation[index_examples][tmp2][i]);
           }
         }
 
-        cp_model_builder.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1).OnlyEnforceIf(classification[index_examples]);
+        cp_model_builder.AddEquality(activation[index_examples][tmp2][label], 1).OnlyEnforceIf(classification[index_examples]);
         cp_model_builder.AddEquality(last_layer, -9).OnlyEnforceIf(classification[index_examples]);
 
       }

@@ -16,7 +16,6 @@ using namespace TCLAP;
 int _index_model;
 int _seed;
 int _nb_examples;
-
 double _time;
 std::vector<int> architecture;
 int _nb_neurons;
@@ -63,9 +62,9 @@ int main(int argc, char **argv) {
 
 		first_model.run(_time, _strategy) ;
 		int status = first_model.print_statistics();
-		//first_model.print_solution(first_model.get_response());
-		//first_model.print_solution_bis(first_model.get_response());
-		//first_model.print_all_solutions() ;
+		first_model.print_solution(first_model.get_response());
+		first_model.print_solution_bis(first_model.get_response());
+		first_model.print_all_solutions() ;
 		if(status == 2 || status == 4){
 			Evaluation test(100, first_model.get_weights_solution(), first_model.get_data());
 			accuracy_test = test.run_evaluation(true);
@@ -137,7 +136,7 @@ void parseOptions(int argc, char** argv)
 		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", true, 1, "int");
 		cmd.add(nb_ex);
 
-		ValueArg<double> time("T", "timelimit", "Time limit for the model", false, 1200.0, "double");
+		ValueArg<double> time("T", "time", "Time limit for the solver", false, 1200.0, "double");
 		cmd.add(time);
 
 		UnlabeledMultiArg<int> archi("archi", "Architecture of the model", false, "int");
@@ -151,7 +150,6 @@ void parseOptions(int argc, char** argv)
 
 		ValueArg<std::string> out_file("O", "output_file", "Path of the output file", false, "BNN", "string");
 		cmd.add(out_file);
-
 		//
 		// Parse the command line.
 		//

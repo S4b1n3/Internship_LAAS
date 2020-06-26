@@ -1,0 +1,26 @@
+
+run time 7.88584
+memory 648576000
+status 0
+objective 12704
+best bound 0
+booleans 22464
+conflicts 0
+propagation 64240
+integer propagation 186413
+branches 44960
+Optimization model '':
+#Variables: 30988 (12704 in objective)
+ - 1600 in [-2,2]
+ - 260 in [-1][1]
+ - 14564 in [-1,1]
+ - 12964 in [0,1]
+ - 1600 in [0,2]
+#kIntMax: 14304
+#kLinear1: 1140 (#enforced: 1040)
+#kLinear2: 1600
+#kLinear3: 1600
+#kLinearN: 260
+
+test accuracy 2.094e-231
+train accuracy 6.91055e-310

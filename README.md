@@ -5,29 +5,23 @@ TDOD : add tclap source code here
 TODO : update the parameters part since we use tclap
 TODO : add parameter for architecture
 TODO: add an example of execution:  bin/bnn-main  --nb_examples 1 --seed 323  --index_model 1  1 1 1  
-TODO : add parameter to indiquate if we want to check the solution 
+TODO : add parameter to indiquate if we want to check the solution
 
-bnn-main.cc : is the file that runs the cp model. It takes as parameter:
+bnn-main.cc : is the file that runs the cp model.
 
- */ param1 : boolean which define the type of constraint used  to compute the value of the preactivation
-
- */ param2 : number of input examples
-
- */ param3 : index of the model to run
-
- */ param4 : path of the output files
-
- */ param4 : number of neurons on the first hidden layer
-
- */ param5 : number of neurons on the second hidden layer
-
- */ paramX : number of neurons on the Xth hidden layer
+cp_model.h : is the base class for all the models
 
 cp_minweight_model.h : is the CP model for the full classification with min weight
+
+cp_maxclassification_model.h : is the CP model for max classification
+
+cp_minweight_model : is the CP model for max classification with soft version of robustness constraints
 
 data.h : is the data instance class
 
 solution.h : is the solution class
+
+evaluation.h : is the class that tests the solution on the whole testing and training sets
 
 To run the cp model, first compile the bnn-main.cc file from ORTools folder with
   `make build SOURCE=.../bnn-main.cc`
@@ -56,6 +50,6 @@ The last level of the tree is the model tested : the subsubsubfolders are intitl
 
 The results files are contained by theses subsubsubfolders. The names of the files are defined : "resultsK.stat" where K is the number of input examples.
 
-It is not mandatory to create the file tree before each run, the main will create it if it does not exist and won't raise an error if it exist. The parameter 4 allows you to choose where to put this file tree. 
+It is not mandatory to create the file tree before each run, the main will create it if it does not exist and won't raise an error if it exist. The parameter 4 allows you to choose where to put this file tree.
 
 The parser will then run through the tree. The parser takes as parameter the subfolder corresponding to the number of neurons.
