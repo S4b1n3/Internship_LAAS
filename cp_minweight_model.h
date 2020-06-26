@@ -91,8 +91,8 @@ namespace operations_research{
         for (size_t l = 1; l < bnn_data.get_layers(); l++) {
           for(size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
             for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
-              IntVar abs = cp_model.NewIntVar(Domain(0,1));
-              cp_model.AddAbsEquality(abs, weights[l-1][i][j]);
+              IntVar abs = cp_model_builder.NewIntVar(Domain(0,1));
+              cp_model_builder.AddAbsEquality(abs, weights[l-1][i][j]);
               objectif.AddVar(abs);
             }
           }
@@ -109,10 +109,10 @@ namespace operations_research{
         assert(index_examples >= 0);
         assert(index_example < nb_examples);
         const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
-        cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1);
+        cp_model_builder.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1);
         for (size_t i = 0; i < bnn_data.get_archi(bnn_data.get_layers()-1); i++) {
           if (i != label) {
-            cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][i], -1);
+            cp_model_builder.AddEquality(activation[index_examples][bnn_data.get_layers()-2][i], -1);
           }
         }
       }
@@ -126,7 +126,7 @@ namespace operations_research{
       */
       void run(const double &nb_seconds , std::string _strategy){
         CP_Model::run(nb_seconds,_strategy);
-        cp_model.Minimize(objectif);                        //objective function
+        cp_model_builder.Minimize(objectif);                        //objective function
       }
 
 
@@ -162,7 +162,7 @@ namespace operations_research{
 
         }
         if(r.status()==CpSolverStatus::MODEL_INVALID){
-          LOG(INFO) << ValidateCpModel(cp_model.Build());
+          LOG(INFO) << ValidateCpModel(cp_model_builder.Build());
         }
       }
 

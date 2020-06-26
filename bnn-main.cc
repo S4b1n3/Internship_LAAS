@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 		//first_model.print_solution_bis(first_model.get_response());
 		//first_model.print_all_solutions() ;
 		if(status == 2 || status == 4){
-			Evaluation test(100, first_model.get_weights_solution(), architecture);
+			Evaluation test(100, first_model.get_weights_solution(), first_model.get_data());
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 		second_model.run(_time , _strategy) ;
 		int status = second_model.print_statistics();
 		if(status == 2 || status == 4){
-			Evaluation test(100, second_model.get_weights_solution(), architecture);
+			Evaluation test(100, second_model.get_weights_solution(), second_model.get_data());
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 		third_model.run(_time ,  _strategy) ;
 		int status = third_model.print_statistics();
 		if(status == 2 || status == 4){
-			Evaluation test(100, third_model.get_weights_solution(), architecture);
+			Evaluation test(100, third_model.get_weights_solution(), third_model.get_data());
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
@@ -131,7 +131,7 @@ void parseOptions(int argc, char** argv)
 		ValueArg<int> imodel ("M", "index_model", "Index of the model to run", true, 1, "int");
 		cmd.add(imodel);
 
-		ValueArg<int> seed ("S", "seed", "Seed", true, 1, "int");
+		ValueArg<int> seed ("S", "seed", "Seed", false, 1, "int");
 		cmd.add(seed);
 
 		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", true, 1, "int");
@@ -143,7 +143,7 @@ void parseOptions(int argc, char** argv)
 		UnlabeledMultiArg<int> archi("archi", "Architecture of the model", false, "int");
 		cmd.add(archi);
 
-		SwitchArg bool_prod("C","use_prod_constraint", "bool tests the use of product constraints", false);
+		SwitchArg bool_prod("C","product_constraints", "tests the use of product constraints", false);
 		cmd.add(bool_prod);
 
 		ValueArg<std::string> search_strategy("D", "strategy", "The search strategy", false, "lex", "string");

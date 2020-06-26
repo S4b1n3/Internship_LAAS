@@ -74,7 +74,7 @@ namespace operations_research{
       void declare_classification_variable(){
         classification.resize(nb_examples);
         for (size_t i = 0; i < nb_examples; i++) {
-          classification[i] = cp_model.NewBoolVar();
+          classification[i] = cp_model_builder.NewBoolVar();
         }
       }
 
@@ -102,8 +102,8 @@ namespace operations_research{
           }
         }
 
-        cp_model.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1).OnlyEnforceIf(classification[index_examples]);
-        cp_model.AddEquality(last_layer, -9).OnlyEnforceIf(classification[index_examples]);
+        cp_model_builder.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1).OnlyEnforceIf(classification[index_examples]);
+        cp_model_builder.AddEquality(last_layer, -9).OnlyEnforceIf(classification[index_examples]);
 
       }
 
@@ -128,7 +128,7 @@ namespace operations_research{
       void run(const double &nb_seconds , std::string _strategy){
         declare_classification_variable();
         CP_Model::run(nb_seconds, _strategy);
-        cp_model.Maximize(objectif);                        //objective function
+        cp_model_builder.Maximize(objectif);                        //objective function
       }
 
 
@@ -143,7 +143,7 @@ namespace operations_research{
 
         }
         if(r.status()==CpSolverStatus::MODEL_INVALID){
-          LOG(INFO) << ValidateCpModel(cp_model.Build());
+          LOG(INFO) << ValidateCpModel(cp_model_builder.Build());
         }
       }
 

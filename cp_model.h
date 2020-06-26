@@ -36,7 +36,7 @@ class CP_Model {
 	/* CPModel_MinWeight contains the constraint programming model for the full classification and minweight problem
       Atributs
       - bnn_data : data of the problem
-      - cp_model : the CP-SAT model proto
+      - cp_model_builder : the CP-SAT model proto
       - nb_examples : number of examples to test
       - weights : variable of the problem that represents the value of the weight
         for each arc between the neurons
@@ -60,7 +60,7 @@ protected:
 
 	Data bnn_data;
 	//Mohamed: Its is confusing to declare an object cp_model inside a class called Cp_model --> change this
-	CpModelBuilder cp_model;
+	CpModelBuilder cp_model_builder;
 	int nb_examples;
 
 	//weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
@@ -154,7 +154,7 @@ public:
 		for (size_t l = 0; l < bnn_data.get_layers()-1; ++l) {
 			activation[index_example][l].resize(bnn_data.get_archi(l+1));
 			for(size_t j = 0; j < bnn_data.get_archi(l+1); ++j){
-				activation[index_example][l][j] = cp_model.NewIntVar(activation_domain);
+				activation[index_example][l][j] = cp_model_builder.NewIntVar(activation_domain);
 			}
 		}
 	}
@@ -174,7 +174,7 @@ public:
 		for (size_t l = 0; l < bnn_data.get_layers()-1; l++) {
 			preactivation[index_example][l].resize(bnn_data.get_archi(l+1));
 			for(size_t j = 0; j < bnn_data.get_archi(l+1); j++){
-				preactivation[index_example][l][j] = cp_model.NewIntVar(domain);
+				preactivation[index_example][l][j] = cp_model_builder.NewIntVar(domain);
 			}
 		}
 	}
@@ -218,7 +218,7 @@ public:
 					/*One weight for each connection between the neurons i of layer
                   l-1 and the neuron j of layer l : N(i) * N(i+1) connections*/
 
-					weights[l-1][i][j] = cp_model.NewIntVar(domain);
+					weights[l-1][i][j] = cp_model_builder.NewIntVar(domain);
 				}
 			}
 		}
@@ -264,11 +264,11 @@ public:
 		assert (j<bnn_data.get_archi(l));
 		//_temp_bool is true iff preactivation[l][j] < 0
 		//_temp_bool is false iff preactivation[l][j] >= 0
-		BoolVar _temp_bool = cp_model.NewBoolVar();
-		cp_model.AddLessThan(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(_temp_bool);
-		cp_model.AddGreaterOrEqual(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(Not(_temp_bool));
-		cp_model.AddEquality(activation[index_example][l-1][j], -1).OnlyEnforceIf(_temp_bool);
-		cp_model.AddEquality(activation[index_example][l-1][j], 1).OnlyEnforceIf(Not(_temp_bool));
+		BoolVar _temp_bool = cp_model_builder.NewBoolVar();
+		cp_model_builder.AddLessThan(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(_temp_bool);
+		cp_model_builder.AddGreaterOrEqual(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(Not(_temp_bool));
+		cp_model_builder.AddEquality(activation[index_example][l-1][j], -1).OnlyEnforceIf(_temp_bool);
+		cp_model_builder.AddEquality(activation[index_example][l-1][j], 1).OnlyEnforceIf(Not(_temp_bool));
 	}
 
 	/* model_preactivation_constraint method
@@ -295,20 +295,20 @@ public:
 			for (size_t i = 0; i < tmp; i++) {
 				temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
 			}
-			cp_model.AddEquality(get_a_lj(index_example, 1, j), temp);
+			cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp);
 		}
 		else{
 			std::vector<IntVar> temp(bnn_data.get_archi(l-1));
 			int tmp = bnn_data.get_archi(l-1) ;
 			for (size_t i = 0; i < tmp; i++) {
-				temp[i] = cp_model.NewIntVar(domain);
+				temp[i] = cp_model_builder.NewIntVar(domain);
 				if(!prod_constraint){
 
-					IntVar sum_weights_activation = cp_model.NewIntVar(Domain(-2,2));
-					IntVar sum_temp_1 = cp_model.NewIntVar(Domain(0, 2));
-					cp_model.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
-					cp_model.AddEquality(sum_temp_1, temp[i].AddConstant(1));
-					cp_model.AddAbsEquality(sum_temp_1, sum_weights_activation);
+					IntVar sum_weights_activation = cp_model_builder.NewIntVar(Domain(-2,2));
+					IntVar sum_temp_1 = cp_model_builder.NewIntVar(Domain(0, 2));
+					cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
+					cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1));
+					cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);
 
 				}
 				else {
@@ -323,38 +323,38 @@ public:
 
 					 */
 
-					BoolVar b1 = cp_model.NewBoolVar();
-					BoolVar b2 = cp_model.NewBoolVar();
+					BoolVar b1 = cp_model_builder.NewBoolVar();
+					BoolVar b2 = cp_model_builder.NewBoolVar();
 
 					// Implement b1 == (temp[i] == 0)
-					cp_model.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
-					cp_model.AddNotEqual(temp[i], LinearExpr(0)).OnlyEnforceIf(Not(b1));
+					cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
+					cp_model_builder.AddNotEqual(temp[i], LinearExpr(0)).OnlyEnforceIf(Not(b1));
 					//Implement b2 == (weights == 0)
-					cp_model.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b2);
-					cp_model.AddNotEqual(get_w_ilj(i, l, j), LinearExpr(0)).OnlyEnforceIf(Not(b2));
+					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b2);
+					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), LinearExpr(0)).OnlyEnforceIf(Not(b2));
 
 					// b1 implies b2 and b2 implies b1
-					cp_model.AddImplication(b2, b1);
-					cp_model.AddImplication(b1, b2);
+					cp_model_builder.AddImplication(b2, b1);
+					cp_model_builder.AddImplication(b1, b2);
 
-					BoolVar b3 = cp_model.NewBoolVar();
-					BoolVar b4 = cp_model.NewBoolVar();
+					BoolVar b3 = cp_model_builder.NewBoolVar();
+					BoolVar b4 = cp_model_builder.NewBoolVar();
 
 					// Implement b3 == (temp[i] == 1)
-					cp_model.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
-					cp_model.AddNotEqual(temp[i], LinearExpr(1)).OnlyEnforceIf(Not(b3));
+					cp_model_builder.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
+					cp_model_builder.AddNotEqual(temp[i], LinearExpr(1)).OnlyEnforceIf(Not(b3));
 					//Implement b4 == (weights == activation)
-					cp_model.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b4);
-					cp_model.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b4));
+					cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b4);
+					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b4));
 
 
 					// b3 implies b4 and b4 implies b3
-					cp_model.AddImplication(b3, b4);
-					cp_model.AddImplication(b4, b3);
+					cp_model_builder.AddImplication(b3, b4);
+					cp_model_builder.AddImplication(b4, b3);
 
 				}
 			}
-			cp_model.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp));
+			cp_model_builder.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp));
 		}
 	}
 
@@ -370,32 +370,32 @@ public:
 		for (size_t l = 1; l < bnn_data.get_layers(); l++)
 			for(size_t i = 0; i < bnn_data.get_archi(l-1); i++)
 				for (size_t j = 0; j < bnn_data.get_archi(l); j++)
-					w .push_back( weights[l-1][i][j] );
+					w.push_back( weights[l-1][i][j] );
 
 		std::cout << " c number of branching variables is "  << w.size()  << std::endl;
 
 		if (strategy == "lex1"){
-			cp_model.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_MAX_VALUE "  << std::endl;
 			parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
 		}
 
 		if (strategy == "lex2"){
-			cp_model.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  PORTFOLIO_SEARCH  SELECT_MAX_VALUE "  << std::endl;
 			parameters.set_search_branching(SatParameters::PORTFOLIO_SEARCH );
 		}
 		if (strategy == "lex3"){
-			cp_model.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  HINT_SEARCH SELECT_MAX_VALUE"  << std::endl;
 			parameters.set_search_branching(SatParameters::HINT_SEARCH );
 		}
 
 		if (strategy == "lex4"){
-			cp_model.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_MAX_VALUE);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  FIXED_SEARCH SELECT_MAX_VALUE"  << std::endl;
 			parameters.set_search_branching(SatParameters::FIXED_SEARCH );
@@ -404,27 +404,27 @@ public:
 
 
 		if (strategy == "lex5"){
-			cp_model.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_LOWER_HALF);
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_LOWER_HALF);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  PORTFOLIO_WITH_QUICK_RESTART_SEARCH  SELECT_LOWER_HALF'"  << std::endl;
 			parameters.set_search_branching(SatParameters::PORTFOLIO_WITH_QUICK_RESTART_SEARCH );
 		}
 
 		if (strategy == "lex6"){
-			cp_model.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_LOWER_HALF);
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_LOWER_HALF);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  PORTFOLIO_SEARCH  SELECT_LOWER_HALF "  << std::endl;
 			parameters.set_search_branching(SatParameters::PORTFOLIO_SEARCH );
 		}
 		if (strategy == "lex7"){
-			cp_model.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_LOWER_HALF);
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_LOWER_HALF);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  HINT_SEARCH  SELECT_LOWER_HALF"  << std::endl;
 			parameters.set_search_branching(SatParameters::HINT_SEARCH );
 		}
 
 		if (strategy == "lex8"){
-			cp_model.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_LOWER_HALF);
+			cp_model_builder.AddDecisionStrategy(w, DecisionStrategyProto::CHOOSE_FIRST,	DecisionStrategyProto::SELECT_LOWER_HALF);
 			//std::cout << " setting branching :  FIXED_SEARCH  '"  << std::endl;
 			std::cout << " setting branching : lex  FIXED_SEARCH  SELECT_LOWER_HALF"  << std::endl;
 			parameters.set_search_branching(SatParameters::FIXED_SEARCH );
@@ -535,7 +535,7 @@ public:
 			}
 			solution << std::endl << std::endl;
 
-			Solution check_solution(bnn_data.get_archi(), weights_solution, activation_solution, preactivation_solution, i+index_rand);
+			Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
 			std::cout << "Checking solution : "<<index<<" : ";
 			bool checking = check_solution.run_solution(true);
 		}
@@ -593,16 +593,17 @@ public:
 	// Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
 	// Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
 	int print_statistics(){
-		response = SolveCpModel(cp_model.Build(), &model);
+		response = SolveCpModel(cp_model_builder.Build(), &model);
 		std::string result_file = output_path+"/results"+std::to_string(nb_examples)+".stat";
 		std::ofstream parser(result_file.c_str(), std::ios::app);
 		std::cout << "\nSome statistics on the solver response : " << '\n';
 		LOG(INFO) << CpSolverResponseStats(response);
 		std::cout << "\nSome statistics on the model : " << '\n';
-		LOG(INFO) << CpModelStats(cp_model.Build());
+		LOG(INFO) << CpModelStats(cp_model_builder.Build());
 		if(parser){
 			parser << std::endl << "run time " << response.wall_time() << std::endl;
 			parser << "memory " << sysinfo::MemoryUsageProcess() << std::endl;
+			std::cout << "Memory : "<< sysinfo::MemoryUsageProcess() << '\n';
 			parser << "status "<<response.status() << std::endl;
 			if (response.status()== CpSolverStatus::OPTIMAL)
 				parser << "objective "<<response.objective_value() << std::endl;
@@ -614,7 +615,7 @@ public:
 			parser << "propagation " << response.num_binary_propagations() << std::endl;
 			parser << "integer propagation " << response.num_integer_propagations() << std::endl;
 			parser << "branches " << response.num_branches() << std::endl;
-			parser << CpModelStats(cp_model.Build()) << std::endl;
+			parser << CpModelStats(cp_model_builder.Build()) << std::endl;
 			parser << std::endl;
 		}
 		else
@@ -675,7 +676,7 @@ public:
 
 		}
 		if(r.status()==CpSolverStatus::MODEL_INVALID){
-			LOG(INFO) << ValidateCpModel(cp_model.Build());
+			LOG(INFO) << ValidateCpModel(cp_model_builder.Build());
 		}
 	}
 
@@ -693,7 +694,7 @@ public:
 		}));
 		parameters.set_enumerate_all_solutions(true);
 		_model.Add(NewSatParameters(parameters));
-		response = SolveCpModel(cp_model.Build(), &_model);
+		response = SolveCpModel(cp_model_builder.Build(), &_model);
 		LOG(INFO) << "Number of solutions found: " << num_solutions;
 	}
 
@@ -703,4 +704,4 @@ public:
 
 
 
-#endif /* EXAMPLES_CPP_CP_MODEL_H_ */
+#endif /* EXAMPLES_CPP_cp_model_builder_H_ */

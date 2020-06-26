@@ -30,8 +30,8 @@ public:
     - _weights : values of the weights returned by the solver
     - archi : architecture of the network
   */
-  Evaluation(const int &size, const std::vector<std::vector<std::vector<int>>> &_weights, const std::vector<int> &archi) :
-            weights(_weights), dataset_size(size), architecture(archi), checker(archi, weights){
+  Evaluation(const int &size, const std::vector<std::vector<std::vector<int>>> &_weights, const Data &model_data) :
+            weights(_weights), dataset_size(size), checker(model_data, weights){
   }
 
   /* run_evaluation method

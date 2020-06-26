@@ -11,6 +11,8 @@
 #ifndef EXAMPLES_CPP_SOLUTION_H_
 #define EXAMPLES_CPP_SOLUTION_H_
 
+#include <ctime>
+
 
 
 /* Class solution used to check that the solution returned by the solver is correct
@@ -35,7 +37,7 @@ private:
   std::vector<std::vector<int>> activation;
   std::vector<std::vector<int>> solver_preactivation;
   std::vector<std::vector<int>> solver_activation;
-  std::vector<int> example_images;
+  std::vector<uint8_t> example_images;
   int example_label;
 
 public:
@@ -49,46 +51,37 @@ public:
     - index_example : index of the input in the training set
     - test_set : booean that indicates which dataset to use for the tests
   */
-  Solution(const std::vector<int> &archi, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &index_example):
-  bnn_data(archi), weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
+  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &index_example):
+  bnn_data(model_data), weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
     nb_layers = bnn_data.get_layers();
     example_label = (int)bnn_data.get_dataset().training_labels[index_example];
-    for (size_t i = 0; i < bnn_data.get_dataset().training_images[index_example].size(); i++) {
-      example_images.push_back((int)bnn_data.get_dataset().training_images[index_example][i]);
-    }
+    example_images = bnn_data.get_dataset().training_images[index_example];
   }
 
-  Solution(const std::vector<int> &archi, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example):
-  bnn_data(archi), weights(std::move(_weights)){
+  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example):
+  bnn_data(model_data), weights(std::move(_weights)){
     nb_layers = bnn_data.get_layers();
     example_label = (int)bnn_data.get_dataset().training_labels[index_example];
-    for (size_t i = 0; i < bnn_data.get_dataset().training_images[index_example].size(); i++) {
-      example_images.push_back((int)bnn_data.get_dataset().training_images[index_example][i]);
-    }
+    example_images = bnn_data.get_dataset().training_images[index_example];
   }
 
 
-  Solution(const std::vector<int> &archi, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example, const bool test_set):
-  bnn_data(archi), weights(std::move(_weights)){
+  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example, const bool test_set):
+  bnn_data(model_data), weights(std::move(_weights)){
     nb_layers = bnn_data.get_layers();
     if(test_set){
       example_label = (int)bnn_data.get_dataset().test_labels[index_example];
-      for (size_t i = 0; i < bnn_data.get_dataset().test_images[index_example].size(); i++) {
-        example_images.push_back((int)bnn_data.get_dataset().test_images[index_example][i]);
-      }
+      example_images = bnn_data.get_dataset().test_images[index_example];
     }
     else{
       example_label = (int)bnn_data.get_dataset().training_labels[index_example];
-      for (size_t i = 0; i < bnn_data.get_dataset().training_images[index_example].size(); i++) {
-        example_images.push_back((int)bnn_data.get_dataset().training_images[index_example][i]);
-      }
+      example_images = bnn_data.get_dataset().training_images[index_example];
     }
   }
 
-  Solution(const std::vector<int> &archi, std::vector<std::vector<std::vector<int>>> _weights):
-      bnn_data(archi), weights(std::move(_weights)){
+  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights):
+      bnn_data(model_data), weights(std::move(_weights)){
     nb_layers = bnn_data.get_layers();
-
   }
 
 
@@ -106,7 +99,7 @@ public:
   Parameters : None
   Output : None
   */
-  void init(){
+  void init(const int &test_mode){
     //preactivation[i][j] is the value of the preactivation of the neuron j on layer i
 
     preactivation.resize(nb_layers);
@@ -122,52 +115,12 @@ public:
     for (size_t l = 0; l < nb_layers ; l++) {
       activation[l].resize(bnn_data.get_archi(l));
       for (size_t i = 0; i < bnn_data.get_archi(l); i++) {
-        if(l==0)
-          activation[l][i] = example_images[i];
-        else
+        if(l == 0 && !test_mode){
+          activation[l][i] = (int)example_images[i];
+        }
+        else{
           activation[l][i] = 0;
-      }
-    }
-  }
-
-  /* init method
-  This function initialize the preactivation and the activation of each neuron of the network
-  Parameters :
-    - index_example : index of the input example
-    - test_set : boolean that indicates in which set to take the input example (default = test set)
-  Output : None
-  */
-  void init(const int &index_example, const int &test_set = true){
-
-    if(test_set){
-      for (size_t i = 0; i < bnn_data.get_dataset().test_images[index_example].size(); i++) {
-        example_images.push_back((int)bnn_data.get_dataset().test_images[index_example][i]);
-      }
-    }
-    else{
-      for (size_t i = 0; i < bnn_data.get_dataset().training_images[index_example].size(); i++) {
-        example_images.push_back((int)bnn_data.get_dataset().training_images[index_example][i]);
-      }
-    }
-    //preactivation[i][j] is the value of the preactivation of the neuron j on layer i
-
-    preactivation.resize(nb_layers);
-    for (size_t l = 0; l < nb_layers; l++) {
-      preactivation[l].resize(bnn_data.get_archi(l));
-      for(size_t j = 0; j < bnn_data.get_archi(l); j++){
-        preactivation[l][j] = 0;
-      }
-    }
-
-    //activation[i][j] is the value of the activation of the neuron j on layer i
-    activation.resize(nb_layers);
-    for (size_t l = 0; l < nb_layers ; l++) {
-      activation[l].resize(bnn_data.get_archi(l));
-      for (size_t i = 0; i < bnn_data.get_archi(l); i++) {
-        if(l==0)
-          activation[l][i] = example_images[i];
-        else
-          activation[l][i] = 0;
+        }
       }
     }
   }
@@ -236,10 +189,21 @@ public:
   bool predict(const int &index_example, const int &test_set = true, const bool &verification_mode = false){
     if(test_set){
       example_label = (int)bnn_data.get_dataset().test_labels[index_example];
+      std::vector<uint8_t> temp = bnn_data.get_dataset().test_images[index_example];
+      int size = temp.size();
+      for (size_t i = 0; i < size; i++) {
+        activation[0][i] = (int)temp[i];
+      }
     }
     else{
       example_label = (int)bnn_data.get_dataset().training_labels[index_example];
+      std::vector<uint8_t> temp = bnn_data.get_dataset().training_images[index_example];
+      int size = temp.size();
+      for (size_t i = 0; i < size; i++) {
+        activation[0][i] = (int)temp[i];
+      }
     }
+
     bool result = true ;
     for (size_t l = 1; l < nb_layers; l++) {
       for (size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
@@ -259,6 +223,7 @@ public:
          compt++;
        }
     }
+
     if (verification_mode) {
       if(compt > 1){
         result =  false;
@@ -329,7 +294,7 @@ public:
   bool run_solution(const bool &check_act_preact){
     bool pred;
     bool act_preact = true;
-    init();
+    init(false);
     pred = predict();
     if (check_act_preact) {
       act_preact = check_activation_preactivation();
@@ -353,12 +318,11 @@ public:
   bool run_solution(const bool &check_act_preact, const int &index_example, const int &test_set, const bool &verification_mode){
     bool pred;
     bool act_preact = true;
-    init(index_example);
+    init(true);
     pred = predict(index_example, test_set, verification_mode);
     if (check_act_preact) {
       act_preact = check_activation_preactivation();
     }
-
     if (pred && act_preact && verification_mode) {
       std::cout << "OK" << '\n';
     }

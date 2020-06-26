@@ -57,8 +57,8 @@ namespace operations_research{
         sum_weights_example.resize(nb_examples);
         temp_objective.resize(nb_examples);
         for (size_t i = 0; i < nb_examples; i++) {
-          sum_weights_example[i] = cp_model.NewIntVar(Domain(-255*bnn_data.get_archi(0),255*bnn_data.get_archi(0)));
-          temp_objective[i] = cp_model.NewIntVar(Domain(-255*bnn_data.get_archi(0),255*bnn_data.get_archi(0)));
+          sum_weights_example[i] = cp_model_builder.NewIntVar(Domain(-255*bnn_data.get_archi(0),255*bnn_data.get_archi(0)));
+          temp_objective[i] = cp_model_builder.NewIntVar(Domain(-255*bnn_data.get_archi(0),255*bnn_data.get_archi(0)));
         }
       }
 
@@ -83,20 +83,20 @@ namespace operations_research{
           for (size_t i = 0; i < bnn_data.get_archi(0); i++) {
             temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
           }
-          cp_model.AddEquality(sum_weights_example[index_example], temp);               //new instruction
-          cp_model.AddEquality(get_a_lj(index_example, 1, j), temp);
+          cp_model_builder.AddEquality(sum_weights_example[index_example], temp);               //new instruction
+          cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp);
           }
         else{
           std::vector<IntVar> temp(bnn_data.get_archi(l-1));
           for (size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
-            temp[i] = cp_model.NewIntVar(domain);
+            temp[i] = cp_model_builder.NewIntVar(domain);
             if(!prod_constraint){
 
-              IntVar sum_weights_activation = cp_model.NewIntVar(Domain(-2,2));
-              IntVar sum_temp_1 = cp_model.NewIntVar(Domain(0, 2));
-              cp_model.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
-              cp_model.AddEquality(sum_temp_1, temp[i].AddConstant(1));
-              cp_model.AddAbsEquality(sum_temp_1, sum_weights_activation);
+              IntVar sum_weights_activation = cp_model_builder.NewIntVar(Domain(-2,2));
+              IntVar sum_temp_1 = cp_model_builder.NewIntVar(Domain(0, 2));
+              cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
+              cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1));
+              cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);
 
             }
             else {
@@ -111,38 +111,38 @@ namespace operations_research{
 
               */
 
-              BoolVar b1 = cp_model.NewBoolVar();
-              BoolVar b2 = cp_model.NewBoolVar();
+              BoolVar b1 = cp_model_builder.NewBoolVar();
+              BoolVar b2 = cp_model_builder.NewBoolVar();
 
               // Implement b1 == (temp[i] == 0)
-              cp_model.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
-              cp_model.AddNotEqual(temp[i], LinearExpr(0)).OnlyEnforceIf(Not(b1));
+              cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
+              cp_model_builder.AddNotEqual(temp[i], LinearExpr(0)).OnlyEnforceIf(Not(b1));
               //Implement b2 == (weights == 0)
-              cp_model.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b2);
-              cp_model.AddNotEqual(get_w_ilj(i, l, j), LinearExpr(0)).OnlyEnforceIf(Not(b2));
+              cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b2);
+              cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), LinearExpr(0)).OnlyEnforceIf(Not(b2));
 
               // b1 implies b2 and b2 implies b1
-              cp_model.AddImplication(b2, b1);
-              cp_model.AddImplication(b1, b2);
+              cp_model_builder.AddImplication(b2, b1);
+              cp_model_builder.AddImplication(b1, b2);
 
-              BoolVar b3 = cp_model.NewBoolVar();
-              BoolVar b4 = cp_model.NewBoolVar();
+              BoolVar b3 = cp_model_builder.NewBoolVar();
+              BoolVar b4 = cp_model_builder.NewBoolVar();
 
               // Implement b3 == (temp[i] == 1)
-              cp_model.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
-              cp_model.AddNotEqual(temp[i], LinearExpr(1)).OnlyEnforceIf(Not(b3));
+              cp_model_builder.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
+              cp_model_builder.AddNotEqual(temp[i], LinearExpr(1)).OnlyEnforceIf(Not(b3));
               //Implement b4 == (weights == activation)
-              cp_model.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b4);
-              cp_model.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b4));
+              cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b4);
+              cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b4));
 
 
               // b3 implies b4 and b4 implies b3
-              cp_model.AddImplication(b3, b4);
-              cp_model.AddImplication(b4, b3);
+              cp_model_builder.AddImplication(b3, b4);
+              cp_model_builder.AddImplication(b4, b3);
 
             }
           }
-          cp_model.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp));
+          cp_model_builder.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp));
         }
       }
 
@@ -153,8 +153,8 @@ namespace operations_research{
       */
       void model_declare_objective(){
         for (size_t i = 0; i < nb_examples; i++) {
-          cp_model.AddEquality(temp_objective[i], sum_weights_example[i]).OnlyEnforceIf(classification[i]);
-          cp_model.AddEquality(temp_objective[i], cp_model.NewIntVar(Domain(0))).OnlyEnforceIf(Not(classification[i]));
+          cp_model_builder.AddAbsEquality(temp_objective[i], sum_weights_example[i]).OnlyEnforceIf(classification[i]);
+          cp_model_builder.AddEquality(temp_objective[i], cp_model_builder.NewIntVar(Domain(0))).OnlyEnforceIf(Not(classification[i]));
           objectif.AddVar(temp_objective[i]);
         }
       }

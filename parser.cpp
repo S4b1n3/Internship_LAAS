@@ -71,7 +71,7 @@ private:
 
     std::vector<int> status = {0, 0, 0, 0};
     int run_time = 0;
-    int memory = 0;
+    int6 memory = 0;
     int nb_variables = 0;
     int nb_constraints = 0;
     int objective_value = 0;
@@ -173,7 +173,7 @@ public:
                         count +=1;
                     }
                     if (line.substr(0, 7) == "memory ") {
-                      memory += std::stoi(line.substr(7));
+                      memory += std::stoll(line.substr(7));
                     }
                     if(line.substr(0, 7) == "status "){
                         int status_temp = std::stoi(line.substr(7));
@@ -227,10 +227,10 @@ public:
 
             }
         } else
-            std::cout << "File is not open" << std::endl;
+            std::cout << "Error oppening file" << std::endl;
         if(count != 0){
           run_time = std::round(run_time/count);
-          memory = std::round(memory/count);
+          memory = memory/count;
           nb_variables /= count;
           nb_constraints /= count;
           nb_branches /= count;
@@ -301,7 +301,6 @@ public:
         reorder_folders();
         read_subfolders();
         reorder_files();
-        std::cout << "Test 04" << '\n';
     }
 
 
@@ -588,7 +587,19 @@ public:
     std::string print_parser(const int &index_folder, const int &index_file){
         Parser* temp = parsers[index_folder][index_file];
         std::string parser("& "+std::to_string(temp->get_nb_examples())+" & "+std::to_string(temp->get_nb_variables())+" & "+
-                        std::to_string(temp->get_nb_constraints())+" & "+std::to_string(temp->get_nb_branches())+" & ");
+                        std::to_string(temp->get_nb_constraints())+" & ");
+        if(temp->get_nb_branches() > 1000000){
+          int temp_branches = (int)temp->get_nb_branches()/1000000;
+          parser.append(std::to_string(temp_branches)+ "M & ");
+        }
+        else{
+          if (temp->get_nb_branches() > 1000) {
+            int temp_branches = (int)temp->get_nb_branches()/1000;
+            parser.append(std::to_string(temp_branches)+ "k & ");
+          }else{
+            parser.append(std::to_string(temp->get_nb_branches())+ " & ");
+          }
+        }
         for (int i = 0; i < STATUS.size(); ++i) {
             parser.append(std::to_string(temp->get_status(i))+" \\% & ");
         }
@@ -600,7 +611,18 @@ public:
             parser.append("$<$1 & ");
         else
             parser.append(std::to_string(temp->get_run_time())+" & ");
-        parser.append(std::to_string(temp->get_memory())+ " & ");
+        if(temp->get_memory() >= 1000000){
+          int temp_mem = (int)temp->get_memory()/1000000;
+          parser.append(std::to_string(temp_mem)+ "M & ");
+        }
+        else{
+          if (temp->get_memory() >= 1000) {
+            int temp_mem = (int)temp->get_memory()/1000;
+            parser.append(std::to_string(temp_mem)+ "k & ");
+          }else{
+            parser.append(std::to_string(temp->get_memory())+ " & ");
+          }
+        }
         parser.append(std::to_string(temp->get_test_accuracy())+ "\\% & ");
         parser.append(std::to_string(temp->get_train_accuracy())+ "\\% \\\\ ");
 
@@ -641,9 +663,7 @@ int main(int argc, char **argv) {
     const std::string path_folder("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/results/"+std::string(argv[1]));
     std::cout << path_folder <<std::endl << std::endl;
     Parser_Container first_test(path_folder);
-    std::cout << "Test 1" << '\n';
     first_test.create_parsers();
-    std::cout << "Test 2" << '\n';
     first_test.end_expe();
 
     Writer first_writer(path_folder, first_test);
