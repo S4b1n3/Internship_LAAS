@@ -64,6 +64,7 @@ protected:
 	int nb_examples;
 
 	std::vector<std::vector<uint8_t>> inputs;
+	std::vector<int> labels;
 
 	//weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
 	std::vector<std::vector <std::vector<IntVar>>> weights;
@@ -111,8 +112,10 @@ public:
 		bnn_data.print_dataset();
 		index_rand = rand()%50000;
 		inputs.resize(nb_examples);
+		labels.resize(nb_examples);
 		for (size_t i = 0; i < nb_examples; i++) {
 			inputs[i] = bnn_data.get_dataset().training_images[index_rand+i];
+			labels[i] = (int)bnn_data.get_dataset().training_labels[index_rand+i];
 		}
 	}
 
@@ -124,18 +127,26 @@ public:
 		bnn_data.print_dataset();
 		index_rand = rand()%50000;
 
-		inputs.resize(100);
+		std::clock_t c_start = std::clock();
+
+		//inputs.resize(100);
+		labels.resize(100);
 		for (size_t i = 0; i < 10; i++) {
 			int compt = 0, j = index_rand;
 			while (compt < 10) {
 				int label = (int)bnn_data.get_dataset().training_labels[j];
 				if (label == i) {
-					inputs[i] = bnn_data.get_dataset().training_images[j];
+					inputs.push_back(bnn_data.get_dataset().training_images[j]);
+					labels[i] = i;
 					compt++;
 				}
 				j++;
 			}
 		}
+		std::cout << "size : " << inputs.size()<< '\n';
+
+		std::clock_t c_end = std::clock();
+		std::cout << " Building dataset finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
 	}
 
 	/* Getters */
@@ -615,7 +626,7 @@ public:
 
 
 		assert(nb_seconds>0);
-		declare_weight_variables();                         //initialization of the variables
+		declare_weight_variables();                      //initialization of the variables
 		for (size_t i = 0; i < nb_examples; i++) {
 			declare_preactivation_variables(i);
 			declare_activation_variables(i);

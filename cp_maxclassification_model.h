@@ -71,6 +71,11 @@ namespace operations_research{
 
       }
 
+      CPModel_MaxClassification(const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
+                        CP_Model(_archi, _prod_constraint, _output_path){
+
+      }
+
 
       void declare_classification_variable(){
         classification.resize(nb_examples);
@@ -97,7 +102,7 @@ namespace operations_research{
         assert(index_example < nb_examples);*/
 
         LinearExpr last_layer(0);
-        const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
+        const int label = labels[index_examples];
         int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
         int tmp2 = bnn_data.get_layers()-2;
         for (size_t i = 0; i < tmp; i++) {

@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
 
 	architecture.push_back(784);
-	parseOptions(argc, argv);
+	parseOptions(argc, argv); 
 	architecture.push_back(10);
 
 	srand(_seed);
@@ -60,30 +60,58 @@ int main(int argc, char **argv) {
 	switch (_index_model) {
 	case 1:
 	{
-		operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint, filename);
-		first_model.run(_time, _strategy) ;
-		int status = first_model.print_statistics();
+		if (_nb_examples == 0){
+			operations_research::sat::CPModel_MinWeight first_model(architecture, _prod_constraint, filename);
+			first_model.run(_time, _strategy);
+			int status = first_model.print_statistics();
+			if(status == 2 || status == 4){
+				Evaluation test(first_model.get_weights_solution(), first_model.get_data());
+				accuracy_test = test.run_evaluation(true);
+				accuracy_train = test.run_evaluation(false);
+			}
+		}
+
+		else{
+			operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint, filename);
+			first_model.run(_time, _strategy);
+			int status = first_model.print_statistics();
+			if(status == 2 || status == 4){
+				Evaluation test(first_model.get_weights_solution(), first_model.get_data());
+				accuracy_test = test.run_evaluation(true);
+				accuracy_train = test.run_evaluation(false);
+			}
+		}
+
+
 		//first_model.print_solution(first_model.get_response());
 		//first_model.print_solution_bis(first_model.get_response());
 		//first_model.print_all_solutions() ;
-		if(status == 2 || status == 4){
-			Evaluation test(first_model.get_weights_solution(), first_model.get_data());
-			accuracy_test = test.run_evaluation(true);
-			accuracy_train = test.run_evaluation(false);
-		}
 		break;
 	}
 	case 2:
 	{
-		operations_research::sat::CPModel_MaxClassification second_model(architecture, _nb_examples, _prod_constraint, filename);
-		std::cout<<std::endl<<std::endl;
-		second_model.run(_time , _strategy) ;
-		int status = second_model.print_statistics();
-		if(status == 2 || status == 4){
-			Evaluation test(second_model.get_weights_solution(), second_model.get_data());
-			accuracy_test = test.run_evaluation(true);
-			accuracy_train = test.run_evaluation(false);
+		if (_nb_examples == 0){
+			operations_research::sat::CPModel_MaxClassification second_model(architecture, _prod_constraint, filename);
+			second_model.run(_time , _strategy) ;
+			int status = second_model.print_statistics();
+			if(status == 2 || status == 4){
+				Evaluation test(second_model.get_weights_solution(), second_model.get_data());
+				accuracy_test = test.run_evaluation(true);
+				accuracy_train = test.run_evaluation(false);
+			}
 		}
+
+		else{
+			operations_research::sat::CPModel_MaxClassification second_model(architecture, _nb_examples, _prod_constraint, filename);
+			second_model.run(_time , _strategy) ;
+			int status = second_model.print_statistics();
+			if(status == 2 || status == 4){
+				Evaluation test(second_model.get_weights_solution(), second_model.get_data());
+				accuracy_test = test.run_evaluation(true);
+				accuracy_train = test.run_evaluation(false);
+			}
+		}
+
 		break;
 	}
 	case 3:
@@ -134,7 +162,7 @@ void parseOptions(int argc, char** argv)
 		ValueArg<int> seed ("S", "seed", "Seed", false, 1, "int");
 		cmd.add(seed);
 
-		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", true, 1, "int");
+		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", false, 0, "int");
 		cmd.add(nb_ex);
 
 		ValueArg<double> time("T", "time", "Time limit for the solver", false, 1200.0, "double");

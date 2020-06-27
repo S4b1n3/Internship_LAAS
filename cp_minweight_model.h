@@ -82,6 +82,11 @@ namespace operations_research{
 
       }
 
+      CPModel_MinWeight(const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
+                        CP_Model(_archi, _prod_constraint, _output_path){
+
+      }
+
       /* model_objective_minimize_weight method
       This function sums all the weights in the LinearExpr objectif
       Parameters : None
@@ -111,7 +116,7 @@ namespace operations_research{
       void model_output_constraint(const int &index_examples){
         /*assert(index_examples >= 0);
         assert(index_example < nb_examples);*/
-        const int label = (int)bnn_data.get_dataset().training_labels[index_examples+index_rand];
+        const int label = labels[index_examples];
         cp_model_builder.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1);
         int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
         int tmp2 = bnn_data.get_layers()-2;

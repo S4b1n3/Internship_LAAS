@@ -1,0 +1,23 @@
+setup time 0
+
+run time 1.32644
+memory 67999744
+status 0
+objective inf
+best bound -inf
+booleans 0
+conflicts 0
+propagation 0
+integer propagation 0
+branches 0
+Optimization model '':
+#Variables: 30552 (3176 in objective)
+ - 1400 in [-1][1]
+ - 8576 in [-1,1]
+ - 20576 in [0,1]
+#kBoolOr: 16000 (#literals: 32000)
+#kIntMax: 3176
+#kLinear1: 30600 (#enforced: 29600)
+#kLinear2: 8000 (#enforced: 8000)
+#kLinearN: 1400
+
