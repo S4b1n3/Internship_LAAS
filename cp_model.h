@@ -220,13 +220,23 @@ public:
 		assert(index_example<nb_examples);
 		preactivation.resize(nb_examples);
 
+		int sum_image = 0;
+		for(std::vector<uint8_t>::iterator it = inputs[index_example].begin(); it != inputs[index_example].end(); ++it)
+	    sum_image += (int)*it;
+
 		int tmp = bnn_data.get_layers()-1;
 		preactivation[index_example].resize(tmp);
 		for (size_t l = 0; l < tmp; l++) {
 			int tmp2 = bnn_data.get_archi(l+1);
 			preactivation[index_example][l].resize(tmp2);
+			int tmp3 = bnn_data.get_archi(l);
 			for(size_t j = 0; j < tmp2; j++){
-				preactivation[index_example][l][j] = cp_model_builder.NewIntVar(domain);
+				if(l == 0){
+					preactivation[index_example][l][j] = cp_model_builder.NewIntVar(Domain(-sum_image, sum_image));
+				}
+				else {
+					preactivation[index_example][l][j] = cp_model_builder.NewIntVar(Domain(-tmp3, tmp3));
+				}
 			}
 		}
 	}
@@ -509,6 +519,8 @@ public:
 			std::cout << " setting branching on reverse_w : lex  FIXED_SEARCH SELECT_MAX_VALUE"  << std::endl;
 			parameters.set_search_branching(SatParameters::FIXED_SEARCH );
 		}
+
+
 
 
 		if (strategy == "lex_median_0"){
