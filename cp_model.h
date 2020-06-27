@@ -110,7 +110,7 @@ public:
 		std::cout << "number of layers : "<<bnn_data.get_layers() << '\n';
 		bnn_data.print_archi();
 		bnn_data.print_dataset();
-		index_rand = rand()%50000;
+		index_rand = rand()%(60000-_nb_examples);
 		inputs.resize(nb_examples);
 		labels.resize(nb_examples);
 		for (size_t i = 0; i < nb_examples; i++) {
@@ -119,18 +119,36 @@ public:
 		}
 	}
 
-	CP_Model(const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
+	CP_Model(const int &_nb_examples_per_label, const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
 		bnn_data(_archi), domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"),
-		file_out_extension(".tex"), nb_examples(100), prod_constraint(_prod_constraint), output_path(_output_path){
+		file_out_extension(".tex"), nb_examples(10*_nb_examples_per_label), prod_constraint(_prod_constraint), output_path(_output_path){
 		std::cout << "number of layers : "<<bnn_data.get_layers() << '\n';
 		bnn_data.print_archi();
 		bnn_data.print_dataset();
-		index_rand = rand()%50000;
+		//index_rand = rand()%50000;
 
 		std::clock_t c_start = std::clock();
 
-		//inputs.resize(100);
-		labels.resize(100);
+		int compt_ex = 0, j = 0;
+		std::vector<int> occ(10);
+		std::vector<int> ind;
+		while (compt_ex < nb_examples) {
+			index_rand = rand()%60000;
+			auto it = std::find(std::begin(ind), std::end(ind), index_rand);
+			if (it == ind.end()) {
+				ind.push_back(index_rand);
+				int label = (int)bnn_data.get_dataset().training_labels[j];
+				if(occ[label] < _nb_examples_per_label){
+					inputs.push_back(bnn_data.get_dataset().training_images[j]);
+					labels.push_back(label);
+					compt_ex++;
+					occ[label]++;
+				}
+			}
+			j++;
+		}
+
+		/*labels.resize(nb_examples);
 		for (size_t i = 0; i < 10; i++) {
 			int compt = 0, j = index_rand;
 			while (compt < 10) {
@@ -143,6 +161,7 @@ public:
 				j++;
 			}
 		}
+		*/
 		std::cout << "size : " << inputs.size()<< '\n';
 
 		std::clock_t c_end = std::clock();

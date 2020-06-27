@@ -16,6 +16,7 @@ using namespace TCLAP;
 int _index_model;
 int _seed;
 int _nb_examples;
+int _nb_examples_per_label;
 double _time;
 std::vector<int> architecture;
 int _nb_neurons;
@@ -29,7 +30,7 @@ int main(int argc, char **argv) {
 
 
 	architecture.push_back(784);
-	parseOptions(argc, argv); 
+	parseOptions(argc, argv);
 	architecture.push_back(10);
 
 	srand(_seed);
@@ -57,32 +58,44 @@ int main(int argc, char **argv) {
 	std::cout << filename << std::endl;
 
 	double accuracy_train, accuracy_test;
+	std::cout << "nb examples : "<< _nb_examples << '\n';
+	std::cout << "nb ex per label : "<< _nb_examples_per_label << '\n';
 	switch (_index_model) {
 	case 1:
 	{
-		if (_nb_examples == 0){
-			operations_research::sat::CPModel_MinWeight first_model(architecture, _prod_constraint, filename);
-			first_model.run(_time, _strategy);
-			int status = first_model.print_statistics();
+		if (_nb_examples == 0 && _nb_examples_per_label != 0){
+			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, architecture, _prod_constraint, filename);
+			model.run(_time, _strategy);
+			int status = model.print_statistics();
 			if(status == 2 || status == 4){
-				Evaluation test(first_model.get_weights_solution(), first_model.get_data());
+				Evaluation test(model.get_weights_solution(), model.get_data());
 				accuracy_test = test.run_evaluation(true);
 				accuracy_train = test.run_evaluation(false);
 			}
-		}
-
+		 }
 		else{
-			operations_research::sat::CPModel_MinWeight first_model(architecture, _nb_examples, _prod_constraint, filename);
-			first_model.run(_time, _strategy);
-			int status = first_model.print_statistics();
-			if(status == 2 || status == 4){
-				Evaluation test(first_model.get_weights_solution(), first_model.get_data());
-				accuracy_test = test.run_evaluation(true);
-				accuracy_train = test.run_evaluation(false);
+			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+				operations_research::sat::CPModel_MinWeight model(architecture, _nb_examples, _prod_constraint, filename);
+				model.run(_time, _strategy);
+				int status = model.print_statistics();
+				if(status == 2 || status == 4){
+					Evaluation test(model.get_weights_solution(), model.get_data());
+					accuracy_test = test.run_evaluation(true);
+					accuracy_train = test.run_evaluation(false);
+				}
+			}
+			else{
+				std::cout << "Invalid number of examples : default mode launched" << '\n';
+				operations_research::sat::CPModel_MinWeight model(architecture, 1, _prod_constraint, filename);
+				model.run(_time, _strategy);
+				int status = model.print_statistics();
+				if(status == 2 || status == 4){
+					Evaluation test(model.get_weights_solution(), model.get_data());
+					accuracy_test = test.run_evaluation(true);
+					accuracy_train = test.run_evaluation(false);
+				}
 			}
 		}
-
-
 		//first_model.print_solution(first_model.get_response());
 		//first_model.print_solution_bis(first_model.get_response());
 		//first_model.print_all_solutions() ;
@@ -90,28 +103,40 @@ int main(int argc, char **argv) {
 	}
 	case 2:
 	{
-		if (_nb_examples == 0){
-			operations_research::sat::CPModel_MaxClassification second_model(architecture, _prod_constraint, filename);
-			second_model.run(_time , _strategy) ;
-			int status = second_model.print_statistics();
+		if (_nb_examples == 0 && _nb_examples_per_label != 0){
+			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, architecture, _prod_constraint, filename);
+			model.run(_time, _strategy);
+			int status = model.print_statistics();
 			if(status == 2 || status == 4){
-				Evaluation test(second_model.get_weights_solution(), second_model.get_data());
+				Evaluation test(model.get_weights_solution(), model.get_data());
 				accuracy_test = test.run_evaluation(true);
 				accuracy_train = test.run_evaluation(false);
 			}
 		}
 
 		else{
-			operations_research::sat::CPModel_MaxClassification second_model(architecture, _nb_examples, _prod_constraint, filename);
-			second_model.run(_time , _strategy) ;
-			int status = second_model.print_statistics();
-			if(status == 2 || status == 4){
-				Evaluation test(second_model.get_weights_solution(), second_model.get_data());
-				accuracy_test = test.run_evaluation(true);
-				accuracy_train = test.run_evaluation(false);
+			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+				operations_research::sat::CPModel_MaxClassification model(architecture, _nb_examples, _prod_constraint, filename);
+				model.run(_time, _strategy);
+				int status = model.print_statistics();
+				if(status == 2 || status == 4){
+					Evaluation test(model.get_weights_solution(), model.get_data());
+					accuracy_test = test.run_evaluation(true);
+					accuracy_train = test.run_evaluation(false);
+				}
+			}
+			else{
+				std::cout << "Invalid number of examples : default mode launched" << '\n';
+				operations_research::sat::CPModel_MaxClassification model(architecture, 1, _prod_constraint, filename);
+				model.run(_time, _strategy);
+				int status = model.print_statistics();
+				if(status == 2 || status == 4){
+					Evaluation test(model.get_weights_solution(), model.get_data());
+					accuracy_test = test.run_evaluation(true);
+					accuracy_train = test.run_evaluation(false);
+				}
 			}
 		}
-
 		break;
 	}
 	case 3:
@@ -145,8 +170,7 @@ int main(int argc, char **argv) {
 	return EXIT_SUCCESS;
 }
 
-void parseOptions(int argc, char** argv)
-{
+void parseOptions(int argc, char** argv){
 	try {
 
 		CmdLine cmd("BNN Parameters", ' ', "0.99" );
@@ -164,6 +188,9 @@ void parseOptions(int argc, char** argv)
 
 		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", false, 0, "int");
 		cmd.add(nb_ex);
+
+		ValueArg<int> nb_ex_per_label("E", "nb_examples_per_label", "Number of examples per label", false, 0, "int");
+		cmd.add(nb_ex_per_label);
 
 		ValueArg<double> time("T", "time", "Time limit for the solver", false, 1200.0, "double");
 		cmd.add(time);
@@ -190,6 +217,7 @@ void parseOptions(int argc, char** argv)
 		_index_model = imodel.getValue();
 		_seed = seed.getValue();
 		_nb_examples = nb_ex.getValue();
+		_nb_examples_per_label = nb_ex_per_label.getValue();
 		_time = time.getValue();
 		_prod_constraint = bool_prod.getValue();
 		_strategy =search_strategy.getValue();

@@ -82,8 +82,8 @@ namespace operations_research{
 
       }
 
-      CPModel_MinWeight(const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
-                        CP_Model(_archi, _prod_constraint, _output_path){
+      CPModel_MinWeight(const int &_nb_examples_per_label, const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
+                        CP_Model(_nb_examples_per_label, _archi, _prod_constraint, _output_path){
 
       }
 
