@@ -678,7 +678,7 @@ public:
 		std::cout<< " c running the solver.. " <<std::endl;
 	}
 
-	void check(const CpSolverResponse &r, const int &index=0){
+	void check(const CpSolverResponse &r, const bool &check_solution, const int &index=0){
 
 		int tmp = bnn_data.get_layers();
 		weights_solution.resize(tmp);
@@ -719,10 +719,11 @@ public:
 					}
 				}
 			}
-
-			Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
-			std::cout << "Checking solution : "<<index<<" : ";
-			bool checking = check_solution.run_solution(true);
+			if (check_solution) {
+				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
+				std::cout << "Checking solution : "<<index<<" : ";
+				bool checking = check_solution.run_solution(true);
+			}
 		}
 	}
 
@@ -777,7 +778,7 @@ public:
 	// Print some statistics from the solver: Runtime, number of nodes, number of propagation (filtering, pruning), memory,
 	// Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
 	// Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
-	int print_statistics(){
+	int print_statistics(const int &check_solution){
 		response = SolveCpModel(cp_model_builder.Build(), &model);
 		std::string result_file = output_path+"/results"+std::to_string(nb_examples)+".stat";
 		std::ofstream parser(result_file.c_str(), std::ios::app);
@@ -807,7 +808,7 @@ public:
 		else
 			std::cout << "Error opening parser file" << '\n';
 		if (response.status()== CpSolverStatus::OPTIMAL || response.status() == CpSolverStatus::FEASIBLE) {
-			check(response);
+			check(response, check_solution);
 		}
 		return response.status();
 	}

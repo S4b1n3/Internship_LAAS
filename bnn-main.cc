@@ -23,6 +23,7 @@ int _nb_neurons;
 bool _prod_constraint;
 std::string _strategy;
 std::string _output_path;
+bool _check_solution;
 
 void parseOptions(int argc, char** argv);
 
@@ -58,15 +59,14 @@ int main(int argc, char **argv) {
 	std::cout << filename << std::endl;
 
 	double accuracy_train, accuracy_test;
-	std::cout << "nb examples : "<< _nb_examples << '\n';
-	std::cout << "nb ex per label : "<< _nb_examples_per_label << '\n';
+	
 	switch (_index_model) {
 	case 1:
 	{
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
-			int status = model.print_statistics();
+			int status = model.print_statistics(_check_solution);
 			if(status == 2 || status == 4){
 				Evaluation test(model.get_weights_solution(), model.get_data());
 				accuracy_test = test.run_evaluation(true);
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MinWeight model(architecture, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics();
+				int status = model.print_statistics(_check_solution);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
 					accuracy_test = test.run_evaluation(true);
@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MinWeight model(architecture, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics();
+				int status = model.print_statistics(_check_solution);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
 					accuracy_test = test.run_evaluation(true);
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
-			int status = model.print_statistics();
+			int status = model.print_statistics(_check_solution);
 			if(status == 2 || status == 4){
 				Evaluation test(model.get_weights_solution(), model.get_data());
 				accuracy_test = test.run_evaluation(true);
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MaxClassification model(architecture, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics();
+				int status = model.print_statistics(_check_solution);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
 					accuracy_test = test.run_evaluation(true);
@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MaxClassification model(architecture, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics();
+				int status = model.print_statistics(_check_solution);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
 					accuracy_test = test.run_evaluation(true);
@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
 		operations_research::sat::CPModel_MaxSum third_model(architecture, _nb_examples, _prod_constraint, filename);
 		std::cout<<std::endl<<std::endl;
 		third_model.run(_time ,  _strategy) ;
-		int status = third_model.print_statistics();
+		int status = third_model.print_statistics(_check_solution);
 		if(status == 2 || status == 4){
 			Evaluation test(third_model.get_weights_solution(), third_model.get_data());
 			accuracy_test = test.run_evaluation(true);
@@ -195,11 +195,14 @@ void parseOptions(int argc, char** argv){
 		ValueArg<double> time("T", "time", "Time limit for the solver", false, 1200.0, "double");
 		cmd.add(time);
 
-		UnlabeledMultiArg<int> archi("archi", "Architecture of the model", false, "int");
+		MultiArg<int> archi("A", "archi", "Architecture of the model", false, "int");
 		cmd.add(archi);
 
-		SwitchArg bool_prod("C","product_constraints", "tests the use of product constraints", false);
+		SwitchArg bool_prod("C","product_constraints", "indicates the use of product constraints", false);
 		cmd.add(bool_prod);
+
+		SwitchArg check_sol("V","check", "indicates if the solution returned has to be tested", false);
+		cmd.add(check_sol);
 
 		ValueArg<std::string> search_strategy("D", "strategy", "The search strategy", false, "lex", "string");
 		cmd.add(search_strategy);
@@ -222,7 +225,7 @@ void parseOptions(int argc, char** argv){
 		_prod_constraint = bool_prod.getValue();
 		_strategy =search_strategy.getValue();
 		_output_path = out_file.getValue();
-
+		_check_solution = check_sol.getValue();
 
 		std::vector<int> v = archi.getValue();
 		for ( int i = 0; static_cast<unsigned int>(i) < v.size(); i++ ){

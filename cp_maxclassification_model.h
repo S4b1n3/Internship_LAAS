@@ -140,7 +140,7 @@ namespace operations_research{
         cp_model_builder.Maximize(objectif);                        //objective function
       }
 
-      void check(const CpSolverResponse &r, const int &index=0){
+      void check(const CpSolverResponse &r, const bool &check_solution, const int &index=0){
 
     		int tmp = bnn_data.get_layers();
     		weights_solution.resize(tmp);
@@ -184,7 +184,7 @@ namespace operations_research{
     				}
     			}
 
-          if (classification_solution[i] == 1) {
+          if (classification_solution[i] == 1 && check_solution) {
             Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
       			std::cout << "Checking solution : "<<index<<" : ";
       			bool checking = check_solution.run_solution(true);
