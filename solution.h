@@ -58,11 +58,22 @@ public:
     example_images = bnn_data.get_dataset().training_images[index_example];
   }
 
+  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &label, const std::vector<uint8_t> &image):
+  bnn_data(model_data), weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)), example_label(label), example_images(image){
+    nb_layers = bnn_data.get_layers();
+  }
+
+
   Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example):
   bnn_data(model_data), weights(std::move(_weights)){
     nb_layers = bnn_data.get_layers();
     example_label = (int)bnn_data.get_dataset().training_labels[index_example];
     example_images = bnn_data.get_dataset().training_images[index_example];
+  }
+
+  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &label, const std::vector<uint8_t> &image):
+  bnn_data(model_data), weights(std::move(_weights)),  example_label(label), example_images(image){
+    nb_layers = bnn_data.get_layers();
   }
 
 

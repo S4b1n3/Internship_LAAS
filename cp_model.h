@@ -669,7 +669,7 @@ public:
 
 		//long_double time_elapsed_ms = 1000.0 * ;
 
-		std::string result_file = output_path+"/results"+std::to_string(nb_examples)+".stat";
+		std::string result_file = output_path+"/results_"+_strategy+".stat";
 		std::ofstream parser(result_file.c_str(), std::ios::app);
 		parser << "setup time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
 		parser.close();
@@ -720,7 +720,7 @@ public:
 				}
 			}
 			if (check_solution) {
-				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
+				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
 				std::cout << "Checking solution : "<<index<<" : ";
 				bool checking = check_solution.run_solution(true);
 			}
@@ -778,9 +778,9 @@ public:
 	// Print some statistics from the solver: Runtime, number of nodes, number of propagation (filtering, pruning), memory,
 	// Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
 	// Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
-	int print_statistics(const int &check_solution){
+	int print_statistics(const int &check_solution, const std::string &strategy){
 		response = SolveCpModel(cp_model_builder.Build(), &model);
-		std::string result_file = output_path+"/results"+std::to_string(nb_examples)+".stat";
+		std::string result_file = output_path+"/results_"+strategy+".stat";
 		std::ofstream parser(result_file.c_str(), std::ios::app);
 		std::cout << "\nSome statistics on the solver response : " << '\n';
 		LOG(INFO) << CpSolverResponseStats(response);

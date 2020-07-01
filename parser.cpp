@@ -11,6 +11,7 @@
 #include <numeric>
 #include <cmath>
 #include <algorithm>
+#include <cinttypes>
 
 /*
  * Status codes :
@@ -71,13 +72,14 @@ private:
 
     std::vector<int> status = {0, 0, 0, 0};
     int run_time = 0;
-    int6 memory = 0;
+    std::int64_t memory = 0;
     int nb_variables = 0;
     int nb_constraints = 0;
     int objective_value = 0;
     int nb_branches = 0;
     int test_accuracy = 0;
     int train_accuracy = 0;
+    std::string strategy;
 
 public:
 
@@ -90,7 +92,8 @@ public:
         size_t index;
         index = _path.find_last_of("/");
         std::string filename = _path.substr(index+1);
-        nb_examples = std::stoi(filename.substr(7, filename.size()-5));
+        strategy = filename.substr(8, filename.size()-13);
+        nb_examples = 100;
 
     }
 
@@ -149,6 +152,10 @@ public:
     //returns the mean of the accuray on the training set
     int get_train_accuracy() const{
       return train_accuracy;
+    }
+
+    std::string get_strategy() const{
+      return strategy;
     }
 
     /* read_file method
@@ -268,8 +275,10 @@ private:
     std::vector<std::string> folders;
     std::vector<std::vector<std::string>> files;
     std::vector<std::vector<int>> archi;
+    std::vector<std::string> strategies;
 
 public:
+
 
     /* Constructor of the class Parser_Container
     This method reads the folder, recovers the architectures tested, reorders the folders,
@@ -278,27 +287,19 @@ public:
     - _path : path of the folder
     */
     explicit Parser_Container(std::string _path):path(std::move(_path)){
+
         folders = read_folder(path);
         archi.resize(folders.size());
-        std::string temp;
+
         for (int i = 0; i < folders.size(); ++i) {
             if (folders[i].size() < 8){
               archi[i].push_back(0);
               break;
             }
-
-            std::string folder_temp = folders[i].substr(8);
-            for (char j : folder_temp) {
-                if(j == '_'){
-                    archi[i].push_back(std::stoi(temp));
-                    temp = "";
-                } else
-                    temp += j;
-            }
-            archi[i].push_back(std::stoi(temp));
-            temp = "";
+            else
+              get_archi(folders[i], i);
         }
-        reorder_folders();
+        reorder_folders(archi);
         read_subfolders();
         reorder_files();
     }
@@ -346,6 +347,24 @@ public:
         return files[i][j];
     }
 
+    void get_archi(const std::string &folder_name, const int &index){
+        std::string folder_temp = folder_name.substr(8);
+        std::string temp;
+        for (char j : folder_temp) {
+            if(j == '_'){
+                archi[index].push_back(std::stoi(temp));
+                temp = "";
+            } else
+                temp += j;
+        }
+        archi[index].push_back(std::stoi(temp));
+    }
+
+    void get_strategy(const std::string &folder_name){
+      std::string folder_temp = folder_name.substr(7);
+      strategies.push_back(folder_temp);
+    }
+
     /* read_folder method
     This method browses a folder and gets the name
     of the folders or the files that is contains
@@ -385,13 +404,13 @@ public:
     Arguments : None
     Output : None
     */
-    void reorder_folders(){
-        std::sort (archi.begin(), archi.end());
-        std::vector<std::string> subfolder(archi.size());
+    void reorder_folders(std::vector<std::vector<int>> vector){
+        std::sort (vector.begin(), vector.end());
+        std::vector<std::string> subfolder(vector.size());
         std::vector<std::string> temp_folders(folders.size());
-        for (int i = 0; i < archi.size(); ++i) {
-            for (int j = 0; j < archi[i].size(); ++j) {
-                subfolder[i].append("_"+std::to_string(archi[i][j]));
+        for (int i = 0; i < vector.size(); ++i) {
+            for (int j = 0; j < vector[i].size(); ++j) {
+                subfolder[i].append("_"+std::to_string(vector[i][j]));
             }
         }
         for (int i = 0; i < subfolder.size(); ++i) {
@@ -403,12 +422,29 @@ public:
         folders = temp_folders;
     }
 
+    void reorder_folders(std::vector<std::string> vector){
+        std::sort (vector.begin(), vector.end());
+        std::vector<std::string> subfolder(vector.size());
+        std::vector<std::string> temp_folders(folders.size());
+        for (int i = 0; i < vector.size(); ++i) {
+            subfolder[i].append(vector[i]);
+        }
+        for (int i = 0; i < subfolder.size(); ++i) {
+            for (auto & folder : folders) {
+                if (folder.substr(7) == subfolder[i])
+                    temp_folders[i] = folder;
+            }
+        }
+        folders = temp_folders;
+    }
+
+
 
     /* reorder_files method
     This function reorders the files depending on the number of examples as input
     Arguments : None
     Output : None
-    */
+
     void reorder_files(){
         std::vector<std::vector<std::string>> temp;
         std::vector<std::vector<int>> nb_examples_temp;
@@ -429,6 +465,34 @@ public:
                 for (int k = 0; k < files[i].size(); ++k) {
                     //std::cout << "stoi2 :"<< files[i][k].substr(7, files[i][k].size()-12) << '\n';
                     if (std::stoi(files[i][k].substr(7, files[i][k].size()-5)) == nb_examples_temp[i][j]){
+                        temp[i].push_back(files[i][k]);
+                    }
+                }
+            }
+        }
+        files = temp;
+    }*/
+
+    void reorder_files(){
+        std::vector<std::vector<std::string>> temp;
+        std::vector<std::vector<std::string>> strategies_temp;
+        strategies_temp.resize(files.size());
+        for (int j = 0; j < files.size(); ++j) {
+            strategies_temp[j].resize(files[j].size());
+            for (int i = 0; i < files[j].size(); ++i) {
+                //std::cout << "stoi1 :"<< files[j][i].substr(7, files[j][i].size()-12) << '\n';
+                strategies_temp[j][i] = files[j][i].substr(7, files[j][i].size()-5);
+            }
+        }
+        for (int i = 0; i < files.size(); ++i) {
+            std::sort(strategies_temp[i].begin(), strategies_temp[i].end());
+        }
+        temp.resize(strategies_temp.size());
+        for (int i = 0; i < strategies_temp.size(); ++i) {
+            for (int j = 0; j < strategies_temp[i].size(); ++j) {
+                for (int k = 0; k < files[i].size(); ++k) {
+                    //std::cout << "stoi2 :"<< files[i][k].substr(7, files[i][k].size()-12) << '\n';
+                    if (files[i][k].substr(7, files[i][k].size()-5) == strategies_temp[i][j]){
                         temp[i].push_back(files[i][k]);
                     }
                 }
@@ -526,6 +590,8 @@ public:
         }
         nb_examples = max_examples;
 
+
+
         size_t index;
         index = path.find_last_of("/");
         std::string folder_name = path.substr(index+1);
@@ -557,19 +623,25 @@ public:
         size_t index;
         index = filename.find_last_of("/");
         std::string temp_ref = filename.substr(index+1);
-        std::string footer("\\end{tabular} \\caption{Statistics with "+temp_ref.substr(6, temp_ref.size()-6-8)+" neurons}"
-                            "\\label{tab:"+temp_ref.substr(6, temp_ref.size()-6-4)+"} \\end{table}");
+        std::string footer("\\end{tabular} \\caption{Statistics with model "+temp_ref.substr(7, 1));
+        if(temp_ref.size() == 17)
+            footer.append("and logical constraints}");
+        else
+            footer.append("and abs constraints}");
+        footer.append("\\label{tab:"+temp_ref.substr(6, temp_ref.size()-6-4)+"} \\end{table}");
         return footer;
     }
+
+
 
 
     /* print_multirow method
     Arguments :
     - index_folder : index of the folder
     Output :
-    - multirow : string containind the multirow command in latex*/
+    - multirow : string containing the multirow command in latex*/
     std::string print_multirow(const int &index_folder){
-        std::string multirow("\\multirow{"+std::to_string(nb_examples[index_folder])+"}{4em}{784,");
+        std::string multirow("\\multirow{"+std::to_string(nb_files[0])+"}{4em}{784,");
         for (int i : archi[index_folder]) {
             multirow.append(std::to_string(i)+",");
         }
@@ -586,7 +658,7 @@ public:
     */
     std::string print_parser(const int &index_folder, const int &index_file){
         Parser* temp = parsers[index_folder][index_file];
-        std::string parser("& "+std::to_string(temp->get_nb_examples())+" & "+std::to_string(temp->get_nb_variables())+" & "+
+        std::string parser("& "+temp->get_strategy()+" & "+std::to_string(temp->get_nb_variables())+" & "+
                         std::to_string(temp->get_nb_constraints())+" & ");
         if(temp->get_nb_branches() > 1000000){
           int temp_branches = (int)temp->get_nb_branches()/1000000;

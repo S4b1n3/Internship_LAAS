@@ -4,6 +4,7 @@
 #include "cp_minweight_model.h"
 #include "cp_maxclassification_model.h"
 #include "cp_maxsum_weights_example_model.h"
+#include "cp_robust_model.h"
 #include "evaluation.h"
 
 #include "tclap/CmdLine.h"
@@ -17,6 +18,7 @@ int _index_model;
 int _seed;
 int _nb_examples;
 int _nb_examples_per_label;
+int _k;
 double _time;
 std::vector<int> architecture;
 int _nb_neurons;
@@ -28,7 +30,6 @@ bool _check_solution;
 void parseOptions(int argc, char** argv);
 
 int main(int argc, char **argv) {
-
 
 	architecture.push_back(784);
 	parseOptions(argc, argv);
@@ -51,7 +52,7 @@ int main(int argc, char **argv) {
 		filename.append("_0");
 	}
 
-	filename.append("/"+_strategy);
+	filename.append("/");
 
 	std::string cmd("mkdir -p "+filename);
 	system(cmd.c_str());
@@ -59,14 +60,14 @@ int main(int argc, char **argv) {
 	std::cout << filename << std::endl;
 
 	double accuracy_train, accuracy_test;
-	
+
 	switch (_index_model) {
 	case 1:
 	{
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
-			int status = model.print_statistics(_check_solution);
+			int status = model.print_statistics(_check_solution, _strategy);
 			if(status == 2 || status == 4){
 				Evaluation test(model.get_weights_solution(), model.get_data());
 				accuracy_test = test.run_evaluation(true);
@@ -77,7 +78,7 @@ int main(int argc, char **argv) {
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MinWeight model(architecture, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution);
+				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
 					accuracy_test = test.run_evaluation(true);
@@ -88,7 +89,7 @@ int main(int argc, char **argv) {
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MinWeight model(architecture, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution);
+				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
 					accuracy_test = test.run_evaluation(true);
@@ -106,7 +107,7 @@ int main(int argc, char **argv) {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
-			int status = model.print_statistics(_check_solution);
+			int status = model.print_statistics(_check_solution, _strategy);
 			if(status == 2 || status == 4){
 				Evaluation test(model.get_weights_solution(), model.get_data());
 				accuracy_test = test.run_evaluation(true);
@@ -118,7 +119,7 @@ int main(int argc, char **argv) {
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MaxClassification model(architecture, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution);
+				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
 					accuracy_test = test.run_evaluation(true);
@@ -129,7 +130,7 @@ int main(int argc, char **argv) {
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MaxClassification model(architecture, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution);
+				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
 					accuracy_test = test.run_evaluation(true);
@@ -144,9 +145,22 @@ int main(int argc, char **argv) {
 		operations_research::sat::CPModel_MaxSum third_model(architecture, _nb_examples, _prod_constraint, filename);
 		std::cout<<std::endl<<std::endl;
 		third_model.run(_time ,  _strategy) ;
-		int status = third_model.print_statistics(_check_solution);
+		int status = third_model.print_statistics(_check_solution, _strategy);
 		if(status == 2 || status == 4){
 			Evaluation test(third_model.get_weights_solution(), third_model.get_data());
+			accuracy_test = test.run_evaluation(true);
+			accuracy_train = test.run_evaluation(false);
+		}
+		break;
+	}
+	case 4:
+	{
+		operations_research::sat::CPModel_Robust model(architecture, _nb_examples, _prod_constraint, filename, _k);
+		std::cout<<std::endl<<std::endl;
+		model.run(_time ,  _strategy) ;
+		int status = model.print_statistics(_check_solution, _strategy);
+		if(status == 2 || status == 4){
+			Evaluation test(model.get_weights_solution(), model.get_data());
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
@@ -155,14 +169,14 @@ int main(int argc, char **argv) {
 	default:
 	{
 		std::cout << "There is no model with index "<< _index_model << '\n';
-		std::cout << "Please select 1, 2 or 3" << '\n';
+		std::cout << "Please select 1, 2, 3 or 4" << '\n';
 	}
-
+	
 	}
 
 	std::cout << "Testing accuracy of the model : "<< accuracy_test << '\n';
 	std::cout << "Training accuracy of the model : "<< accuracy_train << '\n';
-	std::string result_file = filename+"/results"+std::to_string(_nb_examples)+".stat";
+	std::string result_file = filename+"/results_"+_strategy+".stat";
 	std::ofstream results(result_file.c_str(), std::ios::app);
 	results << "test accuracy " << accuracy_test << std::endl;
 	results << "train accuracy " << accuracy_train << std::endl;
@@ -188,6 +202,9 @@ void parseOptions(int argc, char** argv){
 
 		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", false, 0, "int");
 		cmd.add(nb_ex);
+
+		ValueArg<int> param_k("K", "k", "Robustness parameter", false, 1, "int");
+		cmd.add(param_k);
 
 		ValueArg<int> nb_ex_per_label("E", "nb_examples_per_label", "Number of examples per label", false, 0, "int");
 		cmd.add(nb_ex_per_label);
@@ -221,6 +238,7 @@ void parseOptions(int argc, char** argv){
 		_seed = seed.getValue();
 		_nb_examples = nb_ex.getValue();
 		_nb_examples_per_label = nb_ex_per_label.getValue();
+		_k = param_k.getValue();
 		_time = time.getValue();
 		_prod_constraint = bool_prod.getValue();
 		_strategy =search_strategy.getValue();
