@@ -171,11 +171,17 @@ int main(int argc, char **argv) {
 		std::cout << "There is no model with index "<< _index_model << '\n';
 		std::cout << "Please select 1, 2, 3 or 4" << '\n';
 	}
-	
+
+	}
+	if (accuracy_test < 0.1) {
+		accuracy_test = 0;
+	}
+	if (accuracy_train < 0.1) {
+		accuracy_train = 0;
 	}
 
-	std::cout << "Testing accuracy of the model : "<< accuracy_test << '\n';
-	std::cout << "Training accuracy of the model : "<< accuracy_train << '\n';
+	std::cout << "Testing accuracy of the model : "<< std::round(accuracy_test) << '\n';
+	std::cout << "Training accuracy of the model : "<< std::round(accuracy_train) << '\n';
 	std::string result_file = filename+"/results_"+_strategy+".stat";
 	std::ofstream results(result_file.c_str(), std::ios::app);
 	results << "test accuracy " << accuracy_test << std::endl;
