@@ -179,7 +179,7 @@ int main(int argc, char **argv) {
 	if (accuracy_train < 0.1) {
 		accuracy_train = 0;
 	}
-
+	
 	std::cout << "Testing accuracy of the model : "<< std::round(accuracy_test) << '\n';
 	std::cout << "Training accuracy of the model : "<< std::round(accuracy_train) << '\n';
 	std::string result_file = filename+"/results_"+_strategy+".stat";

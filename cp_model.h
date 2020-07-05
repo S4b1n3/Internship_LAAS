@@ -129,7 +129,7 @@ public:
 
 		std::clock_t c_start = std::clock();
 
-		int compt_ex = 0, j = 0;
+		int compt_ex = 0;
 		std::vector<int> occ(10);
 		std::vector<int> ind;
 		while (compt_ex < nb_examples) {
@@ -137,15 +137,14 @@ public:
 			auto it = std::find(std::begin(ind), std::end(ind), index_rand);
 			if (it == ind.end()) {
 				ind.push_back(index_rand);
-				int label = (int)bnn_data.get_dataset().training_labels[j];
+				int label = (int)bnn_data.get_dataset().training_labels[index_rand];
 				if(occ[label] < _nb_examples_per_label){
-					inputs.push_back(bnn_data.get_dataset().training_images[j]);
+					inputs.push_back(bnn_data.get_dataset().training_images[index_rand]);
 					labels.push_back(label);
 					compt_ex++;
 					occ[label]++;
 				}
 			}
-			j++;
 		}
 
 		std::clock_t c_end = std::clock();
@@ -183,20 +182,16 @@ public:
         n_{lj} variables from the CP paper
 	 */
 	void declare_activation_variables(const int &index_example){
-		assert(index_example>=0);
-		assert(index_example<nb_examples);
+		//assert(index_example>=0);
+		//assert(index_example<nb_examples);
 
 		int size = inputs[index_example].size();
-		activation_first_layer.resize(nb_examples);
 
 		activation_first_layer[index_example].resize(size);
 		for (size_t i = 0; i < size; i++) {
 			activation_first_layer[index_example][i] = (int)inputs[index_example][i];
 		}
 
-
-
-		activation.resize(nb_examples);
 		int tmp = bnn_data.get_layers()-1;
 		activation[index_example].resize(tmp);
 		for (size_t l = 0; l < tmp; ++l) {
@@ -216,9 +211,8 @@ public:
         preactivation[l] represents the preactivation of layer l+1 where l \in [0,bnn_data.get_layers()-1]
 	 */
 	void declare_preactivation_variables(const int &index_example){
-		assert(index_example>=0);
-		assert(index_example<nb_examples);
-		preactivation.resize(nb_examples);
+		//assert(index_example>=0);
+		//assert(index_example<nb_examples);
 
 		int sum_image = 0;
 		for(std::vector<uint8_t>::iterator it = inputs[index_example].begin(); it != inputs[index_example].end(); ++it)
@@ -271,7 +265,7 @@ public:
 		//Initialization of the variables
 
 		int tmp = bnn_data.get_layers();
-		weights.resize(tmp);
+		weights.resize(tmp-1);
 		for (size_t l = 1; l < tmp; l++) {
 			int tmp2 = bnn_data.get_archi(l-1);
 			weights[l-1].resize(tmp2);
@@ -293,7 +287,7 @@ public:
 	/* get_w_ilj method
         Parameters :
         - i : neuron on layer l-1 \in [0, bnn_data.get_archi(l-1)]
-        - l : layer \in [1, bnn_data.get_layers()]
+        - l : layer \in [1, bnn_data.get_layers()-1]
         - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
         Output :
         w_{ilj} variables from the CP paper
@@ -642,6 +636,9 @@ public:
 
 		assert(nb_seconds>0);
 		declare_weight_variables();                      //initialization of the variables
+		activation_first_layer.resize(nb_examples);
+		activation.resize(nb_examples);
+		preactivation.resize(nb_examples);
 		for (size_t i = 0; i < nb_examples; i++) {
 			declare_preactivation_variables(i);
 			declare_activation_variables(i);
