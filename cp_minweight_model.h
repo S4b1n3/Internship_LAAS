@@ -117,9 +117,9 @@ namespace operations_research{
         /*assert(index_examples >= 0);
         assert(index_example < nb_examples);*/
         const int label = labels[index_examples];
-        cp_model_builder.AddEquality(activation[index_examples][bnn_data.get_layers()-2][label], 1);
-        int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
         int tmp2 = bnn_data.get_layers()-2;
+        cp_model_builder.AddEquality(activation[index_examples][tmp2][label], 1);
+        int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
         for (size_t i = 0; i < tmp; i++) {
           if (i != label) {
             cp_model_builder.AddEquality(activation[index_examples][tmp2][i], -1);

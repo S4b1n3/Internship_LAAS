@@ -3,6 +3,7 @@
 #include "solution.h"
 #include "cp_minweight_model.h"
 #include "cp_maxclassification_model.h"
+#include "cp_maxclassification_model2.h"
 #include "cp_maxsum_weights_example_model.h"
 #include "cp_robust_model.h"
 #include "evaluation.h"
@@ -142,6 +143,44 @@ int main(int argc, char **argv) {
 	}
 	case 3:
 	{
+		if (_nb_examples == 0 && _nb_examples_per_label != 0){
+			operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, architecture, _prod_constraint, filename);
+			model.run(_time, _strategy);
+			int status = model.print_statistics(_check_solution, _strategy);
+			if(status == 2 || status == 4){
+				Evaluation test(model.get_weights_solution(), model.get_data());
+				accuracy_test = test.run_evaluation(true);
+				accuracy_train = test.run_evaluation(false);
+			}
+		}
+
+		else{
+			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+				operations_research::sat::CPModel_MaxClassification2 model(architecture, _nb_examples, _prod_constraint, filename);
+				model.run(_time, _strategy);
+				int status = model.print_statistics(_check_solution, _strategy);
+				if(status == 2 || status == 4){
+					Evaluation test(model.get_weights_solution(), model.get_data());
+					accuracy_test = test.run_evaluation(true);
+					accuracy_train = test.run_evaluation(false);
+				}
+			}
+			else{
+				std::cout << "Invalid number of examples : default mode launched" << '\n';
+				operations_research::sat::CPModel_MaxClassification2 model(architecture, 1, _prod_constraint, filename);
+				model.run(_time, _strategy);
+				int status = model.print_statistics(_check_solution, _strategy);
+				if(status == 2 || status == 4){
+					Evaluation test(model.get_weights_solution(), model.get_data());
+					accuracy_test = test.run_evaluation(true);
+					accuracy_train = test.run_evaluation(false);
+				}
+			}
+		}
+		break;
+	}
+	case 4:
+	{
 		operations_research::sat::CPModel_MaxSum third_model(architecture, _nb_examples, _prod_constraint, filename);
 		std::cout<<std::endl<<std::endl;
 		third_model.run(_time ,  _strategy) ;
@@ -153,7 +192,7 @@ int main(int argc, char **argv) {
 		}
 		break;
 	}
-	case 4:
+	case 5:
 	{
 		operations_research::sat::CPModel_Robust model(architecture, _nb_examples, _prod_constraint, filename, _k);
 		std::cout<<std::endl<<std::endl;
@@ -169,7 +208,7 @@ int main(int argc, char **argv) {
 	default:
 	{
 		std::cout << "There is no model with index "<< _index_model << '\n';
-		std::cout << "Please select 1, 2, 3 or 4" << '\n';
+		std::cout << "Please select 1, 2, 3 or 4, 5" << '\n';
 	}
 
 	}
@@ -179,7 +218,7 @@ int main(int argc, char **argv) {
 	if (accuracy_train < 0.1) {
 		accuracy_train = 0;
 	}
-	
+
 	std::cout << "Testing accuracy of the model : "<< std::round(accuracy_test) << '\n';
 	std::cout << "Training accuracy of the model : "<< std::round(accuracy_train) << '\n';
 	std::string result_file = filename+"/results_"+_strategy+".stat";

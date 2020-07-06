@@ -1,5 +1,5 @@
-#ifndef EXAMPLES_CPP_CP_MAXCLASSIFICATION_MODEL_H_
-#define EXAMPLES_CPP_CP_MAXCLASSIFICATION_MODEL_H_
+#ifndef EXAMPLES_CPP_CP_MAXCLASSIFICATION2_MODEL_H_
+#define EXAMPLES_CPP_CP_MAXCLASSIFICATION2_MODEL_H_
 
 #include "ortools/sat/cp_model.h"
 #include "ortools/sat/model.h"
@@ -50,7 +50,7 @@ namespace operations_research{
     - output_path : path of the output files (results and solution)
     */
 
-    class CPModel_MaxClassification : public CP_Model{
+    class CPModel_MaxClassification2 : public CP_Model{
       protected :
         std::vector<BoolVar> classification;
         std::vector<int> classification_solution;
@@ -66,12 +66,12 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_MaxClassification(const std::vector<int> &_archi, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
+      CPModel_MaxClassification2(const std::vector<int> &_archi, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
                         CP_Model(_archi, _nb_examples, _prod_constraint, _output_path){
 
       }
 
-      CPModel_MaxClassification(const int &_nb_examples_per_label, const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
+      CPModel_MaxClassification2(const int &_nb_examples_per_label, const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
                         CP_Model(_nb_examples_per_label, _archi, _prod_constraint, _output_path){
 
       }
@@ -82,6 +82,120 @@ namespace operations_research{
           classification[i] = cp_model_builder.NewBoolVar();
         }
       }
+
+      /* model_activation_constraint method
+            Parameters :
+            - index_example : index of the example to classifie
+            - l : layer \in [1, bnn_data.get_layers()]
+            - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
+
+            preactivation[l][j] >= 0 => activation[l][j] = 1
+            preactivation[l][j] < 0 => activation[l][j] = -1
+            Output : None
+    	 */
+    	void model_activation_constraint(const int &index_example, const int &l, const int &j){
+    		/*assert (index_example>=0);
+    		assert (index_example<nb_examples);
+    		assert (l>0);
+    		assert (l<bnn_data.get_layers());
+    		assert (j>=0);
+    		assert (j<bnn_data.get_archi(l));*/
+
+    		//_temp_bool is true iff preactivation[l][j] < 0
+    		//_temp_bool is false iff preactivation[l][j] >= 0
+    		BoolVar _temp_bool = cp_model_builder.NewBoolVar();
+    		cp_model_builder.AddLessThan(get_a_lj(index_example, l, j), 0).OnlyEnforceIf({_temp_bool, classification[index_example]});
+    		cp_model_builder.AddGreaterOrEqual(get_a_lj(index_example, l, j), 0).OnlyEnforceIf({Not(_temp_bool), classification[index_example]});
+    		cp_model_builder.AddEquality(activation[index_example][l-1][j], -1).OnlyEnforceIf({_temp_bool, classification[index_example]});
+    		cp_model_builder.AddEquality(activation[index_example][l-1][j], 1).OnlyEnforceIf({Not(_temp_bool), classification[index_example]});
+    	}
+
+    	/* model_preactivation_constraint method
+            Parameters :
+            - index_example : index of the example to classifie
+            - l : layer \in [1, bnn_data.get_layers()-1]
+            - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
+            Output : None
+    	 */
+    	void model_preactivation_constraint(const int &index_example, const int &l, const int &j){
+    		//assert(index_example>=0);
+    		//assert(index_example<nb_examples);
+    		//No need for this
+    		//assert(l>0);
+    		//No need for this
+    		//assert(l<bnn_data.get_layers());
+    		//No need for this
+    		//assert(j>=0);
+    		//No need for this
+    		//assert(j<bnn_data.get_archi(l));
+    		if(l == 1){
+    			LinearExpr temp(0);
+    			int tmp = bnn_data.get_archi(0);
+    			for (size_t i = 0; i < tmp; i++) {
+    				temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
+    			}
+    			cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp).OnlyEnforceIf(classification[index_example]);
+    		}
+    		else{
+    			std::vector<IntVar> temp(bnn_data.get_archi(l-1));
+    			int tmp = bnn_data.get_archi(l-1) ;
+    			for (size_t i = 0; i < tmp; i++) {
+    				temp[i] = cp_model_builder.NewIntVar(domain);
+    				if(!prod_constraint){
+
+    					IntVar sum_weights_activation = cp_model_builder.NewIntVar(Domain(-2,2));
+    					IntVar sum_temp_1 = cp_model_builder.NewIntVar(Domain(0, 2));
+    					cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
+    					cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1));
+    					cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);
+
+    				}
+    				else {
+
+    					/*
+                      (C == 0) ssi (weights == 0)
+                        (C == 0) => (weights == 0) et (weights == 0) => (C == 0)
+                        Not(weights == 0) => Not(C == 0) et Not(C == 0) => (Not weights == 0)
+                      (C == 1) ssi (a == b)
+                        (C == 1) => (a == b) et (a == b) => (C == 1)
+                        Not(a == b) => Not(C == 1) et Not(C == 1) => Not(a == b)
+
+    					 */
+
+    					BoolVar b1 = cp_model_builder.NewBoolVar();
+    					BoolVar b2 = cp_model_builder.NewBoolVar();
+
+    					// Implement b1 == (temp[i] == 0)
+    					cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
+    					cp_model_builder.AddNotEqual(temp[i], LinearExpr(0)).OnlyEnforceIf(Not(b1));
+    					//Implement b2 == (weights == 0)
+    					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b2);
+    					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), LinearExpr(0)).OnlyEnforceIf(Not(b2));
+
+    					// b1 implies b2 and b2 implies b1
+    					cp_model_builder.AddImplication(b2, b1);
+    					cp_model_builder.AddImplication(b1, b2);
+
+    					BoolVar b3 = cp_model_builder.NewBoolVar();
+    					BoolVar b4 = cp_model_builder.NewBoolVar();
+
+    					// Implement b3 == (temp[i] == 1)
+    					cp_model_builder.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
+    					cp_model_builder.AddNotEqual(temp[i], LinearExpr(1)).OnlyEnforceIf(Not(b3));
+    					//Implement b4 == (weights == activation)
+    					cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b4);
+    					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b4));
+
+
+    					// b3 implies b4 and b4 implies b3
+    					cp_model_builder.AddImplication(b3, b4);
+    					cp_model_builder.AddImplication(b4, b3);
+
+    				}
+    			}
+    			cp_model_builder.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp)).OnlyEnforceIf(classification[index_example]);
+    		}
+    	}
 
       /* model_output_constraint method
 
@@ -214,4 +328,4 @@ namespace operations_research{
 
 
 
-#endif /* EXAMPLES_CPP_CP_MAXCLASSIFICATION_MODEL_H_ */
+#endif /* EXAMPLES_CPP_CP_MAXCLASSIFICATION2_MODEL_H_ */
