@@ -314,7 +314,7 @@ public:
         preactivation[l][j] < 0 => activation[l][j] = -1
         Output : None
 	 */
-	void model_activation_constraint(const int &index_example, const int &l, const int &j){
+	virtual void model_activation_constraint(const int &index_example, const int &l, const int &j){
 		/*assert (index_example>=0);
 		assert (index_example<nb_examples);
 		assert (l>0);
@@ -324,6 +324,8 @@ public:
 
 		//_temp_bool is true iff preactivation[l][j] < 0
 		//_temp_bool is false iff preactivation[l][j] >= 0
+
+		std::cout << "model activation constraint from cp_model" << '\n';
 		BoolVar _temp_bool = cp_model_builder.NewBoolVar();
 		cp_model_builder.AddLessThan(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(_temp_bool);
 		cp_model_builder.AddGreaterOrEqual(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(Not(_temp_bool));
@@ -338,7 +340,7 @@ public:
         - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
         Output : None
 	 */
-	void model_preactivation_constraint(const int &index_example, const int &l, const int &j){
+	virtual void model_preactivation_constraint(const int &index_example, const int &l, const int &j){
 		//assert(index_example>=0);
 		//assert(index_example<nb_examples);
 		//No need for this
@@ -349,6 +351,8 @@ public:
 		//assert(j>=0);
 		//No need for this
 		//assert(j<bnn_data.get_archi(l));
+
+		std::cout << "model preactivation constraint from cp_model" << '\n';
 		if(l == 1){
 			LinearExpr temp(0);
 			int tmp = bnn_data.get_archi(0);
@@ -628,7 +632,8 @@ public:
         - nb_seconds : Sets a time limit of nb_seconds
         Output : None
 	 */
-	void run(const double &nb_seconds, std::string _strategy){
+	virtual void run(const double &nb_seconds, std::string _strategy){
+		std::cout << "run from cp_model" << '\n';
 		std::cout<< " c declare variables and constraints " <<std::endl;
 
 		std::clock_t c_start = std::clock();
@@ -675,7 +680,8 @@ public:
 		std::cout<< " c running the solver.. " <<std::endl;
 	}
 
-	void check(const CpSolverResponse &r, const bool &check_solution, const int &index=0){
+	virtual void check(const CpSolverResponse &r, const bool &check_solution, const int &index=0){
+		std::cout << "check from cp_model" << '\n';
 
 		int tmp = bnn_data.get_layers();
 		weights_solution.resize(tmp);

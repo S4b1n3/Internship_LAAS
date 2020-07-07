@@ -132,6 +132,7 @@ namespace operations_research{
       Output : None
       */
       void run(const double &nb_seconds , std::string _strategy){
+        std::cout << "run from max_classification" << '\n';
         classification.resize(nb_examples);
         classification_solution.resize(nb_examples);
         declare_classification_variable();
@@ -141,6 +142,7 @@ namespace operations_research{
 
       void check(const CpSolverResponse &r, const bool &check_solution, const int &index=0){
 
+        std::cout << "check from max_classification" << '\n';
     		int tmp = bnn_data.get_layers();
     		weights_solution.resize(tmp);
     		for (size_t l = 1; l < tmp; ++l) {

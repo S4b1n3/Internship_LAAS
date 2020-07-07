@@ -295,7 +295,6 @@ void parseOptions(int argc, char** argv){
 			architecture.push_back(v[i]);
 			_nb_neurons += v[i];
 		}
-
 	} catch ( ArgException& e )
 	{ std::cout << "ERROR: " << e.error() << " " << e.argId() << std::endl; }
 }
