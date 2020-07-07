@@ -300,9 +300,9 @@ namespace operations_research{
     			}
 
           if (classification_solution[i] == 1 && check_solution) {
-            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
+            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
       			std::cout << "Checking solution : "<<index<<" : ";
-      			bool checking = check_solution.run_solution(true);
+      			bool checking = check_solution.run_solution(true, true, false);
           }
     		}
     	}

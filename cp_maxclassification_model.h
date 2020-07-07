@@ -132,7 +132,6 @@ namespace operations_research{
       Output : None
       */
       void run(const double &nb_seconds , std::string _strategy){
-        std::cout << "run from max_classification" << '\n';
         classification.resize(nb_examples);
         classification_solution.resize(nb_examples);
         declare_classification_variable();
@@ -141,8 +140,6 @@ namespace operations_research{
       }
 
       void check(const CpSolverResponse &r, const bool &check_solution, const int &index=0){
-
-        std::cout << "check from max_classification" << '\n';
     		int tmp = bnn_data.get_layers();
     		weights_solution.resize(tmp);
     		for (size_t l = 1; l < tmp; ++l) {
@@ -186,9 +183,9 @@ namespace operations_research{
     			}
 
           if (classification_solution[i] == 1 && check_solution) {
-            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, i+index_rand);
+            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
       			std::cout << "Checking solution : "<<index<<" : ";
-      			bool checking = check_solution.run_solution(true);
+      			bool checking = check_solution.run_solution(true, true, false);
           }
     		}
     	}

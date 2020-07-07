@@ -30,7 +30,7 @@ public:
     - archi : architecture of the network
   */
   Evaluation(const std::vector<std::vector<std::vector<int>>> &_weights, const Data &model_data) :
-            weights(_weights), checker(model_data, weights){
+            weights(_weights), checker(model_data, _weights){
   }
 
   /* run_evaluation method
@@ -42,7 +42,7 @@ public:
     std::clock_t c_start = std::clock();
     if (test_set) {
       for (size_t i = 0; i < 10000; i++) {
-        if (checker.run_solution(false, i, true, false)) {
+        if (checker.run_solution(false, false, true, true, i)) {
           nb_correct_classifications += 1;
         }
       }
@@ -52,7 +52,7 @@ public:
     }
     else{
       for (size_t i = 0; i < 60000; i++) {
-        if (checker.run_solution(false, i, false, false)) {
+        if (checker.run_solution(false, false, true, false, i)) {
           nb_correct_classifications += 1;
         }
       }

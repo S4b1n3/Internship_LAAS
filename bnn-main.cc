@@ -28,6 +28,8 @@ std::string _strategy;
 std::string _output_path;
 bool _check_solution;
 
+std::vector<std::vector<std::vector<int>>> weights_temp;
+
 void parseOptions(int argc, char** argv);
 
 int main(int argc, char **argv) {
@@ -115,7 +117,6 @@ int main(int argc, char **argv) {
 				accuracy_train = test.run_evaluation(false);
 			}
 		}
-
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MaxClassification model(architecture, _nb_examples, _prod_constraint, filename);
@@ -123,6 +124,24 @@ int main(int argc, char **argv) {
 				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
 					Evaluation test(model.get_weights_solution(), model.get_data());
+					accuracy_test = test.run_evaluation(true);
+					accuracy_train = test.run_evaluation(false);
+				}
+				else{
+					int tmp = model.get_data().get_layers();
+					weights_temp.resize(tmp);
+					for (size_t l = 1; l < tmp; ++l) {
+						int tmp2 = model.get_data().get_archi(l-1);
+						weights_temp[l-1].resize(tmp2);
+						for (size_t i = 0; i < tmp2; ++i) {
+							int tmp3 = model.get_data().get_archi(l);
+							weights_temp[l-1][i].resize(tmp3);
+							for (size_t j = 0; j < tmp3; ++j) {
+								weights_temp[l-1][i][j] = -1;
+							}
+						}
+					}
+					Evaluation test(weights_temp, model.get_data());
 					accuracy_test = test.run_evaluation(true);
 					accuracy_train = test.run_evaluation(false);
 				}
@@ -233,7 +252,6 @@ void parseOptions(int argc, char** argv){
 	try {
 
 		CmdLine cmd("BNN Parameters", ' ', "0.99" );
-
 
 		//
 		// Define arguments
