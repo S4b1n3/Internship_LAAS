@@ -677,7 +677,7 @@ public:
 		std::cout<< " c running the solver.. " <<std::endl;
 	}
 
-	virtual void check(const CpSolverResponse &r, const bool &check_solution, const int &index=0){
+	virtual void check(const CpSolverResponse &r, const bool &check_solution, const std::string &strategy, const int &index=0){
 		int tmp = bnn_data.get_layers();
 		weights_solution.resize(tmp);
 		for (size_t l = 1; l < tmp; ++l) {
@@ -721,6 +721,10 @@ public:
 				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
 				std::cout << "Checking solution : "<<index<<" : ";
 				bool checking = check_solution.run_solution(true, true, false);
+				std::string result_file = output_path+"/results_"+strategy+".stat";
+				std::ofstream parser(result_file.c_str(), std::ios::app);
+				parser << "checking "<<checking<<std::endl;
+				parser.close()
 			}
 		}
 	}
@@ -805,7 +809,7 @@ public:
 		else
 			std::cout << "Error opening parser file" << '\n';
 		if (response.status()== CpSolverStatus::OPTIMAL || response.status() == CpSolverStatus::FEASIBLE) {
-			check(response, check_solution);
+			check(response, check_solution, strategy);
 		}
 		return response.status();
 	}

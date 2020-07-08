@@ -22,7 +22,7 @@
  * 4 : OPTIMAL
  */
 std::vector<std::string> STATUS = {"UNKNOWN", "FEASIBLE", "INFEASIBLE", "OPTIMAL"};
-//index of the experience
+//index of the experiment
 int num_expe;
 
 //method used to split a string given a delimiter and put the result in a container
@@ -69,14 +69,16 @@ class Parser{
 private:
     std::ifstream input_file;
     int nb_examples;
+    std::string file_name;
 
     std::vector<int> status = {0, 0, 0, 0};
     int run_time = 0;
-    std::int64_t memory = 0;
+    std::uint64_t memory = 0;
     int nb_variables = 0;
     int nb_constraints = 0;
     int objective_value = 0;
     int nb_branches = 0;
+    int nb_conflicts = 0;
     int test_accuracy = 0;
     int train_accuracy = 0;
     std::string strategy;
@@ -88,7 +90,7 @@ public:
     - _path : name of the input file
     From the path, the method gets the number of examples
     */
-    Parser(const std::string& _path):input_file(_path){
+    Parser(const std::string& _path):input_file(_path), file_name(_path){
         size_t index;
         index = _path.find_last_of("/");
         std::string filename = _path.substr(index+1);
@@ -120,7 +122,7 @@ public:
     }
 
     //returns the mean memory usage
-    int get_memory() const{
+    std::uint64_t get_memory() const{
       return memory;
     }
 
@@ -142,6 +144,11 @@ public:
     //returns the mean of the number of branches
     int get_nb_branches() const{
         return nb_branches;
+    }
+
+    //returns the mean of the number of conflicts
+    int get_nb_conflicts() const{
+        return nb_conflicts;
     }
 
     //returns the mean of the accuray on the testing set
@@ -171,10 +178,17 @@ public:
         int count = 0;
         //variable that counts the number of runs with status OPTIMAL or FEASIBLE
         int count_objective = 0;
+	      int count_accuracy = 0;
         if(input_file){
             std::string line;
             while (std::getline(input_file, line)){
                 if (expe_temp == 1){                                          //if we are reading the logs of the last experiment
+		                int status_temp;
+
+                    if(line.substr(0,10) == "checking 0"){
+                      std::cout << "Error checking from file "<<file_name << '\n';
+                    }
+
                     if(line.substr(0, 9) == "run time "){
                         run_time += std::stoi(line.substr(9));
                         count +=1;
@@ -183,7 +197,7 @@ public:
                       memory += std::stoll(line.substr(7));
                     }
                     if(line.substr(0, 7) == "status "){
-                        int status_temp = std::stoi(line.substr(7));
+                        status_temp = std::stoi(line.substr(7));
                         switch (status_temp) {
                             case 0:
                                 status[0] +=1;
@@ -197,13 +211,16 @@ public:
                         }
                     }
                     if (line.substr(0, 10) == "objective "){
-                        if (std::stoi(line.substr(10)) != 0){
+		                    if(status_temp == 2 || status_temp == 4){
                             objective_value += std::stoi(line.substr(10));
                             count_objective += 1;
-                        }
+			                  }
                     }
                     if (line.substr(0, 9) == "branches "){
                         nb_branches += std::stoi(line.substr(9));
+                    }
+                    if (line.substr(0, 10) == "conflicts "){
+                        nb_conflicts += std::stoi(line.substr(10));
                     }
                     if(line.substr(0, 12) == "#Variables: "){
                         std::string temp;
@@ -221,14 +238,18 @@ public:
                         nb_constraints += std::stoi(temp[1]);
                     }
                     if (line.substr(0, 14) == "test accuracy ") {
-                      test_accuracy += std::stoi(line.substr(14));
-                    }
-
+		                    if(status_temp == 2 || status_temp == 4){
+                    	     test_accuracy += std::stoi(line.substr(14));
+			                     count_accuracy += 1;
+			                  }
+		                }
                     if (line.substr(0, 15) == "train accuracy ") {
-                      train_accuracy += std::stoi(line.substr(15));
+		                    if(status_temp == 2 || status_temp == 4){
+                      	   train_accuracy += std::stoi(line.substr(15));
+			                  }
                     }
                 } else {
-                    if (line == "----------")
+                    if (line.substr(0, 10) == "----------")
                         expe_temp--;
                 }
 
@@ -241,14 +262,17 @@ public:
           nb_variables /= count;
           nb_constraints /= count;
           nb_branches /= count;
-          test_accuracy /= count;
-          train_accuracy /= count;
+          nb_conflicts /= count;
         } else {
           std::cout << "No experiment written in output files" << '\n';
         }
-
         if (count_objective != 0)
             objective_value /= count_objective;
+
+      	if(count_accuracy != 0){
+      	    train_accuracy /= count_accuracy;
+      	    test_accuracy /= count_accuracy;
+      	}
 
         for (int i = 0; i < STATUS.size(); ++i) {
             status[i] = std::round(status[i]*100.0/count);
@@ -530,7 +554,7 @@ public:
             for (int j = 0; j < files[i].size(); ++j) {
                 std::ofstream file(path+"/"+folders[i]+"/"+files[i][j], std::ios::app);
                 if (file){
-                    file << "----------";
+                    file << "----------"<< std::endl;
                 } else
                     std::cout << "Error oppening result file" << std::endl;
                 file.close();
@@ -611,7 +635,7 @@ public:
     Output :
     - header : string containg the header commands in latex*/
     static std::string print_header_table() {
-        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c|c|c| } \hline Architecture & \N & \V & \C & \B & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M & \TSA & \TRA \\ \hline)");
+        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c|c|c|c| } \hline \St & \V & \C & \B & \Cf & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M & \TSA & \TRA \\ \hline)");
         return header;
     }
 
@@ -623,11 +647,11 @@ public:
         size_t index;
         index = filename.find_last_of("/");
         std::string temp_ref = filename.substr(index+1);
-        std::string footer("\\end{tabular} \\caption{Statistics with model "+temp_ref.substr(7, 1));
+        std::string footer("\\end{tabular} \\caption{Statistics with P"+temp_ref.substr(7, 1));
         if(temp_ref.size() == 17)
-            footer.append("and logical constraints}");
+            footer.append(" and M2}");
         else
-            footer.append("and abs constraints}");
+            footer.append(" and M1}");
         footer.append("\\label{tab:"+temp_ref.substr(6, temp_ref.size()-6-4)+"} \\end{table}");
         return footer;
     }
@@ -641,11 +665,11 @@ public:
     Output :
     - multirow : string containing the multirow command in latex*/
     std::string print_multirow(const int &index_folder){
-        std::string multirow("\\multirow{"+std::to_string(nb_files[0])+"}{4em}{784,");
+        std::string multirow("\\multicolumn{14}{|c|}{\\textbf{Architecture : 784,");
         for (int i : archi[index_folder]) {
             multirow.append(std::to_string(i)+",");
         }
-        multirow.append("10}");
+        multirow.append("10}} \\\\ \\hline");
         return multirow;
     }
 
@@ -658,7 +682,7 @@ public:
     */
     std::string print_parser(const int &index_folder, const int &index_file){
         Parser* temp = parsers[index_folder][index_file];
-        std::string parser("& "+temp->get_strategy()+" & "+std::to_string(temp->get_nb_variables())+" & "+
+        std::string parser(temp->get_strategy()+" & "+std::to_string(temp->get_nb_variables())+" & "+
                         std::to_string(temp->get_nb_constraints())+" & ");
         if(temp->get_nb_branches() > 1000000){
           int temp_branches = (int)temp->get_nb_branches()/1000000;
@@ -672,13 +696,25 @@ public:
             parser.append(std::to_string(temp->get_nb_branches())+ " & ");
           }
         }
+        if(temp->get_nb_conflicts() > 1000000){
+          int temp_conflicts = (int)temp->get_nb_conflicts()/1000000;
+          parser.append(std::to_string(temp_conflicts)+ "M & ");
+        }
+        else{
+          if (temp->get_nb_conflicts() > 1000) {
+            int temp_conflicts = (int)temp->get_nb_conflicts()/1000;
+            parser.append(std::to_string(temp_conflicts)+ "k & ");
+          }else{
+            parser.append(std::to_string(temp->get_nb_conflicts())+ " & ");
+          }
+        }
         for (int i = 0; i < STATUS.size(); ++i) {
             parser.append(std::to_string(temp->get_status(i))+" \\% & ");
         }
         if (temp->get_objective_value() != 0)
             parser.append(std::to_string(temp->get_objective_value())+" & ");
         else
-            parser.append(" & ");
+            parser.append("0 & ");
         if (temp->get_run_time() < 1)
             parser.append("$<$1 & ");
         else
@@ -732,7 +768,7 @@ int main(int argc, char **argv) {
     num_expe = std::stoi(argv[2]);
     //const std::string path("/home/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
     const std::string path_file("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
-    const std::string path_folder("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/results/"+std::string(argv[1]));
+    const std::string path_folder("/pfcalcul/tmp/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/rocknrun/bnn_cp_model/BNN/results/"+std::string(argv[1]));
     std::cout << path_folder <<std::endl << std::endl;
     Parser_Container first_test(path_folder);
     first_test.create_parsers();
