@@ -110,7 +110,7 @@ namespace operations_research{
         }
 
         cp_model_builder.AddEquality(activation[index_examples][tmp2][label], 1).OnlyEnforceIf(classification[index_examples]);
-        cp_model_builder.AddEquality(last_layer, -9).OnlyEnforceIf(classification[index_examples]);
+        cp_model_builder.AddEquality(last_layer, -(tmp - 1)).OnlyEnforceIf(classification[index_examples]);
       }
 
 
@@ -189,7 +189,7 @@ namespace operations_research{
             std::string result_file = output_path+"/results_"+strategy+".stat";
     				std::ofstream parser(result_file.c_str(), std::ios::app);
     				parser << "checking "<<checking<<std::endl;
-    				parser.close()
+    				parser.close();
           }
     		}
     	}

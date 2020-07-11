@@ -23,10 +23,10 @@ namespace sat {
 
     // Implement b1 == (C == 0)
     cp_model.AddEquality(c, 0).OnlyEnforceIf(b1);
-    cp_model.AddNotEqual(c, LinearExpr(0)).OnlyEnforceIf(Not(b1));
+    cp_model.AddNotEqual(c, 0).OnlyEnforceIf(Not(b1));
     //Implement b2 == (a == 0)
     cp_model.AddEquality(a, 0).OnlyEnforceIf(b2);
-    cp_model.AddNotEqual(a, LinearExpr(0)).OnlyEnforceIf(Not(b2));
+    cp_model.AddNotEqual(a, 0).OnlyEnforceIf(Not(b2));
 
     // b1 implies b2 and b2 implies b1
     cp_model.AddImplication(b2, b1);
@@ -37,7 +37,7 @@ namespace sat {
 
     // Implement b3 == (c == 1)
     cp_model.AddEquality(c, 1).OnlyEnforceIf(b3);
-    cp_model.AddNotEqual(c, LinearExpr(1)).OnlyEnforceIf(Not(b3));
+    cp_model.AddNotEqual(c, 1).OnlyEnforceIf(Not(b3));
     //Implement b4 == (a == b)
     cp_model.AddEquality(a, b).OnlyEnforceIf(b4);
     cp_model.AddNotEqual(a, b).OnlyEnforceIf(Not(b4));
@@ -77,10 +77,10 @@ namespace sat {
 
     // Implement b1 == (C == 0)
     cp_model.AddEquality(c, 0).OnlyEnforceIf(b1);
-    cp_model.AddNotEqual(c, LinearExpr(0)).OnlyEnforceIf(Not(b1));
+    cp_model.AddNotEqual(c, 0).OnlyEnforceIf(Not(b1));
     //Implement b2 == (a == 0)
     cp_model.AddEquality(a, 0).OnlyEnforceIf(b2);
-    cp_model.AddNotEqual(a, LinearExpr(0)).OnlyEnforceIf(Not(b2));
+    cp_model.AddNotEqual(a, 0).OnlyEnforceIf(Not(b2));
 
     // b1 implies b2 and b2 implies b1
     cp_model.AddImplication(b2, b1);
@@ -91,7 +91,7 @@ namespace sat {
 
     // Implement b3 == (c == 1)
     cp_model.AddEquality(c, 1).OnlyEnforceIf(b3);
-    cp_model.AddNotEqual(c, LinearExpr(1)).OnlyEnforceIf(Not(b3));
+    cp_model.AddNotEqual(c, 1).OnlyEnforceIf(Not(b3));
     //Implement b4 == (a == b)
     cp_model.AddEquality(a, b).OnlyEnforceIf(b4);
     cp_model.AddNotEqual(a, b).OnlyEnforceIf(Not(b4));
@@ -131,10 +131,10 @@ namespace sat {
 
     // Implement b1 == (C == 0)
     cp_model.AddEquality(c, 0).OnlyEnforceIf(b1);
-    cp_model.AddNotEqual(c, LinearExpr(0)).OnlyEnforceIf(Not(b1));
+    cp_model.AddNotEqual(c, 0).OnlyEnforceIf(Not(b1));
     //Implement b2 == (a == 0)
     cp_model.AddEquality(a, 0).OnlyEnforceIf(b2);
-    cp_model.AddNotEqual(a, LinearExpr(0)).OnlyEnforceIf(Not(b2));
+    cp_model.AddNotEqual(a, 0).OnlyEnforceIf(Not(b2));
 
     // b1 implies b2 and b2 implies b1
     cp_model.AddImplication(b2, b1);
@@ -145,7 +145,7 @@ namespace sat {
 
     // Implement b3 == (c == 1)
     cp_model.AddEquality(c, 1).OnlyEnforceIf(b3);
-    cp_model.AddNotEqual(c, LinearExpr(1)).OnlyEnforceIf(Not(b3));
+    cp_model.AddNotEqual(c, 1).OnlyEnforceIf(Not(b3));
     //Implement b4 == (a == b)
     cp_model.AddEquality(a, b).OnlyEnforceIf(b4);
     cp_model.AddNotEqual(a, b).OnlyEnforceIf(Not(b4));
@@ -186,10 +186,10 @@ namespace sat {
 
     // Implement b1 == (C == 0)
     cp_model.AddEquality(c, 0).OnlyEnforceIf(b1);
-    cp_model.AddNotEqual(c, LinearExpr(0)).OnlyEnforceIf(Not(b1));
+    cp_model.AddNotEqual(c, 0).OnlyEnforceIf(Not(b1));
     //Implement b2 == (a == 0)
     cp_model.AddEquality(a, 0).OnlyEnforceIf(b2);
-    cp_model.AddNotEqual(a, LinearExpr(0)).OnlyEnforceIf(Not(b2));
+    cp_model.AddNotEqual(a, 0).OnlyEnforceIf(Not(b2));
 
     // b1 implies b2 and b2 implies b1
     cp_model.AddImplication(b2, b1);
@@ -200,7 +200,7 @@ namespace sat {
 
     // Implement b3 == (c == 1)
     cp_model.AddEquality(c, 1).OnlyEnforceIf(b3);
-    cp_model.AddNotEqual(c, LinearExpr(1)).OnlyEnforceIf(Not(b3));
+    cp_model.AddNotEqual(c, 1).OnlyEnforceIf(Not(b3));
     //Implement b4 == (a == b)
     cp_model.AddEquality(a, b).OnlyEnforceIf(b4);
     cp_model.AddNotEqual(a, b).OnlyEnforceIf(Not(b4));
@@ -239,10 +239,10 @@ namespace sat {
 
     // Implement b1 == (C == 0)
     cp_model.AddEquality(c, 0).OnlyEnforceIf(b1);
-    cp_model.AddNotEqual(c, LinearExpr(0)).OnlyEnforceIf(Not(b1));
+    cp_model.AddNotEqual(c, 0).OnlyEnforceIf(Not(b1));
     //Implement b2 == (a == 0)
     cp_model.AddEquality(a, 0).OnlyEnforceIf(b2);
-    cp_model.AddNotEqual(a, LinearExpr(0)).OnlyEnforceIf(Not(b2));
+    cp_model.AddNotEqual(a, 0).OnlyEnforceIf(Not(b2));
 
     // b1 implies b2 and b2 implies b1
     cp_model.AddImplication(b2, b1);
@@ -253,7 +253,7 @@ namespace sat {
 
     // Implement b3 == (c == 1)
     cp_model.AddEquality(c, 1).OnlyEnforceIf(b3);
-    cp_model.AddNotEqual(c, LinearExpr(1)).OnlyEnforceIf(Not(b3));
+    cp_model.AddNotEqual(c, 1).OnlyEnforceIf(Not(b3));
     //Implement b4 == (a == b)
     cp_model.AddEquality(a, b).OnlyEnforceIf(b4);
     cp_model.AddNotEqual(a, b).OnlyEnforceIf(Not(b4));

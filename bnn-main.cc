@@ -100,9 +100,6 @@ int main(int argc, char **argv) {
 				}
 			}
 		}
-		//first_model.print_solution(first_model.get_response());
-		//first_model.print_solution_bis(first_model.get_response());
-		//first_model.print_all_solutions() ;
 		break;
 	}
 	case 2:

@@ -52,11 +52,12 @@ namespace operations_research{
       void declare_adversarial_variables(){
         adversarial.resize(nb_examples);
         int temp = bnn_data.get_archi(1);
+        int temp2 = bnn_data.get_archi(0);
         for (size_t e = 0; e < nb_examples; e++) {
           adversarial[e].resize(temp);
           for (size_t j = 0; j < temp; j++) {
-            adversarial[e][j].resize(784);
-            for (size_t i = 0; i < 784; i++) {
+            adversarial[e][j].resize(temp2);
+            for (size_t i = 0; i < temp2; i++) {
               adversarial[e][j][i] = cp_model_builder.NewIntVar(Domain::FromValues({inputs[e][i]-k, 0, inputs[e][i]+k}));
             }
           }
@@ -120,33 +121,22 @@ namespace operations_research{
               */
 
               BoolVar b1 = cp_model_builder.NewBoolVar();
-              BoolVar b2 = cp_model_builder.NewBoolVar();
 
               // Implement b1 == (temp[i] == 0)
               cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
-              cp_model_builder.AddNotEqual(temp[i], LinearExpr(0)).OnlyEnforceIf(Not(b1));
-              //Implement b2 == (weights == 0)
-              cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b2);
-              cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), LinearExpr(0)).OnlyEnforceIf(Not(b2));
-
-              // b1 implies b2 and b2 implies b1
-              cp_model_builder.AddImplication(b2, b1);
-              cp_model_builder.AddImplication(b1, b2);
+              cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf(Not(b1));
+              //Implement b1 == (weights == 0)
+              cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b1);
+              cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), 0).OnlyEnforceIf(Not(b1));
 
               BoolVar b3 = cp_model_builder.NewBoolVar();
-              BoolVar b4 = cp_model_builder.NewBoolVar();
 
               // Implement b3 == (temp[i] == 1)
               cp_model_builder.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
-              cp_model_builder.AddNotEqual(temp[i], LinearExpr(1)).OnlyEnforceIf(Not(b3));
-              //Implement b4 == (weights == activation)
-              cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b4);
-              cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b4));
-
-
-              // b3 implies b4 and b4 implies b3
-              cp_model_builder.AddImplication(b3, b4);
-              cp_model_builder.AddImplication(b4, b3);
+              cp_model_builder.AddNotEqual(temp[i], 1).OnlyEnforceIf(Not(b3));
+              //Implement b3 == (weights == activation)
+              cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b3);
+              cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b3));
 
             }
           }

@@ -165,33 +165,22 @@ namespace operations_research{
     					 */
 
     					BoolVar b1 = cp_model_builder.NewBoolVar();
-    					BoolVar b2 = cp_model_builder.NewBoolVar();
 
     					// Implement b1 == (temp[i] == 0)
     					cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf({b1, classification[index_example]});
-    					cp_model_builder.AddNotEqual(temp[i], LinearExpr(0)).OnlyEnforceIf({Not(b1), classification[index_example]});
-    					//Implement b2 == (weights == 0)
-    					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf({b2, classification[index_example]});
-    					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), LinearExpr(0)).OnlyEnforceIf({Not(b2), classification[index_example]});
-
-    					// b1 implies b2 and b2 implies b1
-    					cp_model_builder.AddImplication(b2, b1).OnlyEnforceIf(classification[index_example]);
-    					cp_model_builder.AddImplication(b1, b2).OnlyEnforceIf(classification[index_example]);
+    					cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf({Not(b1), classification[index_example]});
+    					//Implement b1 == (weights == 0)
+    					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf({b1, classification[index_example]});
+    					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), 0).OnlyEnforceIf({Not(b1), classification[index_example]});
 
     					BoolVar b3 = cp_model_builder.NewBoolVar();
-    					BoolVar b4 = cp_model_builder.NewBoolVar();
 
     					// Implement b3 == (temp[i] == 1)
     					cp_model_builder.AddEquality(temp[i], 1).OnlyEnforceIf({b3, classification[index_example]});
-    					cp_model_builder.AddNotEqual(temp[i], LinearExpr(1)).OnlyEnforceIf({Not(b3), classification[index_example]});
-    					//Implement b4 == (weights == activation)
-    					cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf({b4, classification[index_example]});
-    					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf({Not(b4), classification[index_example]});
-
-
-    					// b3 implies b4 and b4 implies b3
-    					cp_model_builder.AddImplication(b3, b4).OnlyEnforceIf(classification[index_example]);
-    					cp_model_builder.AddImplication(b4, b3).OnlyEnforceIf(classification[index_example]);
+    					cp_model_builder.AddNotEqual(temp[i], 1).OnlyEnforceIf({Not(b3), classification[index_example]});
+    					//Implement b3 == (weights == activation)
+    					cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf({b3, classification[index_example]});
+    					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf({Not(b3), classification[index_example]});
 
     				}
     			}
@@ -226,7 +215,7 @@ namespace operations_research{
         }
 
         cp_model_builder.AddEquality(activation[index_examples][tmp2][label], 1).OnlyEnforceIf(classification[index_examples]);
-        cp_model_builder.AddEquality(last_layer, -9).OnlyEnforceIf(classification[index_examples]);
+        cp_model_builder.AddEquality(last_layer, -(tmp - 1)).OnlyEnforceIf(classification[index_examples]);
       }
 
 
