@@ -188,6 +188,17 @@ public:
                     if(line.substr(0,10) == "checking 0"){
                       std::cout << "Error checking from file "<<file_name << '\n';
                     }
+                    if (line.substr(0, 19) == "train accuray time ") {
+                      if (std::stoi(line.substr(0, 19)) > 5000) {
+                        std::cout << "Accuracy computing on training set is more than 5000 seconds on file : "<< file_name << '\n';
+                      }
+                    }
+
+                    if (line.substr(0, 19) == "test accuray time ") {
+                      if (std::stoi(line.substr(0, 19)) > 800) {
+                        std::cout << "Accuracy computing on testing set is more than 800 seconds on file : "<< file_name << '\n';
+                      }
+                    }
 
                     if(line.substr(0, 9) == "run time "){
                         run_time += std::stoi(line.substr(9));

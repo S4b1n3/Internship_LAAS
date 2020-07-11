@@ -386,7 +386,6 @@ public:
 					 */
 
 					BoolVar b1 = cp_model_builder.NewBoolVar();
-					//BoolVar b2 = cp_model_builder.NewBoolVar();
 
 					// Implement b1 == (temp[i] == 0)
 					cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
@@ -395,12 +394,7 @@ public:
 					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b1);
 					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), 0).OnlyEnforceIf(Not(b1));
 
-					// b1 implies b2 and b2 implies b1
-					//cp_model_builder.AddImplication(b2, b1);
-					//cp_model_builder.AddImplication(b1, b2);
-
 					BoolVar b3 = cp_model_builder.NewBoolVar();
-					//BoolVar b4 = cp_model_builder.NewBoolVar();
 
 					// Implement b3 == (temp[i] == 1)
 					cp_model_builder.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
@@ -408,11 +402,6 @@ public:
 					//Implement b3 == (weights == activation)
 					cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b3);
 					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b3));
-
-
-					// b3 implies b4 and b4 implies b3
-					//cp_model_builder.AddImplication(b3, b4);
-					//cp_model_builder.AddImplication(b4, b3);
 
 				}
 			}
@@ -667,9 +656,7 @@ public:
 		std::clock_t c_end = std::clock();
 
 		//long_double time_elapsed_ms = 1000.0 * ;
-
-		std::string result_file = output_path+"/results_"+_strategy+".stat";
-		std::ofstream parser(result_file.c_str(), std::ios::app);
+		std::ofstream parser(output_path.c_str(), std::ios::app);
 		parser << "setup time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
 		parser.close();
 
@@ -721,8 +708,7 @@ public:
 				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
 				std::cout << "Checking solution : "<<index<<" : ";
 				bool checking = check_solution.run_solution(true, true, false);
-				std::string result_file = output_path+"/results_"+strategy+".stat";
-				std::ofstream parser(result_file.c_str(), std::ios::app);
+				std::ofstream parser(output_path.c_str(), std::ios::app);
 				parser << "checking "<<checking<<std::endl;
 				parser.close();
 			}
@@ -782,8 +768,7 @@ public:
 	// Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
 	int print_statistics(const int &check_solution, const std::string &strategy){
 		response = SolveCpModel(cp_model_builder.Build(), &model);
-		std::string result_file = output_path+"/results_"+strategy+".stat";
-		std::ofstream parser(result_file.c_str(), std::ios::app);
+		std::ofstream parser(output_path.c_str(), std::ios::app);
 		std::cout << "\nSome statistics on the solver response : " << '\n';
 		LOG(INFO) << CpSolverResponseStats(response);
 		std::cout << "\nSome statistics on the model : " << '\n';

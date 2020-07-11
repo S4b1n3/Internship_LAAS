@@ -15,7 +15,7 @@
 
 using namespace TCLAP;
 
-int _index_model;
+char _index_model;
 int _seed;
 int _nb_examples;
 int _nb_examples_per_label;
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 		filename.append("_0");
 	}
 
-	filename.append("/");
+	filename.append("/results_"+_strategy+".stat");
 
 	std::string cmd("mkdir -p "+filename);
 	system(cmd.c_str());
@@ -65,14 +65,14 @@ int main(int argc, char **argv) {
 	double accuracy_train, accuracy_test;
 
 	switch (_index_model) {
-	case 1:
+	case '1':
 	{
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			int status = model.print_statistics(_check_solution, _strategy);
 			if(status == 2 || status == 4){
-				Evaluation test(model.get_weights_solution(), model.get_data());
+				Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 				accuracy_test = test.run_evaluation(true);
 				accuracy_train = test.run_evaluation(false);
 			}
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 				model.run(_time, _strategy);
 				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data());
+					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 					accuracy_test = test.run_evaluation(true);
 					accuracy_train = test.run_evaluation(false);
 				}
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 				model.run(_time, _strategy);
 				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data());
+					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 					accuracy_test = test.run_evaluation(true);
 					accuracy_train = test.run_evaluation(false);
 				}
@@ -102,14 +102,14 @@ int main(int argc, char **argv) {
 		}
 		break;
 	}
-	case 2:
+	case '2':
 	{
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			int status = model.print_statistics(_check_solution, _strategy);
 			if(status == 2 || status == 4){
-				Evaluation test(model.get_weights_solution(), model.get_data());
+				Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 				accuracy_test = test.run_evaluation(true);
 				accuracy_train = test.run_evaluation(false);
 			}
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 				model.run(_time, _strategy);
 				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data());
+					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 					accuracy_test = test.run_evaluation(true);
 					accuracy_train = test.run_evaluation(false);
 				}
@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
 							}
 						}
 					}
-					Evaluation test(weights_temp, model.get_data());
+					Evaluation test(weights_temp, model.get_data(), filename);
 					accuracy_test = test.run_evaluation(true);
 					accuracy_train = test.run_evaluation(false);
 				}
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
 				model.run(_time, _strategy);
 				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data());
+					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 					accuracy_test = test.run_evaluation(true);
 					accuracy_train = test.run_evaluation(false);
 				}
@@ -157,14 +157,14 @@ int main(int argc, char **argv) {
 		}
 		break;
 	}
-	case 3:
+	case '3':
 	{
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			int status = model.print_statistics(_check_solution, _strategy);
 			if(status == 2 || status == 4){
-				Evaluation test(model.get_weights_solution(), model.get_data());
+				Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 				accuracy_test = test.run_evaluation(true);
 				accuracy_train = test.run_evaluation(false);
 			}
@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
 				model.run(_time, _strategy);
 				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data());
+					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 					accuracy_test = test.run_evaluation(true);
 					accuracy_train = test.run_evaluation(false);
 				}
@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
 				model.run(_time, _strategy);
 				int status = model.print_statistics(_check_solution, _strategy);
 				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data());
+					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 					accuracy_test = test.run_evaluation(true);
 					accuracy_train = test.run_evaluation(false);
 				}
@@ -195,27 +195,27 @@ int main(int argc, char **argv) {
 		}
 		break;
 	}
-	case 4:
+	case '4':
 	{
 		operations_research::sat::CPModel_MaxSum third_model(architecture, _nb_examples, _prod_constraint, filename);
 		std::cout<<std::endl<<std::endl;
 		third_model.run(_time ,  _strategy) ;
 		int status = third_model.print_statistics(_check_solution, _strategy);
 		if(status == 2 || status == 4){
-			Evaluation test(third_model.get_weights_solution(), third_model.get_data());
+			Evaluation test(third_model.get_weights_solution(), third_model.get_data(), filename);
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
 		break;
 	}
-	case 5:
+	case '5':
 	{
 		operations_research::sat::CPModel_Robust model(architecture, _nb_examples, _prod_constraint, filename, _k);
 		std::cout<<std::endl<<std::endl;
 		model.run(_time ,  _strategy) ;
 		int status = model.print_statistics(_check_solution, _strategy);
 		if(status == 2 || status == 4){
-			Evaluation test(model.get_weights_solution(), model.get_data());
+			Evaluation test(model.get_weights_solution(), model.get_data(), filename);
 			accuracy_test = test.run_evaluation(true);
 			accuracy_train = test.run_evaluation(false);
 		}
@@ -247,14 +247,11 @@ int main(int argc, char **argv) {
 
 void parseOptions(int argc, char** argv){
 	try {
-
 		CmdLine cmd("BNN Parameters", ' ', "0.99" );
-
 		//
 		// Define arguments
 		//
-		// TODO: change this argument to be a string instead
-		ValueArg<int> imodel ("M", "index_model", "Index of the model to run", true, 1, "int");
+		ValueArg<char> imodel ("M", "index_model", "Index of the model to run", true, '1', "char");
 		cmd.add(imodel);
 
 		ValueArg<int> seed ("S", "seed", "Seed", false, 1, "int");
@@ -290,7 +287,6 @@ void parseOptions(int argc, char** argv){
 		// Parse the command line.
 		//
 		cmd.parse(argc,argv);
-
 		//
 		// Set variables
 		//

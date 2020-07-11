@@ -20,6 +20,7 @@ private:
   int nb_correct_classifications = 0;
   std::vector<int> architecture;
   Solution checker;
+  std::string output_file;
 
 public:
 
@@ -29,8 +30,8 @@ public:
     - _weights : values of the weights returned by the solver
     - archi : architecture of the network
   */
-  Evaluation(const std::vector<std::vector<std::vector<int>>> &_weights, const Data &model_data) :
-            weights(_weights), checker(model_data, _weights){
+  Evaluation(const std::vector<std::vector<std::vector<int>>> &_weights, const Data &model_data, const std::string &filename) :
+            weights(_weights), checker(model_data, _weights), output_file(filename){
   }
 
   /* run_evaluation method
@@ -48,6 +49,9 @@ public:
       }
       std::clock_t c_end = std::clock();
       std::cout << " Evaluation on testing set finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
+      std::ofstream parser(output_file.c_str(), std::ios::app);
+  		parser << "test accuray time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+  		parser.close();
       return 100*nb_correct_classifications/10000;
     }
     else{
@@ -58,6 +62,9 @@ public:
       }
       std::clock_t c_end = std::clock();
       std::cout << " Evaluation on training set finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
+      std::ofstream parser(output_file.c_str(), std::ios::app);
+  		parser << "train accuray time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+  		parser.close();
       return 100*nb_correct_classifications/10000;
     }
   }
