@@ -39,11 +39,11 @@ public:
     - test_set : boolean that indicate on which dataset the examples are taken (default : testing set)
   This method tests every example one by one from the dataset and return the accuracy
   */
-  double run_evaluation (const int &test_set = true){
+  double run_evaluation (const int &test_set, const bool &predict){
     std::clock_t c_start = std::clock();
     if (test_set) {
       for (size_t i = 0; i < 10000; i++) {
-        if (checker.run_solution(false, false, true, true, i)) {
+        if (checker.run_solution(false, false, true, predict, true, i)) {
           nb_correct_classifications += 1;
         }
       }
@@ -56,7 +56,7 @@ public:
     }
     else{
       for (size_t i = 0; i < 60000; i++) {
-        if (checker.run_solution(false, false, true, false, i)) {
+        if (checker.run_solution(false, false, true, predict, false, i)) {
           nb_correct_classifications += 1;
         }
       }

@@ -210,6 +210,49 @@ public:
     return result;
   }
 
+  bool all_good_metric(const bool &verification_mode = false){
+    bool result = true ;
+    for (size_t l = 1; l < nb_layers; l++) {
+      int tmp =  bnn_data.get_archi(l-1);
+      for (size_t i = 0; i < tmp; i++) {
+        int tmp2 = bnn_data.get_archi(l);
+        for (size_t j = 0; j < tmp2; j++) {
+          preactivation[l][j] += activation[l-1][i] * weights[l-1][i][j];
+        }
+        for (size_t j = 0; j < tmp2; j++) {
+          if (l == nb_layers-1)
+            activation[l][j] = preactivation[l][j];
+          else
+            activation[l][j] = activation_function(preactivation[l][j]);
+        }
+      }
+    }
+    int predict = 0, max = activation[nb_layers-1][0];
+    int tmp = bnn_data.get_archi(nb_layers-1);
+    for (size_t i = 0; i < tmp; i++) {
+       if(activation[nb_layers-1][i]>= max)
+       {
+         max = activation[nb_layers-1][i];
+         predict = i;
+       }
+    }
+
+    if (verification_mode) {
+      if(predict != example_label){
+        std::cout<<"The output label does not correspond to the expected one"<<std::endl;
+        std::cout<<"True neuron to be activated is " <<  example_label << std::endl;
+        std::cout<<"Activated neuron on the output layer is" << predict <<std::endl;
+        result =  false;
+      }
+    }
+    else {
+      if (predict != example_label) {
+        result = false;
+      }
+    }
+    return result;
+  }
+
   /* check_activation_preactivation method
   This function tests if the preactivation and activation values returned by the solver
   are the same as the one calculated by the predict function
@@ -248,11 +291,16 @@ public:
     - verification_mode : argument for the predict method
   Output : boolean -> true if the methods both return true
   */
-  bool run_solution(const bool &check_act_preact, const bool &verification_mode, const bool &_init, const bool &test_set=true, const int &index_example = 0){
+  bool run_solution(const bool &check_act_preact, const bool &verification_mode, const bool &_init, const bool &use_predict = true, const bool &test_set=true, const int &index_example = 0){
     bool pred;
     bool act_preact = true;
     init(_init, test_set, index_example);
-    pred = predict(verification_mode);
+    if (use_predict) {
+      pred = predict(verification_mode);
+    }
+    else
+      pred = all_good_metric(verification_mode);
+
     if (check_act_preact) {
       act_preact = check_activation_preactivation();
     }

@@ -54,15 +54,20 @@ int main(int argc, char **argv) {
 	if (architecture.size()-2 == 0) {
 		filename.append("_0");
 	}
-
-	filename.append("/results_"+_strategy+".stat");
-
 	std::string cmd("mkdir -p "+filename);
 	system(cmd.c_str());
+	filename.append("/results_"+_strategy+".stat");
+
+
+
 
 	std::cout << filename << std::endl;
 
-	double accuracy_train, accuracy_test;
+	double accuracy_train, accuracy_test, accuracy_train_bis, accuracy_test_bis;
+
+	std::vector<std::vector<std::vector<int>>> weights;
+	Data bnn_data(architecture);
+	int status;
 
 	switch (_index_model) {
 	case '1':
@@ -70,34 +75,22 @@ int main(int argc, char **argv) {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
-			int status = model.print_statistics(_check_solution, _strategy);
-			if(status == 2 || status == 4){
-				Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-				accuracy_test = test.run_evaluation(true);
-				accuracy_train = test.run_evaluation(false);
-			}
+			status = model.print_statistics(_check_solution, _strategy);
+			weights = model.get_weights_solution();
 		 }
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MinWeight model(architecture, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution, _strategy);
-				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-					accuracy_test = test.run_evaluation(true);
-					accuracy_train = test.run_evaluation(false);
-				}
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = model.get_weights_solution();
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MinWeight model(architecture, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution, _strategy);
-				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-					accuracy_test = test.run_evaluation(true);
-					accuracy_train = test.run_evaluation(false);
-				}
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = model.get_weights_solution();
 			}
 		}
 		break;
@@ -107,52 +100,22 @@ int main(int argc, char **argv) {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
-			int status = model.print_statistics(_check_solution, _strategy);
-			if(status == 2 || status == 4){
-				Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-				accuracy_test = test.run_evaluation(true);
-				accuracy_train = test.run_evaluation(false);
-			}
+			status = model.print_statistics(_check_solution, _strategy);
+			weights = model.get_weights_solution();
 		}
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MaxClassification model(architecture, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution, _strategy);
-				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-					accuracy_test = test.run_evaluation(true);
-					accuracy_train = test.run_evaluation(false);
-				}
-				else{
-					int tmp = model.get_data().get_layers();
-					weights_temp.resize(tmp);
-					for (size_t l = 1; l < tmp; ++l) {
-						int tmp2 = model.get_data().get_archi(l-1);
-						weights_temp[l-1].resize(tmp2);
-						for (size_t i = 0; i < tmp2; ++i) {
-							int tmp3 = model.get_data().get_archi(l);
-							weights_temp[l-1][i].resize(tmp3);
-							for (size_t j = 0; j < tmp3; ++j) {
-								weights_temp[l-1][i][j] = -1;
-							}
-						}
-					}
-					Evaluation test(weights_temp, model.get_data(), filename);
-					accuracy_test = test.run_evaluation(true);
-					accuracy_train = test.run_evaluation(false);
-				}
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = model.get_weights_solution();
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MaxClassification model(architecture, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution, _strategy);
-				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-					accuracy_test = test.run_evaluation(true);
-					accuracy_train = test.run_evaluation(false);
-				}
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = model.get_weights_solution();
 			}
 		}
 		break;
@@ -162,50 +125,34 @@ int main(int argc, char **argv) {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, architecture, _prod_constraint, filename);
 			model.run(_time, _strategy);
-			int status = model.print_statistics(_check_solution, _strategy);
-			if(status == 2 || status == 4){
-				Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-				accuracy_test = test.run_evaluation(true);
-				accuracy_train = test.run_evaluation(false);
-			}
+			status = model.print_statistics(_check_solution, _strategy);
+			weights = model.get_weights_solution();
 		}
 
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MaxClassification2 model(architecture, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution, _strategy);
-				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-					accuracy_test = test.run_evaluation(true);
-					accuracy_train = test.run_evaluation(false);
-				}
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = model.get_weights_solution();
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MaxClassification2 model(architecture, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
-				int status = model.print_statistics(_check_solution, _strategy);
-				if(status == 2 || status == 4){
-					Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-					accuracy_test = test.run_evaluation(true);
-					accuracy_train = test.run_evaluation(false);
-				}
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = model.get_weights_solution();
 			}
 		}
 		break;
 	}
 	case '4':
 	{
-		operations_research::sat::CPModel_MaxSum third_model(architecture, _nb_examples, _prod_constraint, filename);
+		operations_research::sat::CPModel_MaxSum model(architecture, _nb_examples, _prod_constraint, filename);
 		std::cout<<std::endl<<std::endl;
-		third_model.run(_time ,  _strategy) ;
-		int status = third_model.print_statistics(_check_solution, _strategy);
-		if(status == 2 || status == 4){
-			Evaluation test(third_model.get_weights_solution(), third_model.get_data(), filename);
-			accuracy_test = test.run_evaluation(true);
-			accuracy_train = test.run_evaluation(false);
-		}
+		model.run(_time ,  _strategy) ;
+		status = model.print_statistics(_check_solution, _strategy);
+		weights = model.get_weights_solution();
 		break;
 	}
 	case '5':
@@ -213,12 +160,8 @@ int main(int argc, char **argv) {
 		operations_research::sat::CPModel_Robust model(architecture, _nb_examples, _prod_constraint, filename, _k);
 		std::cout<<std::endl<<std::endl;
 		model.run(_time ,  _strategy) ;
-		int status = model.print_statistics(_check_solution, _strategy);
-		if(status == 2 || status == 4){
-			Evaluation test(model.get_weights_solution(), model.get_data(), filename);
-			accuracy_test = test.run_evaluation(true);
-			accuracy_train = test.run_evaluation(false);
-		}
+		status = model.print_statistics(_check_solution, _strategy);
+		weights = model.get_weights_solution();
 		break;
 	}
 	default:
@@ -228,19 +171,39 @@ int main(int argc, char **argv) {
 	}
 
 	}
+
+	if(status == 2 || status == 4){
+		Evaluation test(weights, bnn_data, filename);
+		accuracy_test = test.run_evaluation(true, true);
+		accuracy_train = test.run_evaluation(false, true);
+		accuracy_test_bis = test.run_evaluation(true, false);
+		accuracy_train_bis = test.run_evaluation(false, false);
+	}
+
 	if (accuracy_test < 0.1) {
 		accuracy_test = 0;
 	}
 	if (accuracy_train < 0.1) {
 		accuracy_train = 0;
 	}
+	if (accuracy_test_bis < 0.1) {
+		accuracy_test_bis = 0;
+	}
+	if (accuracy_train_bis < 0.1) {
+		accuracy_train_bis = 0;
+	}
 
-	std::cout << "Testing accuracy of the model : "<< std::round(accuracy_test) << '\n';
-	std::cout << "Training accuracy of the model : "<< std::round(accuracy_train) << '\n';
+	std::cout << "Testing accuracy of the model with activation function : "<< std::round(accuracy_test) << '\n';
+	std::cout << "Training accuracy of the model with activation function : "<< std::round(accuracy_train) << '\n';
+	std::cout << "Testing accuracy of the model with all good metric : "<< std::round(accuracy_test_bis) << '\n';
+	std::cout << "Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
 	std::string result_file = filename+"/results_"+_strategy+".stat";
 	std::ofstream results(result_file.c_str(), std::ios::app);
 	results << "test accuracy " << accuracy_test << std::endl;
 	results << "train accuracy " << accuracy_train << std::endl;
+	results << "test accuracy bis " << accuracy_test_bis << std::endl;
+	results << "train accuracy bis " << accuracy_train_bis << std::endl;
+	results.close();
 
 	return EXIT_SUCCESS;
 }
