@@ -68,6 +68,9 @@ protected:
 
 	//weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
 	std::vector<std::vector <std::vector<IntVar>>> weights;
+
+	std::vector<std::vector <std::vector<BoolVar>>> weight_is_0;
+
 	std::vector<std::vector <std::vector<int>>> weights_solution;
 
 	std::vector <std::vector<std::vector<IntVar>>> activation;
@@ -264,20 +267,35 @@ public:
 
 		//Initialization of the variables
 
-		int tmp = bnn_data.get_layers();
-		weights.resize(tmp-1);
-		for (size_t l = 1; l < tmp; l++) {
+		int nb_layers = bnn_data.get_layers();
+		weights.resize(nb_layers-1);
+		//We use weight_is_0 only for all layers exept the first one (the pre-activation constraints from layer  0 et 0 use a linear constraint).
+		if (prod_constraint)
+			weight_is_0.resize(nb_layers-2);
+		for (size_t l = 1; l < nb_layers; l++) {
 			int tmp2 = bnn_data.get_archi(l-1);
 			weights[l-1].resize(tmp2);
+			if (prod_constraint && (l>=2))
+				weight_is_0[l-2].resize(tmp2);
+
 			for(size_t i = 0; i < tmp2; i++){
 				int tmp3 = bnn_data.get_archi(l);
 				weights[l-1][i].resize(tmp3);
+				if (prod_constraint && (l>=2))
+						weight_is_0[l-2][i].resize(tmp3);
 				for (size_t j = 0; j < tmp3; j++) {
 
 					/*One weight for each connection between the neurons i of layer
                   l-1 and the neuron j of layer l : N(i) * N(i+1) connections*/
 
 					weights[l-1][i][j] = cp_model_builder.NewIntVar(domain);
+					if (prod_constraint && (l>=2)){
+						weight_is_0[l-2][i][j] = cp_model_builder.NewBoolVar();
+
+						cp_model_builder.AddEquality(weights[l-1][i][j] , 0).OnlyEnforceIf(weight_is_0[l-2][i][j]);
+						cp_model_builder.AddNotEqual(weights[l-1][i][j] , 0).OnlyEnforceIf(Not(weight_is_0[l-2][i][j]));
+					}
+
 				}
 			}
 		}
@@ -301,6 +319,18 @@ public:
 		assert(j<bnn_data.get_archi(l));
 		return weights[l-1][i][j];
 	}
+
+	BoolVar get_weight_is_0_ilj(const int &i, const int &l, const int &j){
+		assert(l>=2);
+		assert(l<bnn_data.get_layers());
+		assert(i>=0);
+		assert(i<bnn_data.get_archi(l-1));
+		assert(j>=0);
+		assert(j<bnn_data.get_archi(l));
+		return weight_is_0[l-2][i][j];
+	}
+
+
 
 	virtual void model_declare_objective() = 0;
 
@@ -340,16 +370,16 @@ public:
         Output : None
 	 */
 	virtual void model_preactivation_constraint(const int &index_example, const int &l, const int &j){
-		//assert(index_example>=0);
-		//assert(index_example<nb_examples);
+		assert(index_example>=0);
+		assert(index_example<nb_examples);
 		//No need for this
-		//assert(l>0);
+		assert(l>0);
 		//No need for this
-		//assert(l<bnn_data.get_layers());
+		assert(l<bnn_data.get_layers());
 		//No need for this
-		//assert(j>=0);
+		assert(j>=0);
 		//No need for this
-		//assert(j<bnn_data.get_archi(l));
+		assert(j<bnn_data.get_archi(l));
 
 		if(l == 1){
 			LinearExpr temp(0);
@@ -385,14 +415,14 @@ public:
 
 					 */
 
-					BoolVar b1 = cp_model_builder.NewBoolVar();
-
+//					BoolVar b1 = cp_model_builder.NewBoolVar();
+					//std::cout << " HERE " << std::endl;
 					// Implement b1 == (temp[i] == 0)
-					cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
-					cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf(Not(b1));
+					cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(get_weight_is_0_ilj (i,l,j));
+					cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf(Not(get_weight_is_0_ilj (i,l,j) ) );
 					//Implement b1 == (weights == 0)
-					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b1);
-					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), 0).OnlyEnforceIf(Not(b1));
+//					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b1);
+//					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), 0).OnlyEnforceIf(Not(b1));
 
 					BoolVar b3 = cp_model_builder.NewBoolVar();
 
@@ -661,6 +691,9 @@ public:
 		parser.close();
 
 		std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
+		std::cout << "\nSome statistics on the model : " << '\n';
+		LOG(INFO) << CpModelStats(cp_model_builder.Build());
+
 		std::cout<< " c running the solver.. " <<std::endl;
 	}
 
@@ -771,8 +804,8 @@ public:
 		std::ofstream parser(output_path.c_str(), std::ios::app);
 		std::cout << "\nSome statistics on the solver response : " << '\n';
 		LOG(INFO) << CpSolverResponseStats(response);
-		std::cout << "\nSome statistics on the model : " << '\n';
-		LOG(INFO) << CpModelStats(cp_model_builder.Build());
+		//std::cout << "\nSome statistics on the model : " << '\n';
+		//LOG(INFO) << CpModelStats(cp_model_builder.Build());
 		if(parser){
 			parser << std::endl << "run time " << response.wall_time() << std::endl;
 			parser << "memory " << sysinfo::MemoryUsageProcess() << std::endl;
