@@ -227,12 +227,12 @@ public:
         }
       }
     }
-    int predict = 0, max = activation[nb_layers-1][0];
+    int predict = 0, max = abs(activation[nb_layers-1][0]);
     int tmp = bnn_data.get_archi(nb_layers-1);
     for (size_t i = 0; i < tmp; i++) {
-       if(activation[nb_layers-1][i]>= max)
+       if(abs(activation[nb_layers-1][i])>= max)
        {
-         max = activation[nb_layers-1][i];
+         max = abs(activation[nb_layers-1][i]);
          predict = i;
        }
     }

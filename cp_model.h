@@ -738,7 +738,10 @@ public:
 				}
 			}
 			if (check_solution) {
+				std::clock_t c_start = std::clock();
 				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
+				std::clock_t c_end = std::clock();
+				std::cout << "Build Solution time" << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
 				std::cout << "Checking solution : "<<index<<" : ";
 				bool checking = check_solution.run_solution(true, true, false);
 				std::ofstream parser(output_path.c_str(), std::ios::app);
