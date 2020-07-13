@@ -28,8 +28,6 @@ std::string _strategy;
 std::string _output_path;
 bool _check_solution;
 
-std::vector<std::vector<std::vector<int>>> weights_temp;
-
 void parseOptions(int argc, char** argv);
 
 int main(int argc, char **argv) {
@@ -76,21 +74,21 @@ int main(int argc, char **argv) {
 			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
-			weights = model.get_weights_solution();
+			weights = std::move(model.get_weights_solution());
 		 }
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MinWeight model(bnn_data, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
-				weights = model.get_weights_solution();
+				weights = std::move(model.get_weights_solution());
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MinWeight model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
-				weights = model.get_weights_solution();
+				weights = std::move(model.get_weights_solution());
 			}
 		}
 		break;
@@ -101,21 +99,21 @@ int main(int argc, char **argv) {
 			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
-			weights = model.get_weights_solution();
+			weights = std::move(model.get_weights_solution());
 		}
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_MaxClassification model(bnn_data, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
-				weights = model.get_weights_solution();
+				weights = std::move(model.get_weights_solution());
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MaxClassification model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
-				weights = model.get_weights_solution();
+				weights = std::move(model.get_weights_solution());
 			}
 		}
 		break;
@@ -126,7 +124,7 @@ int main(int argc, char **argv) {
 			operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
-			weights = model.get_weights_solution();
+			weights = std::move(model.get_weights_solution());
 		}
 
 		else{
@@ -134,14 +132,14 @@ int main(int argc, char **argv) {
 				operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
-				weights = model.get_weights_solution();
+				weights = std::move(model.get_weights_solution());
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MaxClassification2 model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
-				weights = model.get_weights_solution();
+				weights = std::move(model.get_weights_solution());
 			}
 		}
 		break;
@@ -152,7 +150,7 @@ int main(int argc, char **argv) {
 		std::cout<<std::endl<<std::endl;
 		model.run(_time ,  _strategy) ;
 		status = model.print_statistics(_check_solution, _strategy);
-		weights = model.get_weights_solution();
+		weights = std::move(model.get_weights_solution());
 		break;
 	}
 	case '5':
@@ -161,7 +159,7 @@ int main(int argc, char **argv) {
 		std::cout<<std::endl<<std::endl;
 		model.run(_time ,  _strategy) ;
 		status = model.print_statistics(_check_solution, _strategy);
-		weights = model.get_weights_solution();
+		weights = std::move(model.get_weights_solution());
 		break;
 	}
 	default:

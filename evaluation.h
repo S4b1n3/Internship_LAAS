@@ -15,8 +15,6 @@ Attributs :
 */
 class Evaluation {
 private:
-
-  std::vector<std::vector<std::vector<int>>> weights;
   int nb_correct_classifications = 0;
   std::vector<int> architecture;
   Solution checker;
@@ -30,8 +28,8 @@ public:
     - _weights : values of the weights returned by the solver
     - archi : architecture of the network
   */
-  Evaluation(const std::vector<std::vector<std::vector<int>>> &_weights, Data* model_data, const std::string &filename) :
-            weights(_weights), checker(model_data, _weights), output_file(filename){
+  Evaluation(std::vector<std::vector<std::vector<int>>> _weights, Data* model_data, const std::string &filename) :
+            checker(model_data, _weights), output_file(filename){
   }
 
   /* run_evaluation method
@@ -42,7 +40,7 @@ public:
   double run_evaluation (const int &test_set, const bool &predict){
     std::clock_t c_start = std::clock();
     if (test_set) {
-nb_correct_classifications=0;
+      nb_correct_classifications=0;
       for (size_t i = 0; i < 10000; i++) {
         if (checker.run_solution(false, false, true, predict, true, i)) {
           nb_correct_classifications += 1;
@@ -56,7 +54,7 @@ nb_correct_classifications=0;
       return 100*nb_correct_classifications/10000;
     }
     else{
-nb_correct_classifications=0;
+      nb_correct_classifications=0;
       for (size_t i = 0; i < 60000; i++) {
         if (checker.run_solution(false, false, true, predict, false, i)) {
           nb_correct_classifications += 1;

@@ -52,15 +52,14 @@ public:
     - test_set : booean that indicates which dataset to use for the tests
   */
   Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &index_example):
-  weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
+   weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
     bnn_data = model_data;
     nb_layers = bnn_data->get_layers();
     example_label = (int)bnn_data->get_dataset().training_labels[index_example];
     example_images = bnn_data->get_dataset().training_images[index_example];
   }
 
-  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example):
-  weights(std::move(_weights)){
+  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example) : weights(std::move(_weights)){
     bnn_data=model_data;
     nb_layers = bnn_data->get_layers();
     example_label = (int)bnn_data->get_dataset().training_labels[index_example];
@@ -68,20 +67,19 @@ public:
   }
 
   Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &label, const std::vector<uint8_t> &image):
-  bnn_data(model_data), weights(std::move(_weights)),  example_label(label), example_images(image){
+   weights(std::move(_weights)), example_label(label), example_images(image){
     bnn_data=model_data;
     nb_layers = bnn_data->get_layers();
   }
 
   Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &label, const std::vector<uint8_t> &image):
-  weights(std::move(_weights)),  example_label(label), example_images(image), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
+    weights(std::move(_weights)), example_label(label), example_images(image), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
     bnn_data=model_data;
     nb_layers = bnn_data->get_layers();
   }
 
 
-  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example, const bool test_set):
-  weights(std::move(_weights)){
+  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example, const bool test_set) : weights(std::move(_weights)){
     bnn_data=model_data;
     nb_layers = bnn_data->get_layers();
     if(test_set){
@@ -94,8 +92,7 @@ public:
     }
   }
 
-  Solution(Data *model_data, std::vector<std::vector<std::vector<int>>> _weights):
-      bnn_data(model_data), weights(std::move(_weights)){
+  Solution(Data *model_data, std::vector<std::vector<std::vector<int>>> _weights): weights(std::move(_weights)){
     bnn_data=model_data;
     nb_layers = bnn_data->get_layers();
   }
@@ -223,7 +220,7 @@ public:
       for (size_t i = 0; i < tmp; i++) {
         int tmp2 = bnn_data->get_archi(l);
         for (size_t j = 0; j < tmp2; j++) {
-          preactivation[l][j] += activation[l-1][i] * weights[l-1][i][j];
+          preactivation[l][j] += activation[l-1][i] * weights[l-1][i][j];;
         }
         for (size_t j = 0; j < tmp2; j++) {
           if (l == nb_layers-1)
