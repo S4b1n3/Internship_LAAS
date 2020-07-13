@@ -77,13 +77,13 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_MinWeight(const std::vector<int> &_archi, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
-                        CP_Model(_archi, _nb_examples, _prod_constraint, _output_path){
+      CPModel_MinWeight(Data *_data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
+                        CP_Model(_data, _nb_examples, _prod_constraint, _output_path){
 
       }
 
-      CPModel_MinWeight(const int &_nb_examples_per_label, const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
-                        CP_Model(_nb_examples_per_label, _archi, _prod_constraint, _output_path){
+      CPModel_MinWeight(const int &_nb_examples_per_label, Data *_data, const bool _prod_constraint, const std::string &_output_path):
+                        CP_Model(_nb_examples_per_label, _data, _prod_constraint, _output_path){
 
       }
 
@@ -93,11 +93,11 @@ namespace operations_research{
       Output : None
       */
       void model_declare_objective(){
-        int tmp = bnn_data.get_layers();
+        int tmp = bnn_data->get_layers();
         for (size_t l = 1; l < tmp; l++) {
-          int tmp2 = bnn_data.get_archi(l-1);
+          int tmp2 = bnn_data->get_archi(l-1);
           for(size_t i = 0; i < tmp2; i++) {
-            int tmp3 = bnn_data.get_archi(l);
+            int tmp3 = bnn_data->get_archi(l);
             for (size_t j = 0; j < tmp3; j++) {
               IntVar abs = cp_model_builder.NewIntVar(Domain(0,1));
               cp_model_builder.AddAbsEquality(abs, weights[l-1][i][j]);
@@ -117,9 +117,9 @@ namespace operations_research{
         /*assert(index_examples >= 0);
         assert(index_example < nb_examples);*/
         const int label = labels[index_examples];
-        int tmp2 = bnn_data.get_layers()-2;
+        int tmp2 = bnn_data->get_layers()-2;
         cp_model_builder.AddEquality(activation[index_examples][tmp2][label], 1);
-        int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
+        int tmp = bnn_data->get_archi(bnn_data->get_layers()-1);
         for (size_t i = 0; i < tmp; i++) {
           if (i != label) {
             cp_model_builder.AddEquality(activation[index_examples][tmp2][i], -1);
@@ -144,10 +144,10 @@ namespace operations_research{
         assert(index >=0);
         if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
           std::cout << "\nSolution "<< index << " : \n";
-          for (size_t l = 1; l < bnn_data.get_layers(); ++l) {
+          for (size_t l = 1; l < bnn_data->get_layers(); ++l) {
             std::cout << "Layer "<< l << ": \n";
-            for (size_t i = 0; i < bnn_data.get_archi(l-1); ++i) {
-              for (size_t j = 0; j < bnn_data.get_archi(l); ++j) {
+            for (size_t i = 0; i < bnn_data->get_archi(l-1); ++i) {
+              for (size_t j = 0; j < bnn_data->get_archi(l); ++j) {
                 std::cout << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " <<SolutionIntegerValue(r, weights[l-1][i][j]);
               }
               std::cout << '\n';
@@ -155,17 +155,17 @@ namespace operations_research{
             std::cout << '\n';
           }
 
-          for (size_t l = 0; l < bnn_data.get_layers()-1; l++) {
-            for(size_t j = 0; j < bnn_data.get_archi(l+1); j++){
+          for (size_t l = 0; l < bnn_data->get_layers()-1; l++) {
+            for(size_t j = 0; j < bnn_data->get_archi(l+1); j++){
               std::cout << "preactivation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,preactivation[0][l][j])<<std::endl;
             }
           }
 
-          for(size_t j = 0; j < bnn_data.get_archi(0); ++j){
+          for(size_t j = 0; j < bnn_data->get_archi(0); ++j){
             std::cout << "activation_first_layer["<<j<<"] = " << SolutionIntegerValue(r,activation_first_layer[0][j]) << std::endl;
           }
-          for (size_t l = 0; l < bnn_data.get_layers()-1; ++l) {
-            for(size_t j = 0; j < bnn_data.get_archi(l+1); ++j){
+          for (size_t l = 0; l < bnn_data->get_layers()-1; ++l) {
+            for(size_t j = 0; j < bnn_data->get_archi(l+1); ++j){
               std::cout << "activation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,activation[0][l][j])<<std::endl;
             }
           }

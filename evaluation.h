@@ -30,7 +30,7 @@ public:
     - _weights : values of the weights returned by the solver
     - archi : architecture of the network
   */
-  Evaluation(const std::vector<std::vector<std::vector<int>>> &_weights, const Data &model_data, const std::string &filename) :
+  Evaluation(const std::vector<std::vector<std::vector<int>>> &_weights, Data* model_data, const std::string &filename) :
             weights(_weights), checker(model_data, _weights), output_file(filename){
   }
 

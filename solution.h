@@ -30,7 +30,7 @@ Attributs :
 class Solution {
 
 private:
-  Data bnn_data;
+  Data* bnn_data;
   std::vector<std::vector<std::vector<int>>> weights;
   int nb_layers;
   std::vector<std::vector<int>> preactivation;
@@ -51,47 +51,53 @@ public:
     - index_example : index of the input in the training set
     - test_set : booean that indicates which dataset to use for the tests
   */
-  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &index_example):
-  bnn_data(model_data), weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
-    nb_layers = bnn_data.get_layers();
-    example_label = (int)bnn_data.get_dataset().training_labels[index_example];
-    example_images = bnn_data.get_dataset().training_images[index_example];
+  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &index_example):
+  weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
+    bnn_data = model_data;
+    nb_layers = bnn_data->get_layers();
+    example_label = (int)bnn_data->get_dataset().training_labels[index_example];
+    example_images = bnn_data->get_dataset().training_images[index_example];
   }
 
-  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example):
-  bnn_data(model_data), weights(std::move(_weights)){
-    nb_layers = bnn_data.get_layers();
-    example_label = (int)bnn_data.get_dataset().training_labels[index_example];
-    example_images = bnn_data.get_dataset().training_images[index_example];
+  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example):
+  weights(std::move(_weights)){
+    bnn_data=model_data;
+    nb_layers = bnn_data->get_layers();
+    example_label = (int)bnn_data->get_dataset().training_labels[index_example];
+    example_images = bnn_data->get_dataset().training_images[index_example];
   }
 
-  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &label, const std::vector<uint8_t> &image):
+  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &label, const std::vector<uint8_t> &image):
   bnn_data(model_data), weights(std::move(_weights)),  example_label(label), example_images(image){
-    nb_layers = bnn_data.get_layers();
+    bnn_data=model_data;
+    nb_layers = bnn_data->get_layers();
   }
 
-  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &label, const std::vector<uint8_t> &image):
-  bnn_data(model_data), weights(std::move(_weights)),  example_label(label), example_images(image), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
-    nb_layers = bnn_data.get_layers();
+  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation, const int &label, const std::vector<uint8_t> &image):
+  weights(std::move(_weights)),  example_label(label), example_images(image), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
+    bnn_data=model_data;
+    nb_layers = bnn_data->get_layers();
   }
 
 
-  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example, const bool test_set):
-  bnn_data(model_data), weights(std::move(_weights)){
-    nb_layers = bnn_data.get_layers();
+  Solution(Data* model_data, std::vector<std::vector<std::vector<int>>> _weights, const int &index_example, const bool test_set):
+  weights(std::move(_weights)){
+    bnn_data=model_data;
+    nb_layers = bnn_data->get_layers();
     if(test_set){
-      example_label = (int)bnn_data.get_dataset().test_labels[index_example];
-      example_images = bnn_data.get_dataset().test_images[index_example];
+      example_label = (int)bnn_data->get_dataset().test_labels[index_example];
+      example_images = bnn_data->get_dataset().test_images[index_example];
     }
     else{
-      example_label = (int)bnn_data.get_dataset().training_labels[index_example];
-      example_images = bnn_data.get_dataset().training_images[index_example];
+      example_label = (int)bnn_data->get_dataset().training_labels[index_example];
+      example_images = bnn_data->get_dataset().training_images[index_example];
     }
   }
 
-  Solution(const Data &model_data, std::vector<std::vector<std::vector<int>>> _weights):
+  Solution(Data *model_data, std::vector<std::vector<std::vector<int>>> _weights):
       bnn_data(model_data), weights(std::move(_weights)){
-    nb_layers = bnn_data.get_layers();
+    bnn_data=model_data;
+    nb_layers = bnn_data->get_layers();
   }
 
 
@@ -113,19 +119,19 @@ public:
     //preactivation[i][j] is the value of the preactivation of the neuron j on layer i
     if (_init) {
       if(test_set){
-        example_label = (int)bnn_data.get_dataset().test_labels[index_example];
-        example_images = bnn_data.get_dataset().test_images[index_example];
+        example_label = (int)bnn_data->get_dataset().test_labels[index_example];
+        example_images = bnn_data->get_dataset().test_images[index_example];
       }
       else{
-        example_label = (int)bnn_data.get_dataset().training_labels[index_example];
-        example_images = bnn_data.get_dataset().training_images[index_example];
+        example_label = (int)bnn_data->get_dataset().training_labels[index_example];
+        example_images = bnn_data->get_dataset().training_images[index_example];
       }
     }
 
     preactivation.resize(nb_layers);
     for (size_t l = 0; l < nb_layers; l++) {
-      preactivation[l].resize(bnn_data.get_archi(l));
-      for(size_t j = 0; j < bnn_data.get_archi(l); j++){
+      preactivation[l].resize(bnn_data->get_archi(l));
+      for(size_t j = 0; j < bnn_data->get_archi(l); j++){
         preactivation[l][j] = 0;
       }
     }
@@ -133,8 +139,8 @@ public:
     activation.resize(nb_layers);
      //activation[i][j] is the value of the activation of the neuron j on layer i
     for (size_t l = 0; l < nb_layers ; l++) {
-      activation[l].resize(bnn_data.get_archi(l));
-      for (size_t i = 0; i < bnn_data.get_archi(l); i++) {
+      activation[l].resize(bnn_data->get_archi(l));
+      for (size_t i = 0; i < bnn_data->get_archi(l); i++) {
         if(l == 0){
           activation[l][i] = (int)example_images[i];
         }
@@ -157,9 +163,9 @@ public:
   bool predict(const bool &verification_mode = false){
     bool result = true ;
     for (size_t l = 1; l < nb_layers; l++) {
-      int tmp =  bnn_data.get_archi(l-1);
+      int tmp =  bnn_data->get_archi(l-1);
       for (size_t i = 0; i < tmp; i++) {
-        int tmp2 = bnn_data.get_archi(l);
+        int tmp2 = bnn_data->get_archi(l);
         for (size_t j = 0; j < tmp2; j++) {
           preactivation[l][j] += activation[l-1][i] * weights[l-1][i][j];
         }
@@ -169,7 +175,7 @@ public:
       }
     }
     int predict = 0, compt = 0;
-    int tmp = bnn_data.get_archi(nb_layers-1);
+    int tmp = bnn_data->get_archi(nb_layers-1);
     for (size_t i = 0; i < tmp; i++) {
        if(activation[nb_layers-1][i]== 1)
        {
@@ -183,7 +189,7 @@ public:
         result =  false;
         std::cout<<"There is " << compt << " activated neurons on the output layer : "<<std::endl;
         std::cout<<"True neuron to be activated is " <<  example_label << std::endl;
-          for (size_t i = 0; i < bnn_data.get_archi(nb_layers-1); i++){
+          for (size_t i = 0; i < bnn_data->get_archi(nb_layers-1); i++){
             if(activation[nb_layers-1][i]== 1)
               std::cout<<"Neuron " << i << " at the last layer is activated"<<std::endl;
           }
@@ -213,9 +219,9 @@ public:
   bool all_good_metric(const bool &verification_mode = false){
     bool result = true ;
     for (size_t l = 1; l < nb_layers; l++) {
-      int tmp =  bnn_data.get_archi(l-1);
+      int tmp =  bnn_data->get_archi(l-1);
       for (size_t i = 0; i < tmp; i++) {
-        int tmp2 = bnn_data.get_archi(l);
+        int tmp2 = bnn_data->get_archi(l);
         for (size_t j = 0; j < tmp2; j++) {
           preactivation[l][j] += activation[l-1][i] * weights[l-1][i][j];
         }
@@ -228,7 +234,7 @@ public:
       }
     }
     int predict = 0, max = abs(activation[nb_layers-1][0]);
-    int tmp = bnn_data.get_archi(nb_layers-1);
+    int tmp = bnn_data->get_archi(nb_layers-1);
     for (size_t i = 0; i < tmp; i++) {
        if(abs(activation[nb_layers-1][i])>= max)
        {
@@ -262,7 +268,7 @@ public:
   bool check_activation_preactivation(){
     bool result = true;
     for (size_t l = 1; l < nb_layers; l++) {
-      for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
+      for (size_t j = 0; j < bnn_data->get_archi(l); j++) {
         if (preactivation[l][j] != solver_preactivation[l-1][j]) {
           result = false;
           std::cout << "The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
@@ -271,7 +277,7 @@ public:
       }
     }
     for (size_t l = 0; l < nb_layers; l++) {
-      for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
+      for (size_t j = 0; j < bnn_data->get_archi(l); j++) {
         if (activation[l][j] != solver_activation[l][j]) {
           result = false;
           std::cout << "The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';

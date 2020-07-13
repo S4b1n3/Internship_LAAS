@@ -66,13 +66,13 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_MaxClassification2(const std::vector<int> &_archi, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
-                        CP_Model(_archi, _nb_examples, _prod_constraint, _output_path){
+      CPModel_MaxClassification2(Data *_data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
+                        CP_Model(_data, _nb_examples, _prod_constraint, _output_path){
 
       }
 
-      CPModel_MaxClassification2(const int &_nb_examples_per_label, const std::vector<int> &_archi, const bool _prod_constraint, const std::string &_output_path):
-                        CP_Model(_nb_examples_per_label, _archi, _prod_constraint, _output_path){
+      CPModel_MaxClassification2(const int &_nb_examples_per_label, Data *_data, const bool _prod_constraint, const std::string &_output_path):
+                        CP_Model(_nb_examples_per_label, _data, _prod_constraint, _output_path){
 
       }
 
@@ -86,8 +86,8 @@ namespace operations_research{
       /* model_activation_constraint method
             Parameters :
             - index_example : index of the example to classifie
-            - l : layer \in [1, bnn_data.get_layers()]
-            - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
+            - l : layer \in [1, bnn_data->get_layers()]
+            - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
 
             preactivation[l][j] >= 0 => activation[l][j] = 1
             preactivation[l][j] < 0 => activation[l][j] = -1
@@ -97,9 +97,9 @@ namespace operations_research{
     		/*assert (index_example>=0);
     		assert (index_example<nb_examples);
     		assert (l>0);
-    		assert (l<bnn_data.get_layers());
+    		assert (l<bnn_data->get_layers());
     		assert (j>=0);
-    		assert (j<bnn_data.get_archi(l));*/
+    		assert (j<bnn_data->get_archi(l));*/
 
     		//_temp_bool is true iff preactivation[l][j] < 0
     		//_temp_bool is false iff preactivation[l][j] >= 0
@@ -113,8 +113,8 @@ namespace operations_research{
     	/* model_preactivation_constraint method
             Parameters :
             - index_example : index of the example to classifie
-            - l : layer \in [1, bnn_data.get_layers()-1]
-            - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
+            - l : layer \in [1, bnn_data->get_layers()-1]
+            - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
             Output : None
     	 */
     	void model_preactivation_constraint(const int &index_example, const int &l, const int &j){
@@ -123,24 +123,24 @@ namespace operations_research{
     		//No need for this
     		//assert(l>0);
     		//No need for this
-    		//assert(l<bnn_data.get_layers());
+    		//assert(l<bnn_data->get_layers());
     		//No need for this
     		//assert(j>=0);
     		//No need for this
-    		//assert(j<bnn_data.get_archi(l));
+    		//assert(j<bnn_data->get_archi(l));
 
         std::cout << "/* message */" << '\n';
     		if(l == 1){
     			LinearExpr temp(0);
-    			int tmp = bnn_data.get_archi(0);
+    			int tmp = bnn_data->get_archi(0);
     			for (size_t i = 0; i < tmp; i++) {
     				temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
     			}
     			cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp).OnlyEnforceIf(classification[index_example]);
     		}
     		else{
-    			std::vector<IntVar> temp(bnn_data.get_archi(l-1));
-    			int tmp = bnn_data.get_archi(l-1) ;
+    			std::vector<IntVar> temp(bnn_data->get_archi(l-1));
+    			int tmp = bnn_data->get_archi(l-1) ;
     			for (size_t i = 0; i < tmp; i++) {
     				temp[i] = cp_model_builder.NewIntVar(domain);
     				if(!prod_constraint){
@@ -190,10 +190,10 @@ namespace operations_research{
 
       /* model_output_constraint method
 
-         the example is well classified => activation[index_examples][bnn_data.get_layers()-2][label] == 1 and
-                                           activation[index_examples][bnn_data.get_layers()-2][i] == -1
+         the example is well classified => activation[index_examples][bnn_data->get_layers()-2][label] == 1 and
+                                           activation[index_examples][bnn_data->get_layers()-2][i] == -1
 
-        classification[index_examples] = 1 => activation[index_examples][bnn_data.get_layers()-2][label] ==  1
+        classification[index_examples] = 1 => activation[index_examples][bnn_data->get_layers()-2][label] ==  1
         classification[index_examples] = 1 => last_layer == -9
 
       Parameters :
@@ -206,8 +206,8 @@ namespace operations_research{
 
         LinearExpr last_layer(0);
         const int label = labels[index_examples];
-        int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
-        int tmp2 = bnn_data.get_layers()-2;
+        int tmp = bnn_data->get_archi(bnn_data->get_layers()-1);
+        int tmp2 = bnn_data->get_layers()-2;
         for (size_t i = 0; i < tmp; i++) {
           if (i != label) {
             last_layer.AddVar(activation[index_examples][tmp2][i]);
@@ -246,13 +246,13 @@ namespace operations_research{
 
       void check(const CpSolverResponse &r, const bool &check_solution, const int &index=0){
 
-    		int tmp = bnn_data.get_layers();
+    		int tmp = bnn_data->get_layers();
     		weights_solution.resize(tmp);
     		for (size_t l = 1; l < tmp; ++l) {
-    			int tmp2 = bnn_data.get_archi(l-1);
+    			int tmp2 = bnn_data->get_archi(l-1);
     			weights_solution[l-1].resize(tmp2);
     			for (size_t i = 0; i < tmp2; ++i) {
-    				int tmp3 = bnn_data.get_archi(l);
+    				int tmp3 = bnn_data->get_archi(l);
     				weights_solution[l-1][i].resize(tmp3);
     				for (size_t j = 0; j < tmp3; ++j) {
     					weights_solution[l-1][i][j] = SolutionIntegerValue(r, weights[l-1][i][j]);
@@ -267,7 +267,7 @@ namespace operations_research{
 
     			preactivation_solution.resize(tmp-1);
     			for (size_t l = 0; l < tmp-1; l++) {
-    				int tmp2 = bnn_data.get_archi(l+1);
+    				int tmp2 = bnn_data->get_archi(l+1);
     				preactivation_solution[l].resize(tmp2);
     				for(size_t j = 0; j < tmp2; j++){
     					preactivation_solution[l][j] = SolutionIntegerValue(r, preactivation[i][l][j]);
@@ -276,7 +276,7 @@ namespace operations_research{
 
     			activation_solution.resize(tmp);
     			for (size_t l = 0; l < tmp; l++) {
-    				int tmp2 = bnn_data.get_archi(l);
+    				int tmp2 = bnn_data->get_archi(l);
     				activation_solution[l].resize(tmp2);
     				for(size_t j = 0; j < tmp2; j++){
     					if(l == 0){

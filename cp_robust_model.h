@@ -34,13 +34,13 @@ namespace operations_research{
       int k;
 
     public:
-      CPModel_Robust(const std::vector<int> &_archi, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path, const int &_k):
-                        CPModel_MinWeight(_archi, _nb_examples, _prod_constraint, _output_path), k(_k){
+      CPModel_Robust(Data *_data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path, const int &_k):
+                        CPModel_MinWeight(_data, _nb_examples, _prod_constraint, _output_path), k(_k){
       }
 
       void declare_a_e_j_variables(){
         a.resize(nb_examples);
-        int temp = bnn_data.get_archi(1);
+        int temp = bnn_data->get_archi(1);
         for (size_t e = 0; e < nb_examples; e++) {
           a[e].resize(temp);
           for (size_t j = 0; j < temp; j++) {
@@ -51,8 +51,8 @@ namespace operations_research{
 
       void declare_adversarial_variables(){
         adversarial.resize(nb_examples);
-        int temp = bnn_data.get_archi(1);
-        int temp2 = bnn_data.get_archi(0);
+        int temp = bnn_data->get_archi(1);
+        int temp2 = bnn_data->get_archi(0);
         for (size_t e = 0; e < nb_examples; e++) {
           adversarial[e].resize(temp);
           for (size_t j = 0; j < temp; j++) {
@@ -67,8 +67,8 @@ namespace operations_research{
       /* model_preactivation_constraint method
       Parameters :
       - index_example : index of the example to classifie
-      - l : layer \in [1, bnn_data.get_layers()-1]
-      - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
+      - l : layer \in [1, bnn_data->get_layers()-1]
+      - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
       Output : None
       Redefinition of the method in class cp_model in order to get the term of weights and
       activation values on the first layer instead of compute it again
@@ -77,13 +77,13 @@ namespace operations_research{
         /*assert(index_example>=0);
         assert(index_example<nb_examples);
         assert(l>0);
-        assert(l<bnn_data.get_layers());
+        assert(l<bnn_data->get_layers());
         assert(j>=0);
-        assert(j<bnn_data.get_archi(l));*/
+        assert(j<bnn_data->get_archi(l));*/
 
         if(l == 1){
           LinearExpr temp(0);
-          int tmp = bnn_data.get_archi(0);
+          int tmp = bnn_data->get_archi(0);
           for (size_t i = 0; i < tmp; i++) {
             temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
           }
@@ -95,7 +95,7 @@ namespace operations_research{
           cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp);
           }
         else{
-          int tmp = bnn_data.get_archi(l-1);
+          int tmp = bnn_data->get_archi(l-1);
           std::vector<IntVar> temp(tmp);
           for (size_t i = 0; i < tmp; i++) {
             temp[i] = cp_model_builder.NewIntVar(domain);
@@ -147,7 +147,7 @@ namespace operations_research{
       void model_adversarial_variables(const int &index_example, const int &j){
         LinearExpr temp(0);
 
-        int tmp = bnn_data.get_archi(0) ;
+        int tmp = bnn_data->get_archi(0) ;
   			for (size_t i = 0; i < tmp; i++) {
 
           BoolVar b1 = cp_model_builder.NewBoolVar();
@@ -187,7 +187,7 @@ namespace operations_research{
         CP_Model::run(nb_seconds, _strategy);
         declare_a_e_j_variables();
         declare_adversarial_variables();
-        int temp = bnn_data.get_archi(1);
+        int temp = bnn_data->get_archi(1);
         for (size_t e = 0; e < nb_examples; e++) {
           for (size_t j = 0; j < temp; j++) {
             model_adversarial_variables(e, j);

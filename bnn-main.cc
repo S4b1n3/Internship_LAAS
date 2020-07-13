@@ -66,28 +66,28 @@ int main(int argc, char **argv) {
 	double accuracy_train, accuracy_test, accuracy_train_bis, accuracy_test_bis;
 
 	std::vector<std::vector<std::vector<int>>> weights;
-	Data bnn_data(architecture);
+	Data *bnn_data = new Data(architecture);
 	int status;
 
 	switch (_index_model) {
 	case '1':
 	{
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
-			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, architecture, _prod_constraint, filename);
+			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = model.get_weights_solution();
 		 }
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
-				operations_research::sat::CPModel_MinWeight model(architecture, _nb_examples, _prod_constraint, filename);
+				operations_research::sat::CPModel_MinWeight model(bnn_data, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = model.get_weights_solution();
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
-				operations_research::sat::CPModel_MinWeight model(architecture, 1, _prod_constraint, filename);
+				operations_research::sat::CPModel_MinWeight model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = model.get_weights_solution();
@@ -98,21 +98,21 @@ int main(int argc, char **argv) {
 	case '2':
 	{
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
-			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, architecture, _prod_constraint, filename);
+			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = model.get_weights_solution();
 		}
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
-				operations_research::sat::CPModel_MaxClassification model(architecture, _nb_examples, _prod_constraint, filename);
+				operations_research::sat::CPModel_MaxClassification model(bnn_data, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = model.get_weights_solution();
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
-				operations_research::sat::CPModel_MaxClassification model(architecture, 1, _prod_constraint, filename);
+				operations_research::sat::CPModel_MaxClassification model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = model.get_weights_solution();
@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
 	case '3':
 	{
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
-			operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, architecture, _prod_constraint, filename);
+			operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = model.get_weights_solution();
@@ -131,14 +131,14 @@ int main(int argc, char **argv) {
 
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
-				operations_research::sat::CPModel_MaxClassification2 model(architecture, _nb_examples, _prod_constraint, filename);
+				operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = model.get_weights_solution();
 			}
 			else{
 				std::cout << "Invalid number of examples : default mode launched" << '\n';
-				operations_research::sat::CPModel_MaxClassification2 model(architecture, 1, _prod_constraint, filename);
+				operations_research::sat::CPModel_MaxClassification2 model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = model.get_weights_solution();
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
 	}
 	case '4':
 	{
-		operations_research::sat::CPModel_MaxSum model(architecture, _nb_examples, _prod_constraint, filename);
+		operations_research::sat::CPModel_MaxSum model(bnn_data, _nb_examples, _prod_constraint, filename);
 		std::cout<<std::endl<<std::endl;
 		model.run(_time ,  _strategy) ;
 		status = model.print_statistics(_check_solution, _strategy);
@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
 	}
 	case '5':
 	{
-		operations_research::sat::CPModel_Robust model(architecture, _nb_examples, _prod_constraint, filename, _k);
+		operations_research::sat::CPModel_Robust model(bnn_data, _nb_examples, _prod_constraint, filename, _k);
 		std::cout<<std::endl<<std::endl;
 		model.run(_time ,  _strategy) ;
 		status = model.print_statistics(_check_solution, _strategy);
