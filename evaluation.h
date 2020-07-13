@@ -42,6 +42,7 @@ public:
   double run_evaluation (const int &test_set, const bool &predict){
     std::clock_t c_start = std::clock();
     if (test_set) {
+nb_correct_classifications=0;
       for (size_t i = 0; i < 10000; i++) {
         if (checker.run_solution(false, false, true, predict, true, i)) {
           nb_correct_classifications += 1;
@@ -55,6 +56,7 @@ public:
       return 100*nb_correct_classifications/10000;
     }
     else{
+nb_correct_classifications=0;
       for (size_t i = 0; i < 60000; i++) {
         if (checker.run_solution(false, false, true, predict, false, i)) {
           nb_correct_classifications += 1;
