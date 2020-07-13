@@ -16,7 +16,6 @@ Attributs :
 class Evaluation {
 private:
   int nb_correct_classifications = 0;
-  std::vector<int> architecture;
   Solution checker;
   std::string output_file;
 
