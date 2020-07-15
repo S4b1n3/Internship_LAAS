@@ -186,11 +186,12 @@ namespace operations_research{
             std::clock_t c_start = std::clock();
     				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
     				std::clock_t c_end = std::clock();
-    				std::cout << "Build Solution time" << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;std::cout << "Checking solution : "<<index<<" : ";
+    				std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+            std::cout << " d CHECKING "<<index<<" : ";
       			bool checking = check_solution.run_solution(true, true, false);
             std::string result_file = output_path+"/results_"+strategy+".stat";
     				std::ofstream parser(result_file.c_str(), std::ios::app);
-    				parser << "checking "<<checking<<std::endl;
+    				parser << "d CHECKING "<<checking<<std::endl;
     				parser.close();
           }
     		}
@@ -203,7 +204,7 @@ namespace operations_research{
           //std::cout << "Activation 1 for neuron[label] : " << SolutionIntegerValue(r, a) << std::endl;
           //std::cout << "Activation -1 for other neurons : " << SolutionIntegerValue(r, b) << std::endl;
           for (size_t i = 0; i < nb_examples; i++) {
-            std::cout << "classification[i] : " << SolutionIntegerValue(r, classification[i]) << std::endl;
+            std::cout << " s classification[i] : " << SolutionIntegerValue(r, classification[i]) << std::endl;
           }
 
         }

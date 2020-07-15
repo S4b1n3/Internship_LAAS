@@ -184,24 +184,24 @@ public:
     if (verification_mode) {
       if(compt > 1){
         result =  false;
-        std::cout<<"There is " << compt << " activated neurons on the output layer : "<<std::endl;
-        std::cout<<"True neuron to be activated is " <<  example_label << std::endl;
+        std::cout<<" v There is " << compt << " activated neurons on the output layer : "<<std::endl;
+        std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
           for (size_t i = 0; i < bnn_data->get_archi(nb_layers-1); i++){
             if(activation[nb_layers-1][i]== 1)
-              std::cout<<"Neuron " << i << " at the last layer is activated"<<std::endl;
+              std::cout<<" v Neuron " << i << " at the last layer is activated"<<std::endl;
           }
       }
       else{
         if(compt == 0){
-          std::cout<<"There is no activated neuron on the output layer"<<std::endl;
+          std::cout<<" v There is no activated neuron on the output layer"<<std::endl;
           result =  false;
         }
       }
 
       if(predict != example_label){
-        std::cout<<"The output label does not correspond to the expected one"<<std::endl;
-        std::cout<<"True neuron to be activated is " <<  example_label << std::endl;
-        std::cout<<"Activated neuron on the output layer is" << predict <<std::endl;
+        std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
+        std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
+        std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
         result =  false;
       }
     }
@@ -242,9 +242,9 @@ public:
 
     if (verification_mode) {
       if(predict != example_label){
-        std::cout<<"The output label does not correspond to the expected one"<<std::endl;
-        std::cout<<"True neuron to be activated is " <<  example_label << std::endl;
-        std::cout<<"Activated neuron on the output layer is" << predict <<std::endl;
+        std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
+        std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
+        std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
         result =  false;
       }
     }
@@ -268,8 +268,8 @@ public:
       for (size_t j = 0; j < bnn_data->get_archi(l); j++) {
         if (preactivation[l][j] != solver_preactivation[l-1][j]) {
           result = false;
-          std::cout << "The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
-          std::cout << "Value is " <<solver_preactivation[l-1][j]<<" instead of "<<preactivation[l][j]<< '\n';
+          std::cout << " v The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+          std::cout << " v Value is " <<solver_preactivation[l-1][j]<<" instead of "<<preactivation[l][j]<< '\n';
         }
       }
     }
@@ -277,8 +277,8 @@ public:
       for (size_t j = 0; j < bnn_data->get_archi(l); j++) {
         if (activation[l][j] != solver_activation[l][j]) {
           result = false;
-          std::cout << "The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
-          std::cout << "Value is " <<solver_activation[l][j]<<" instead of "<<activation[l][j]<< '\n';
+          std::cout << " v The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+          std::cout << " v Value is " <<solver_activation[l][j]<<" instead of "<<activation[l][j]<< '\n';
         }
       }
     }

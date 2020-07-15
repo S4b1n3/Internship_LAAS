@@ -143,12 +143,12 @@ namespace operations_research{
       void print_solution(const CpSolverResponse &r, const int &index = 0){
         assert(index >=0);
         if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
-          std::cout << "\nSolution "<< index << " : \n";
+          std::cout << "\n s Solution "<< index << " : \n";
           for (size_t l = 1; l < bnn_data->get_layers(); ++l) {
-            std::cout << "Layer "<< l << ": \n";
+            std::cout << " s Layer "<< l << ": \n";
             for (size_t i = 0; i < bnn_data->get_archi(l-1); ++i) {
               for (size_t j = 0; j < bnn_data->get_archi(l); ++j) {
-                std::cout << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " <<SolutionIntegerValue(r, weights[l-1][i][j]);
+                std::cout << "\t s w["<<l<<"]["<<i<<"]["<<j<<"] = " <<SolutionIntegerValue(r, weights[l-1][i][j]);
               }
               std::cout << '\n';
             }
@@ -157,16 +157,16 @@ namespace operations_research{
 
           for (size_t l = 0; l < bnn_data->get_layers()-1; l++) {
             for(size_t j = 0; j < bnn_data->get_archi(l+1); j++){
-              std::cout << "preactivation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,preactivation[0][l][j])<<std::endl;
+              std::cout << " s preactivation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,preactivation[0][l][j])<<std::endl;
             }
           }
 
           for(size_t j = 0; j < bnn_data->get_archi(0); ++j){
-            std::cout << "activation_first_layer["<<j<<"] = " << SolutionIntegerValue(r,activation_first_layer[0][j]) << std::endl;
+            std::cout << " s activation_first_layer["<<j<<"] = " << SolutionIntegerValue(r,activation_first_layer[0][j]) << std::endl;
           }
           for (size_t l = 0; l < bnn_data->get_layers()-1; ++l) {
             for(size_t j = 0; j < bnn_data->get_archi(l+1); ++j){
-              std::cout << "activation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,activation[0][l][j])<<std::endl;
+              std::cout << " s activation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,activation[0][l][j])<<std::endl;
             }
           }
 

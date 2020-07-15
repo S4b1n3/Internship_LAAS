@@ -55,15 +55,15 @@ public:
   */
   void print_archi(){
     for (size_t i = 0; i < nb_layers; i++) {
-      std::cout<<"Layer "<<i<<" : "<<architecture[i]<<" neurons"<<std::endl;
+      std::cout<<" c Layer "<<i<<" : "<<architecture[i]<<" neurons"<<std::endl;
     }
   }
 
   void print_dataset(){
-    std::cout << "Nbr of training images = " << dataset.training_images.size() << std::endl;
-    std::cout << "Nbr of training labels = " << dataset.training_labels.size() << std::endl;
-    std::cout << "Nbr of test images = " << dataset.test_images.size() << std::endl;
-    std::cout << "Nbr of test labels = " << dataset.test_labels.size() << std::endl;
+    std::cout << " c Nbr of training images = " << dataset.training_images.size() << std::endl;
+    std::cout << " c Nbr of training labels = " << dataset.training_labels.size() << std::endl;
+    std::cout << " c Nbr of test images = " << dataset.test_images.size() << std::endl;
+    std::cout << " c Nbr of test labels = " << dataset.test_labels.size() << std::endl;
 
   }
 

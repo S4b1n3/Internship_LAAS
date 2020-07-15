@@ -81,6 +81,8 @@ private:
     int nb_conflicts = 0;
     int test_accuracy = 0;
     int train_accuracy = 0;
+    int test_accuracy_max = 0;
+    int train_accuracy_max = 0;
     std::string strategy;
 
 public:
@@ -161,6 +163,16 @@ public:
       return train_accuracy;
     }
 
+    //returns the mean of the accuray on the testing set with all good metric method
+    int get_test_accuracy_max() const{
+      return test_accuracy_max;
+    }
+
+    //returns the mean of the accuray on the training set with all good metric method
+    int get_train_accuracy_max() const{
+      return train_accuracy_max;
+    }
+
     std::string get_strategy() const{
       return strategy;
     }
@@ -185,53 +197,53 @@ public:
                 if (expe_temp == 1){                                          //if we are reading the logs of the last experiment
 		                int status_temp;
 
-                    if(line.substr(0,10) == "checking 0"){
-                      std::cout << "Error checking from file "<<file_name << '\n';
+                    if(line.substr(0,12) == "d CHECKING 0"){
+                      std::cout << " c Error checking from file "<<file_name << '\n';
                     }
-                    if (line.substr(0, 19) == "train accuray time ") {
-                      if (std::stoi(line.substr(0, 19)) > 5000) {
-                        std::cout << "Accuracy computing on training set is more than 5000 seconds on file : "<< file_name << '\n';
+                    if (line.substr(0, 22) == "d TRAIN ACCURACY TIME ") {
+                      if (std::stoi(line.substr(0, 22)) > 5000) {
+                        std::cout << " c Accuracy computing on training set is more than 5000 seconds on file : "<< file_name << '\n';
                       }
                     }
 
-                    if (line.substr(0, 19) == "test accuray time ") {
-                      if (std::stoi(line.substr(0, 19)) > 800) {
-                        std::cout << "Accuracy computing on testing set is more than 800 seconds on file : "<< file_name << '\n';
+                    if (line.substr(0, 21) == "d TEST ACCURACY TIME ") {
+                      if (std::stoi(line.substr(0, 21)) > 800) {
+                        std::cout << " c Accuracy computing on testing set is more than 800 seconds on file : "<< file_name << '\n';
                       }
                     }
 
-                    if(line.substr(0, 9) == "run time "){
-                        run_time += std::stoi(line.substr(9));
+                    if(line.substr(0, 11) == "d RUN TIME "){
+                        run_time += std::stoi(line.substr(11));
                         count +=1;
                     }
-                    if (line.substr(0, 7) == "memory ") {
-                      memory += std::stoll(line.substr(7));
+                    if (line.substr(0, 9) == "d MEMORY ") {
+                      memory += std::stoll(line.substr(9));
                     }
-                    if(line.substr(0, 7) == "status "){
-                        status_temp = std::stoi(line.substr(7));
+                    if(line.substr(0, 9) == "d STATUS "){
+                        status_temp = std::stoi(line.substr(9));
                         switch (status_temp) {
                             case 0:
                                 status[0] +=1;
                                 break;
                             case 1:
-                                std::cout << "Error ! Model is invalid" << std::endl;
+                                std::cout << " c Error ! Model is invalid" << std::endl;
                                 break;
                             default:
                                 status[status_temp-1] += 1;
                                 break;
                         }
                     }
-                    if (line.substr(0, 10) == "objective "){
+                    if (line.substr(0, 12) == "d OBJECTIVE "){
 		                    if(status_temp == 2 || status_temp == 4){
-                            objective_value += std::stoi(line.substr(10));
+                            objective_value += std::stoi(line.substr(12));
                             count_objective += 1;
 			                  }
                     }
-                    if (line.substr(0, 9) == "branches "){
-                        nb_branches += std::stoi(line.substr(9));
+                    if (line.substr(0, 11) == "d BRANCHES "){
+                        nb_branches += std::stoi(line.substr(11));
                     }
-                    if (line.substr(0, 10) == "conflicts "){
-                        nb_conflicts += std::stoi(line.substr(10));
+                    if (line.substr(0, 12) == "d CONFLICTS "){
+                        nb_conflicts += std::stoi(line.substr(12));
                     }
                     if(line.substr(0, 12) == "#Variables: "){
                         std::string temp;
@@ -248,15 +260,25 @@ public:
                         split(line, temp, ' ');
                         nb_constraints += std::stoi(temp[1]);
                     }
-                    if (line.substr(0, 14) == "test accuracy ") {
+                    if (line.substr(0, 16) == "d TEST ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){
-                    	     test_accuracy += std::stoi(line.substr(14));
+                    	     test_accuracy += std::stoi(line.substr(16));
 			                     count_accuracy += 1;
 			                  }
 		                }
-                    if (line.substr(0, 15) == "train accuracy ") {
+                    if (line.substr(0, 17) == "d TRAIN ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){
-                      	   train_accuracy += std::stoi(line.substr(15));
+                      	   train_accuracy += std::stoi(line.substr(17));
+			                  }
+                    }
+                    if (line.substr(0, 20) == "d TEST ACCURACY MAX ") {
+		                    if(status_temp == 2 || status_temp == 4){
+                    	     test_accuracy_max += std::stoi(line.substr(20));
+			                  }
+		                }
+                    if (line.substr(0, 21) == "d TRAIN ACCURACY MAX ") {
+		                    if(status_temp == 2 || status_temp == 4){
+                      	   train_accuracy_max += std::stoi(line.substr(21));
 			                  }
                     }
                 } else {
@@ -266,7 +288,7 @@ public:
 
             }
         } else
-            std::cout << "Error oppening file" << std::endl;
+            std::cout << " c Error oppening file" << std::endl;
         if(count != 0){
           run_time = std::round(run_time/count);
           memory = memory/count;
@@ -275,7 +297,7 @@ public:
           nb_branches /= count;
           nb_conflicts /= count;
         } else {
-          std::cout << "No experiment written in output files" << '\n';
+          std::cout << " c No experiment written in output files" << '\n';
         }
         if (count_objective != 0)
             objective_value /= count_objective;
@@ -283,6 +305,8 @@ public:
       	if(count_accuracy != 0){
       	    train_accuracy /= count_accuracy;
       	    test_accuracy /= count_accuracy;
+            train_accuracy_max /= count_accuracy;
+      	    test_accuracy_max /= count_accuracy;
       	}
 
         for (int i = 0; i < STATUS.size(); ++i) {
@@ -567,7 +591,7 @@ public:
                 if (file){
                     file << "----------"<< std::endl;
                 } else
-                    std::cout << "Error oppening result file" << std::endl;
+                    std::cout << " c Error oppening result file" << std::endl;
                 file.close();
             }
         }
@@ -646,7 +670,7 @@ public:
     Output :
     - header : string containg the header commands in latex*/
     static std::string print_header_table() {
-        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c|c|c|c| } \hline \St & \V & \C & \B & \Cf & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M & \TSA & \TRA \\ \hline)");
+        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c| } \hline \St & \V & \C & \B & \Cf & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M & \TSA & \TRA & \TSAM & \TRAM \\ \hline)");
         return header;
     }
 
@@ -676,7 +700,7 @@ public:
     Output :
     - multirow : string containing the multirow command in latex*/
     std::string print_multirow(const int &index_folder){
-        std::string multirow("\\multicolumn{14}{|c|}{\\textbf{Architecture : 784,");
+        std::string multirow("\\multicolumn{16}{|c|}{\\textbf{Architecture : 784,");
         for (int i : archi[index_folder]) {
             multirow.append(std::to_string(i)+",");
         }
@@ -743,7 +767,9 @@ public:
           }
         }
         parser.append(std::to_string(temp->get_test_accuracy())+ "\\% & ");
-        parser.append(std::to_string(temp->get_train_accuracy())+ "\\% \\\\ ");
+        parser.append(std::to_string(temp->get_train_accuracy())+ "\\% & ");
+        parser.append(std::to_string(temp->get_test_accuracy_max())+ "\\% & ");
+        parser.append(std::to_string(temp->get_train_accuracy_max())+ "\\% \\\\ ");
 
         return parser;
     }
@@ -759,7 +785,7 @@ public:
     void run_parsing() {
         result_file.open(filename, std::ios::out);
         if (result_file.bad())
-            std::cout << "Error oppening file"<<std::endl;
+            std::cout << " c Error oppening result file"<<std::endl;
         else{
             result_file << print_header_table() << std::endl;
             for (int i = 0; i < nb_folders; ++i) {
@@ -778,7 +804,6 @@ public:
 int main(int argc, char **argv) {
     num_expe = std::stoi(argv[2]);
     //const std::string path("/home/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
-    const std::string path_file("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
     const std::string path_folder("/pfcalcul/tmp/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/rocknrun/bnn_cp_model/BNN/results/"+std::string(argv[1]));
     std::cout << path_folder <<std::endl << std::endl;
     Parser_Container first_test(path_folder);

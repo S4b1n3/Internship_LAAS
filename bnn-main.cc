@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 				weights = std::move(model.get_weights_solution());
 			}
 			else{
-				std::cout << "Invalid number of examples : default mode launched" << '\n';
+				std::cout << " c Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MinWeight model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 				weights = std::move(model.get_weights_solution());
 			}
 			else{
-				std::cout << "Invalid number of examples : default mode launched" << '\n';
+				std::cout << " c Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MaxClassification model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
 				weights = std::move(model.get_weights_solution());
 			}
 			else{
-				std::cout << "Invalid number of examples : default mode launched" << '\n';
+				std::cout << " c Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_MaxClassification2 model(bnn_data, 1, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
@@ -164,8 +164,8 @@ int main(int argc, char **argv) {
 	}
 	default:
 	{
-		std::cout << "There is no model with index "<< _index_model << '\n';
-		std::cout << "Please select 1, 2, 3 or 4, 5" << '\n';
+		std::cout << " c There is no model with index "<< _index_model << '\n';
+		std::cout << " c Please select 1, 2, 3 or 4, 5" << '\n';
 	}
 
 	}
@@ -193,16 +193,16 @@ int main(int argc, char **argv) {
 			accuracy_train_bis = 0;
 		}
 
-		std::cout << "Testing accuracy of the model with activation function : "<< std::round(accuracy_test) << '\n';
-		std::cout << "Training accuracy of the model with activation function : "<< std::round(accuracy_train) << '\n';
-		std::cout << "Testing accuracy of the model with all good metric : "<< std::round(accuracy_test_bis) << '\n';
-		std::cout << "Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
+		std::cout << " c Testing accuracy of the model with activation function : "<< std::round(accuracy_test) << '\n';
+		std::cout << " c Training accuracy of the model with activation function : "<< std::round(accuracy_train) << '\n';
+		std::cout << " c Testing accuracy of the model with all good metric : "<< std::round(accuracy_test_bis) << '\n';
+		std::cout << " c Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
 		std::string result_file = filename+"/results_"+_strategy+".stat";
 		std::ofstream results(result_file.c_str(), std::ios::app);
-		results << "test accuracy " << accuracy_test << std::endl;
-		results << "train accuracy " << accuracy_train << std::endl;
-		results << "test accuracy bis " << accuracy_test_bis << std::endl;
-		results << "train accuracy bis " << accuracy_train_bis << std::endl;
+		results << "d TEST ACCURACY " << accuracy_test << std::endl;
+		results << "d TRAIN ACCURACY " << accuracy_train << std::endl;
+		results << "d TEST ACCURACY MAX " << accuracy_test_bis << std::endl;
+		results << "d TRAIN ACCURACY MAX " << accuracy_train_bis << std::endl;
 		results.close();
 	}
 
