@@ -85,7 +85,9 @@ namespace operations_research{
           LinearExpr temp(0);
           int tmp = bnn_data->get_archi(0);
           for (size_t i = 0; i < tmp; i++) {
-            temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
+            if (activation_first_layer[index_example][i] != 0) {
+    					temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
+    				}
           }
 
           cp_model_builder.AddLessThan(tmp, 0).OnlyEnforceIf(a[index_example][j]);
@@ -120,14 +122,8 @@ namespace operations_research{
 
               */
 
-              BoolVar b1 = cp_model_builder.NewBoolVar();
-
-              // Implement b1 == (temp[i] == 0)
-              cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(b1);
-              cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf(Not(b1));
-              //Implement b1 == (weights == 0)
-              cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b1);
-              cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), 0).OnlyEnforceIf(Not(b1));
+              cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(get_weight_is_0_ilj (i,l,j));
+    					cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf(Not(get_weight_is_0_ilj (i,l,j) ) );
 
               BoolVar b3 = cp_model_builder.NewBoolVar();
 
