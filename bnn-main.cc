@@ -27,6 +27,7 @@ bool _prod_constraint;
 std::string _strategy;
 std::string _output_path;
 bool _check_solution;
+bool _eval;
 
 void parseOptions(int argc, char** argv);
 
@@ -169,38 +170,41 @@ int main(int argc, char **argv) {
 
 	}
 
-	if(status == 2 || status == 4){
-		Evaluation test(weights, bnn_data, filename);
-		accuracy_test = test.run_evaluation(true, true);
-		accuracy_train = test.run_evaluation(false, true);
-		accuracy_test_bis = test.run_evaluation(true, false);
-		accuracy_train_bis = test.run_evaluation(false, false);
-	}
+	if (_eval) {
 
-	if (accuracy_test < 0.1) {
-		accuracy_test = 0;
-	}
-	if (accuracy_train < 0.1) {
-		accuracy_train = 0;
-	}
-	if (accuracy_test_bis < 0.1) {
-		accuracy_test_bis = 0;
-	}
-	if (accuracy_train_bis < 0.1) {
-		accuracy_train_bis = 0;
-	}
+		if(status == 2 || status == 4){
+			Evaluation test(weights, bnn_data, filename);
+			accuracy_test = test.run_evaluation(true, true);
+			accuracy_train = test.run_evaluation(false, true);
+			accuracy_test_bis = test.run_evaluation(true, false);
+			accuracy_train_bis = test.run_evaluation(false, false);
+		}
 
-	std::cout << "Testing accuracy of the model with activation function : "<< std::round(accuracy_test) << '\n';
-	std::cout << "Training accuracy of the model with activation function : "<< std::round(accuracy_train) << '\n';
-	std::cout << "Testing accuracy of the model with all good metric : "<< std::round(accuracy_test_bis) << '\n';
-	std::cout << "Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
-	std::string result_file = filename+"/results_"+_strategy+".stat";
-	std::ofstream results(result_file.c_str(), std::ios::app);
-	results << "test accuracy " << accuracy_test << std::endl;
-	results << "train accuracy " << accuracy_train << std::endl;
-	results << "test accuracy bis " << accuracy_test_bis << std::endl;
-	results << "train accuracy bis " << accuracy_train_bis << std::endl;
-	results.close();
+		if (accuracy_test < 0.1) {
+			accuracy_test = 0;
+		}
+		if (accuracy_train < 0.1) {
+			accuracy_train = 0;
+		}
+		if (accuracy_test_bis < 0.1) {
+			accuracy_test_bis = 0;
+		}
+		if (accuracy_train_bis < 0.1) {
+			accuracy_train_bis = 0;
+		}
+
+		std::cout << "Testing accuracy of the model with activation function : "<< std::round(accuracy_test) << '\n';
+		std::cout << "Training accuracy of the model with activation function : "<< std::round(accuracy_train) << '\n';
+		std::cout << "Testing accuracy of the model with all good metric : "<< std::round(accuracy_test_bis) << '\n';
+		std::cout << "Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
+		std::string result_file = filename+"/results_"+_strategy+".stat";
+		std::ofstream results(result_file.c_str(), std::ios::app);
+		results << "test accuracy " << accuracy_test << std::endl;
+		results << "train accuracy " << accuracy_train << std::endl;
+		results << "test accuracy bis " << accuracy_test_bis << std::endl;
+		results << "train accuracy bis " << accuracy_train_bis << std::endl;
+		results.close();
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -238,6 +242,9 @@ void parseOptions(int argc, char** argv){
 		SwitchArg check_sol("V","check", "indicates if the solution returned has to be tested", false);
 		cmd.add(check_sol);
 
+		SwitchArg eval("F","evaluation", "indicates if the evaluation on the testing and training sets has to be done", false);
+		cmd.add(eval);
+
 		ValueArg<std::string> search_strategy("D", "strategy", "The search strategy", false, "lex", "string");
 		cmd.add(search_strategy);
 
@@ -260,6 +267,7 @@ void parseOptions(int argc, char** argv){
 		_strategy =search_strategy.getValue();
 		_output_path = out_file.getValue();
 		_check_solution = check_sol.getValue();
+		_eval = eval.getValue();
 
 		std::vector<int> v = archi.getValue();
 		for ( int i = 0; static_cast<unsigned int>(i) < v.size(); i++ ){
