@@ -20,12 +20,12 @@ Run intructions :
 
 USAGE:
 
-   ./bin/bnn-main  [-O <string>] [-D <string>] [-V] [-C] [-A <int>] ...  [-T
-                   <double>] [-E <int>] [-X <int>] [-S <int>] -M <int> [--]
-                   [--version] [-h]
+   ./bin/bnn-main  [-O <string>] [-D <string>] [-F] [-V] [-C] [-A <int>]
+                   ...  [-T <double>] [-E <int>] [-K <int>] [-X <int>] [-S
+                   <int>] -M <char> [--] [--version] [-h]
 
 
-Where:
+Where: 
 
    -O <string>,  --output_file <string>
      Path of the output file
@@ -33,11 +33,15 @@ Where:
    -D <string>,  --strategy <string>
      The search strategy
 
+   -F,  --evaluation
+     indicates if the evaluation on the testing and training sets has to be
+     done
+
    -V,  --check
      indicates if the solution returned has to be tested
 
    -C,  --product_constraints
-     tests the use of product constraints
+     indicates the use of product constraints
 
    -A <int>,  --archi <int>  (accepted multiple times)
      Architecture of the model
@@ -48,13 +52,16 @@ Where:
    -E <int>,  --nb_examples_per_label <int>
      Number of examples per label
 
+   -K <int>,  --k <int>
+     Robustness parameter
+
    -X <int>,  --nb_examples <int>
      Number of examples
 
    -S <int>,  --seed <int>
      Seed
 
-   -M <int>,  --index_model <int>
+   -M <char>,  --index_model <char>
      (required)  Index of the model to run
 
    --,  --ignore_rest
@@ -75,8 +82,11 @@ The order of the flags is not important, just be careful to write the value corr
 
 To complete the architecture of the network, use the flag -A (or --archi) for each hidden layer. The order that the arguments are added to the command line is the order that they will be parsed and added in the architecture.
 
-An example of execution :
-  ./bin/bnn-main  --nb_examples 1 --seed 323  --index_model 1  --archi 1 --archi 1 --archi 1
+Some examples of execution :
+  ./bin/bnn-main  --index_model 1 --nb_examples 1 --seed 323  --index_model 1  --archi 1 --archi 1 --archi 1
+  ./bin/bnn-main -M 2 -C -X 3 -A 16 -A 16 -V -F
+  ./bin/bnn-main -M 1 -C -E 10 -D antilex_max_0
+
 
 
 ## Result files tree management
