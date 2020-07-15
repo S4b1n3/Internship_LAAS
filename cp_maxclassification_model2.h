@@ -128,8 +128,6 @@ namespace operations_research{
     		//assert(j>=0);
     		//No need for this
     		//assert(j<bnn_data->get_archi(l));
-
-        std::cout << "/* message */" << '\n';
     		if(l == 1){
     			LinearExpr temp(0);
     			int tmp = bnn_data->get_archi(0);

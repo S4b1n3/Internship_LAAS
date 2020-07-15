@@ -191,10 +191,14 @@ public:
 		//assert(index_example<nb_examples);
 
 		int size = inputs[index_example].size();
-
 		activation_first_layer[index_example].resize(size);
 		for (size_t i = 0; i < size; i++) {
 			activation_first_layer[index_example][i] = (int)inputs[index_example][i];
+			if (activation_first_layer[index_example][i] == 0) {
+				int tmp = bnn_data->get_archi(1);
+				for (size_t j = 0; j < tmp; j++)
+					cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0);
+			}
 		}
 
 		int tmp = bnn_data->get_layers()-1;
@@ -387,7 +391,9 @@ public:
 			LinearExpr temp(0);
 			int tmp = bnn_data->get_archi(0);
 			for (size_t i = 0; i < tmp; i++) {
-				temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
+				if (activation_first_layer[index_example][i] != 0) {
+					temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
+				}
 			}
 			cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp);
 		}
@@ -658,7 +664,8 @@ public:
 
 
 		assert(nb_seconds>0);
-		declare_weight_variables();                      //initialization of the variables
+		//initialization of the variables
+		declare_weight_variables();
 		activation_first_layer.resize(nb_examples);
 		activation.resize(nb_examples);
 		preactivation.resize(nb_examples);

@@ -38,7 +38,6 @@ int main(int argc, char **argv) {
 
 	srand(_seed);
 	std::string filename;
-
 	filename.append(_output_path);
 
 	if(_prod_constraint)
