@@ -80,6 +80,9 @@ protected:
 	//ORTools requires coefitions to be int64
 	std::vector<std::vector<int64>> activation_first_layer;
 
+	std::vector<std::vector <std::vector<int>>> weights_check;
+	bool check_model = false;
+
 	const Domain domain;
 	const Domain activation_domain;
 	LinearExpr objectif;
@@ -127,7 +130,7 @@ public:
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"),
 		file_out_extension(".tex"), nb_examples(10*_nb_examples_per_label), prod_constraint(_prod_constraint), output_path(_output_path){
 		bnn_data = _data;
-		std::cout << "c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
+		std::cout << " c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
 		bnn_data->print_archi();
 		bnn_data->print_dataset();
 		//index_rand = rand()%50000;
@@ -154,6 +157,20 @@ public:
 
 		std::clock_t c_end = std::clock();
 		std::cout << " c Building dataset finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
+	}
+
+	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
+		weights_check(std::move(_weights)), check_model(true), nb_examples(_indexes_examples.size()), domain(-1,1), activation_domain(Domain::FromValues({-1,1})),
+		file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path){
+		bnn_data = _data;
+		std::cout << " c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
+		bnn_data->print_archi();
+		bnn_data->print_dataset();
+
+		for (const int &i : _indexes_examples) {
+			inputs.push_back(bnn_data->get_dataset().test_images[i]);
+			labels.push_back((int)bnn_data->get_dataset().test_labels[i]);
+		}
 	}
 
 	/* Getters */
@@ -196,8 +213,10 @@ public:
 			activation_first_layer[index_example][i] = (int)inputs[index_example][i];
 			if (activation_first_layer[index_example][i] == 0) {
 				int tmp = bnn_data->get_archi(1);
-				for (size_t j = 0; j < tmp; j++)
-					cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0);
+				if(!check_model){
+					for (size_t j = 0; j < tmp; j++)
+						cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0);
+				}
 			}
 		}
 
@@ -295,6 +314,9 @@ public:
                   l-1 and the neuron j of layer l : N(i) * N(i+1) connections*/
 
 					weights[l-1][i][j] = cp_model_builder.NewIntVar(domain);
+					if(check_model){
+						cp_model_builder.AddEquality(weights[l-1][i][j], weights_check[l-1][i][j]);
+					}
 					if (prod_constraint && (l>=2)){
 						weight_is_0[l-2][i][j] = cp_model_builder.NewBoolVar();
 
@@ -707,6 +729,7 @@ public:
 	}
 
 	virtual void check(const CpSolverResponse &r, const bool &check_solution, const std::string &strategy, const int &index=0){
+		std::cout << "entering check method" << '\n';
 		int tmp = bnn_data->get_layers();
 		weights_solution.resize(tmp);
 		for (size_t l = 1; l < tmp; ++l) {
@@ -746,7 +769,9 @@ public:
 					}
 				}
 			}
+			std::cout << "check ? "<< check_solution << '\n';
 			if (check_solution) {
+				std::cout << "starting check" << '\n';
 				std::clock_t c_start = std::clock();
 				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
 				std::clock_t c_end = std::clock();

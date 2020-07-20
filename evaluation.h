@@ -68,6 +68,16 @@ public:
     }
   }
 
+  std::vector<int> get_correct_examples(){
+    std::vector<int> indexes;
+    for (int i = 0; i < 10000; i++) {
+      if (checker.run_solution(false, false, true, true, true, i)) {
+        indexes.push_back(i);
+      }
+    }
+    return indexes;
+  }
+
 
 };
 

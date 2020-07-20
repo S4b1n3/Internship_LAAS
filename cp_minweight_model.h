@@ -87,6 +87,12 @@ namespace operations_research{
 
       }
 
+      CPModel_MinWeight(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
+                      CP_Model(_data, _prod_constraint, _output_path, _weights, _indexes_examples){
+
+      }
+
+
       /* model_objective_minimize_weight method
       This function sums all the weights in the LinearExpr objectif
       Parameters : None

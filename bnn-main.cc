@@ -29,15 +29,36 @@ std::string _output_path;
 bool _check_solution;
 bool _eval;
 
+std::vector<std::vector<std::vector<int>>> weights_temp;
+
 void parseOptions(int argc, char** argv);
+int rand_a_b(int a, int b);
+void print_vector(const std::vector<std::vector<std::vector<int>>> &vecteur);
 
 int main(int argc, char **argv) {
+	srand(time(NULL));
 
 	architecture.push_back(784);
 	parseOptions(argc, argv);
 	architecture.push_back(10);
 
-	srand(_seed);
+	int tmp = architecture.size()-1;
+	weights_temp.resize(tmp);
+	for (size_t i = 1; i < tmp+1; i++) {
+		int tmp2 = architecture[i-1];
+		weights_temp[i-1].resize(tmp2);
+		for (size_t j = 0; j < tmp2; j++) {
+			int tmp3 = architecture[i];
+			weights_temp[i-1][j].resize(tmp3);
+			for (size_t k = 0; k < tmp3; k++) {
+				weights_temp[i-1][j][k] = rand_a_b(-1,1);
+			}
+		}
+	}
+
+
+	print_vector(weights_temp);
+
 	std::string filename;
 	filename.append(_output_path);
 
@@ -67,6 +88,19 @@ int main(int argc, char **argv) {
 	Data *bnn_data = new Data(architecture);
 	int status;
 
+
+	std::vector<int> correct_examples;
+	Evaluation test(weights_temp, bnn_data, filename);
+	correct_examples = test.get_correct_examples();
+	std::cout << "correct examples : "<< correct_examples.size() << '\n';
+	for(const int &i : correct_examples){
+		std::cout << "index correct example : "<< i << '\n';
+	}
+
+
+
+
+
 	switch (_index_model) {
 	case '1':
 	{
@@ -84,11 +118,19 @@ int main(int argc, char **argv) {
 				weights = std::move(model.get_weights_solution());
 			}
 			else{
-				std::cout << " c Invalid number of examples : default mode launched" << '\n';
-				operations_research::sat::CPModel_MinWeight model(bnn_data, 1, _prod_constraint, filename);
-				model.run(_time, _strategy);
-				status = model.print_statistics(_check_solution, _strategy);
-				weights = std::move(model.get_weights_solution());
+				if (_nb_examples == 0 && _nb_examples_per_label == 0) {
+					operations_research::sat::CPModel_MinWeight model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+					model.run(_time, _strategy);
+					status = model.print_statistics(_check_solution, _strategy);
+					weights = std::move(model.get_weights_solution());
+				}
+				else{
+					std::cout << " c Invalid number of examples : default mode launched" << '\n';
+					operations_research::sat::CPModel_MinWeight model(bnn_data, 1, _prod_constraint, filename);
+					model.run(_time, _strategy);
+					status = model.print_statistics(_check_solution, _strategy);
+					weights = std::move(model.get_weights_solution());
+				}
 			}
 		}
 		break;
@@ -106,14 +148,21 @@ int main(int argc, char **argv) {
 				operations_research::sat::CPModel_MaxClassification model(bnn_data, _nb_examples, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
-				weights = std::move(model.get_weights_solution());
 			}
 			else{
-				std::cout << " c Invalid number of examples : default mode launched" << '\n';
-				operations_research::sat::CPModel_MaxClassification model(bnn_data, 1, _prod_constraint, filename);
-				model.run(_time, _strategy);
-				status = model.print_statistics(_check_solution, _strategy);
-				weights = std::move(model.get_weights_solution());
+				if (_nb_examples == 0 && _nb_examples_per_label == 0) {
+					operations_research::sat::CPModel_MaxClassification model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+					model.run(_time, _strategy);
+					status = model.print_statistics(_check_solution, _strategy);
+					weights = std::move(model.get_weights_solution());
+				}
+				else{
+					std::cout << " c Invalid number of examples : default mode launched" << '\n';
+					operations_research::sat::CPModel_MaxClassification model(bnn_data, 1, _prod_constraint, filename);
+					model.run(_time, _strategy);
+					status = model.print_statistics(_check_solution, _strategy);
+					weights = std::move(model.get_weights_solution());
+				}
 			}
 		}
 		break;
@@ -135,11 +184,19 @@ int main(int argc, char **argv) {
 				weights = std::move(model.get_weights_solution());
 			}
 			else{
-				std::cout << " c Invalid number of examples : default mode launched" << '\n';
-				operations_research::sat::CPModel_MaxClassification2 model(bnn_data, 1, _prod_constraint, filename);
-				model.run(_time, _strategy);
-				status = model.print_statistics(_check_solution, _strategy);
-				weights = std::move(model.get_weights_solution());
+				if (_nb_examples == 0 && _nb_examples_per_label == 0) {
+					operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+					model.run(_time, _strategy);
+					status = model.print_statistics(_check_solution, _strategy);
+					weights = std::move(model.get_weights_solution());
+				}
+				else{
+					std::cout << " c Invalid number of examples : default mode launched" << '\n';
+					operations_research::sat::CPModel_MaxClassification2 model(bnn_data, 1, _prod_constraint, filename);
+					model.run(_time, _strategy);
+					status = model.print_statistics(_check_solution, _strategy);
+					weights = std::move(model.get_weights_solution());
+				}
 			}
 		}
 		break;
@@ -207,6 +264,32 @@ int main(int argc, char **argv) {
 	}
 
 	return EXIT_SUCCESS;
+}
+
+int rand_a_b(int a, int b){
+	return rand()%((b-a)+1)+a;
+}
+
+void print_vector(const std::vector<std::vector<std::vector<int>>> &vecteur){
+	int count_0 = 0;
+	int count_1 = 0;
+	int count_m1 = 0;
+    for (const auto& i : vecteur)
+			for (const auto& j : i)
+				for(const auto& k : j){
+					if (k == 0) {
+						count_0++;
+					}
+					if (k == 1) {
+						count_1++;
+					}
+					if (k == -1) {
+						count_m1++;
+					}
+				}
+	std::cout << "nb 0 : "<< count_0 << '\n';
+	std::cout << "nb 1 : "<< count_1 << '\n';
+	std::cout << "nb -1 : "<< count_m1 << '\n';
 }
 
 void parseOptions(int argc, char** argv){

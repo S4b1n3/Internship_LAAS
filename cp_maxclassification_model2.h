@@ -76,6 +76,11 @@ namespace operations_research{
 
       }
 
+      CPModel_MaxClassification2(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
+                      CP_Model(_data, _prod_constraint, _output_path, _weights, _indexes_examples){
+
+      }
+
 
       void declare_classification_variable(){
         for (size_t i = 0; i < nb_examples; i++) {
@@ -121,13 +126,14 @@ namespace operations_research{
     		//assert(index_example>=0);
     		//assert(index_example<nb_examples);
     		//No need for this
-    		//assert(l>0);
+        assert(l>0);
     		//No need for this
-    		//assert(l<bnn_data->get_layers());
+    		assert(l<bnn_data->get_layers());
     		//No need for this
-    		//assert(j>=0);
+    		assert(j>=0);
     		//No need for this
-    		//assert(j<bnn_data->get_archi(l));
+    		assert(j<bnn_data->get_archi(l));
+
     		if(l == 1){
     			LinearExpr temp(0);
     			int tmp = bnn_data->get_archi(0);
@@ -149,7 +155,7 @@ namespace operations_research{
     					IntVar sum_temp_1 = cp_model_builder.NewIntVar(Domain(0, 2));
     					cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]})).OnlyEnforceIf(classification[index_example]);
     					cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1)).OnlyEnforceIf(classification[index_example]);
-    					cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation).OnlyEnforceIf(classification[index_example]);
+    					cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);
 
     				}
     				else {
@@ -164,8 +170,8 @@ namespace operations_research{
 
     					 */
 
-              cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf({get_weight_is_0_ilj (i,l,j), classification[index_example]});
-     					cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf({Not(get_weight_is_0_ilj (i,l,j)), classification[index_example]});
+              cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf({get_weight_is_0_ilj(i,l,j), classification[index_example]});
+     					cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf({Not(get_weight_is_0_ilj(i,l,j)), classification[index_example]});
 
 
     					BoolVar b3 = cp_model_builder.NewBoolVar();
@@ -286,7 +292,7 @@ namespace operations_research{
             std::clock_t c_start = std::clock();
     				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
     				std::clock_t c_end = std::clock();
-    				std::cout << " c Build Solution time" << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+    				std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
             std::cout << " d CHECKING "<<index<<" : ";
       			bool checking = check_solution.run_solution(true, true, false);
             std::string result_file = output_path+"/results_"+strategy+".stat";
