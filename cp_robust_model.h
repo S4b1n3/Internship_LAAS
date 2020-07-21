@@ -166,8 +166,10 @@ namespace operations_research{
           cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0).OnlyEnforceIf(b2);
           cp_model_builder.AddNotEqual(get_w_ilj(i, 1, j), 0).OnlyEnforceIf(Not(b2));
 
+          //first constraint in the section of the note
           cp_model_builder.AddEquality(adversarial[index_example][j][i], 0).OnlyEnforceIf(b2);
 
+          //following constraints in the section of the note
           cp_model_builder.AddEquality(adversarial[index_example][j][i], inputs[index_example][i]-k).OnlyEnforceIf({a[index_example][j], b1});
           cp_model_builder.AddEquality(adversarial[index_example][j][i], inputs[index_example][i]-k).OnlyEnforceIf({Not(a[index_example][j]), Not(b1)});
 
@@ -177,6 +179,7 @@ namespace operations_research{
           temp.AddVar(adversarial[index_example][j][i]);
         }
 
+        //two last constraints in the section of the note
         cp_model_builder.AddGreaterOrEqual(temp, 0).OnlyEnforceIf(a[index_example][j]);
         cp_model_builder.AddLessThan(temp, 0).OnlyEnforceIf(Not(a[index_example][j]));
 
