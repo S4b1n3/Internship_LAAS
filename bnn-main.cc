@@ -91,14 +91,15 @@ int main(int argc, char **argv) {
 
 	std::vector<int> correct_examples;
 	Evaluation test(weights_temp, bnn_data, filename);
-	correct_examples = test.get_correct_examples();
+	//correct_examples = test.get_correct_examples();
 	std::cout << "correct examples : "<< correct_examples.size() << '\n';
 	for(const int &i : correct_examples){
 		std::cout << "index correct example : "<< i << '\n';
 	}
 
-
-
+	for (size_t i = 0; i < 10000; i++) {
+		correct_examples.push_back(i);
+	}
 
 
 	switch (_index_model) {
@@ -212,11 +213,36 @@ int main(int argc, char **argv) {
 	}
 	case '5':
 	{
-		operations_research::sat::CPModel_Robust model(bnn_data, _nb_examples, _prod_constraint, filename, _k);
-		std::cout<<std::endl<<std::endl;
-		model.run(_time ,  _strategy) ;
-		status = model.print_statistics(_check_solution, _strategy);
-		weights = std::move(model.get_weights_solution());
+		if (_nb_examples == 0 && _nb_examples_per_label != 0){
+			operations_research::sat::CPModel_Robust model(_nb_examples_per_label, bnn_data, _prod_constraint, filename, _k);
+			model.run(_time, _strategy);
+			status = model.print_statistics(_check_solution, _strategy);
+			weights = std::move(model.get_weights_solution());
+		}
+
+		else{
+			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+				operations_research::sat::CPModel_Robust model(bnn_data, _nb_examples, _prod_constraint, filename, _k);
+				model.run(_time, _strategy);
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = std::move(model.get_weights_solution());
+			}
+			else{
+				if (_nb_examples == 0 && _nb_examples_per_label == 0) {
+					operations_research::sat::CPModel_Robust model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples, _k);
+					model.run(_time, _strategy);
+					status = model.print_statistics(_check_solution, _strategy);
+					weights = std::move(model.get_weights_solution());
+				}
+				else{
+					std::cout << " c Invalid number of examples : default mode launched" << '\n';
+					operations_research::sat::CPModel_Robust model(bnn_data, 1, _prod_constraint, filename, _k);
+					model.run(_time, _strategy);
+					status = model.print_statistics(_check_solution, _strategy);
+					weights = std::move(model.get_weights_solution());
+				}
+			}
+		}
 		break;
 	}
 	default:

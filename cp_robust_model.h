@@ -38,6 +38,15 @@ namespace operations_research{
                         CPModel_MinWeight(_data, _nb_examples, _prod_constraint, _output_path), k(_k){
       }
 
+      CPModel_Robust(const int &_nb_examples, Data *_data, const bool _prod_constraint, const std::string &_output_path, const int &_k):
+                        CPModel_MinWeight( _nb_examples,_data, _prod_constraint, _output_path), k(_k){
+      }
+
+      CPModel_Robust(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples, const int &_k):
+                      CPModel_MinWeight(_data, _prod_constraint, _output_path, _weights, _indexes_examples), k(_k){
+
+      }
+
       void declare_a_e_j_variables(){
         a.resize(nb_examples);
         int temp = bnn_data->get_archi(1);
@@ -151,7 +160,7 @@ namespace operations_research{
 
           //Implement b1 == (weights > 0)
           cp_model_builder.AddGreaterThan(get_w_ilj(i, 1, j), 0).OnlyEnforceIf(b1);
-          cp_model_builder.AddLessThan(get_w_ilj(i, 1, j), 0).OnlyEnforceIf(Not(b1));
+          cp_model_builder.AddLessOrEqual(get_w_ilj(i, 1, j), 0).OnlyEnforceIf(Not(b1));
 
           //Implement b2 == (weights == 0)
           cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0).OnlyEnforceIf(b2);
@@ -168,8 +177,8 @@ namespace operations_research{
           temp.AddVar(adversarial[index_example][j][i]);
         }
 
-        cp_model_builder.AddGreaterOrEqual(temp, 0).OnlyEnforceIf(a[index_example][j]);
-        cp_model_builder.AddLessThan(temp, 0).OnlyEnforceIf(Not(a[index_example][j]));
+        //cp_model_builder.AddGreaterOrEqual(temp, 0).OnlyEnforceIf(a[index_example][j]);
+        //cp_model_builder.AddLessThan(temp, 0).OnlyEnforceIf(Not(a[index_example][j]));
 
       }
 
@@ -180,15 +189,60 @@ namespace operations_research{
       Output : None
       */
       void run(const double &nb_seconds , std::string _strategy){
-        CP_Model::run(nb_seconds, _strategy);
+        std::cout<< " c declare variables and constraints " <<std::endl;
+
+    		std::clock_t c_start = std::clock();
+
+
+    		assert(nb_seconds>0);
+        declare_weight_variables();
+    		activation_first_layer.resize(nb_examples);
+    		activation.resize(nb_examples);
+    		preactivation.resize(nb_examples);
+    		for (size_t i = 0; i < nb_examples; i++) {
+    			declare_preactivation_variables(i);
+    			declare_activation_variables(i);
+    		}
         declare_a_e_j_variables();
         declare_adversarial_variables();
+
         int temp = bnn_data->get_archi(1);
         for (size_t e = 0; e < nb_examples; e++) {
           for (size_t j = 0; j < temp; j++) {
             model_adversarial_variables(e, j);
           }
         }
+        for (size_t i = 0; i < nb_examples; i++) {
+    			int tmp = bnn_data->get_layers();
+    			for (size_t l = 1; l < tmp; l++) {
+    				int tmp2 =  bnn_data->get_archi(l);
+    				for (size_t j = 0; j < tmp2; j++) {
+    					model_preactivation_constraint(i, l, j);
+    					model_activation_constraint(i, l, j);
+    				}
+    			}
+    		}
+        for (size_t i = 0; i < nb_examples; i++) {
+    			model_output_constraint(i);
+    		}
+    		model_declare_objective() ;                 //initialization of the objective
+    		setup_branching(_strategy) ;
+    		parameters.set_max_time_in_seconds(nb_seconds);     //Add a timelimit
+    		parameters.set_random_seed(1000);
+    		model.Add(NewSatParameters(parameters));                       //objective function
+    		// your_algorithm
+    		std::clock_t c_end = std::clock();
+
+    		//long_double time_elapsed_ms = 1000.0 * ;
+    		std::ofstream parser(output_path.c_str(), std::ios::app);
+    		parser << "d SETUP TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+    		parser.close();
+
+    		std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
+    		std::cout << "\n c Some statistics on the model : " << '\n';
+    		LOG(INFO) << CpModelStats(cp_model_builder.Build());
+
+    		std::cout<< " c running the solver.. " <<std::endl;
         cp_model_builder.Minimize(objectif);
       }
 

@@ -78,6 +78,7 @@ namespace operations_research{
 
       CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
                       CP_Model(_data, _prod_constraint, _output_path, _weights, _indexes_examples){
+                        std::cout << " c checker constructor" << '\n';
 
       }
 
@@ -187,7 +188,7 @@ namespace operations_research{
     				}
     			}
 
-          if (classification_solution[i] == 1 && check_solution) {
+          if (check_solution) { //classification_solution[i] == 1 &&
             std::clock_t c_start = std::clock();
     				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
     				std::clock_t c_end = std::clock();
