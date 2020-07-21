@@ -177,8 +177,8 @@ namespace operations_research{
           temp.AddVar(adversarial[index_example][j][i]);
         }
 
-        //cp_model_builder.AddGreaterOrEqual(temp, 0).OnlyEnforceIf(a[index_example][j]);
-        //cp_model_builder.AddLessThan(temp, 0).OnlyEnforceIf(Not(a[index_example][j]));
+        cp_model_builder.AddGreaterOrEqual(temp, 0).OnlyEnforceIf(a[index_example][j]);
+        cp_model_builder.AddLessThan(temp, 0).OnlyEnforceIf(Not(a[index_example][j]));
 
       }
 
