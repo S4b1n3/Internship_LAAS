@@ -157,7 +157,7 @@ public:
    - verification_mode : boolean that indicates if verification logs have to be printed (default = false)
   Output : boolean -> true if the input is well classified and false either
   */
-  bool predict(const bool &verification_mode = false){
+  bool predict(const bool &verification_mode = false, const bool &check = true){
     bool result = true ;
     for (size_t l = 1; l < nb_layers; l++) {
       int tmp =  bnn_data->get_archi(l-1);
@@ -181,39 +181,43 @@ public:
        }
     }
 
-    if (verification_mode) {
-      if(compt > 1){
-        result =  false;
-        std::cout<<" v There is " << compt << " activated neurons on the output layer : "<<std::endl;
-        std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-          for (size_t i = 0; i < bnn_data->get_archi(nb_layers-1); i++){
-            if(activation[nb_layers-1][i]== 1)
-              std::cout<<" v Neuron " << i << " at the last layer is activated"<<std::endl;
+    if (check) {
+      if (verification_mode) {
+        if(compt > 1){
+          result =  false;
+          std::cout<<" v There is " << compt << " activated neurons on the output layer : "<<std::endl;
+          std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
+            for (size_t i = 0; i < bnn_data->get_archi(nb_layers-1); i++){
+              if(activation[nb_layers-1][i]== 1)
+                std::cout<<" v Neuron " << i << " at the last layer is activated"<<std::endl;
+            }
+        }
+        else{
+          if(compt == 0){
+            std::cout<<" v There is no activated neuron on the output layer"<<std::endl;
+            result =  false;
           }
-      }
-      else{
-        if(compt == 0){
-          std::cout<<" v There is no activated neuron on the output layer"<<std::endl;
+        }
+
+        if(predict != example_label){
+          std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
+          std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
+          std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
           result =  false;
         }
       }
+      else {
+        if (compt > 1 || compt == 0 || predict != example_label) {
+          result = false;
+        }
+      }
+    }
 
-      if(predict != example_label){
-        std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
-        std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-        std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
-        result =  false;
-      }
-    }
-    else {
-      if (compt > 1 || compt == 0 || predict != example_label) {
-        result = false;
-      }
-    }
+
     return result;
   }
 
-  bool all_good_metric(const bool &verification_mode = false){
+  bool all_good_metric(const bool &verification_mode = false, const bool &check = true){
     bool result = true ;
     for (size_t l = 1; l < nb_layers; l++) {
       int tmp =  bnn_data->get_archi(l-1);
@@ -239,18 +243,19 @@ public:
          predict = i;
        }
     }
-
-    if (verification_mode) {
-      if(predict != example_label){
-        std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
-        std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-        std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
-        result =  false;
+    if (check) {
+      if (verification_mode) {
+        if(predict != example_label){
+          std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
+          std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
+          std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
+          result =  false;
+        }
       }
-    }
-    else {
-      if (predict != example_label) {
-        result = false;
+      else {
+        if (predict != example_label) {
+          result = false;
+        }
       }
     }
     return result;
@@ -294,15 +299,16 @@ public:
     - verification_mode : argument for the predict method
   Output : boolean -> true if the methods both return true
   */
-  bool run_solution(const bool &check_act_preact, const bool &verification_mode, const bool &_init, const bool &use_predict = true, const bool &test_set=true, const int &index_example = 0){
-    bool pred;
+  bool run_solution(const bool &check_act_preact, const bool &verification_mode, const bool &_init, const bool &classification = true, const bool &use_predict = true, const bool &test_set=true, const int &index_example = 0){
+    bool pred = true;
     bool act_preact = true;
     init(_init, test_set, index_example);
+
     if (use_predict) {
-      pred = predict(verification_mode);
+      pred = predict(verification_mode, classification);
     }
     else
-      pred = all_good_metric(verification_mode);
+      pred = all_good_metric(verification_mode, classification);
 
     if (check_act_preact) {
       act_preact = check_activation_preactivation();

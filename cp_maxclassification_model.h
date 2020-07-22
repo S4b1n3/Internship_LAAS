@@ -190,11 +190,16 @@ namespace operations_research{
 
           if (check_solution) { //classification_solution[i] == 1 &&
             std::clock_t c_start = std::clock();
+            bool classif;
+            if (classification_solution[i] == 1) {
+              classif = true;
+            } else
+              classif = false;
     				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
     				std::clock_t c_end = std::clock();
     				std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
             std::cout << " d CHECKING "<<index<<" : ";
-      			bool checking = check_solution.run_solution(true, true, false);
+      			bool checking = check_solution.run_solution(true, true, false, classif);
             std::string result_file = output_path+"/results_"+strategy+".stat";
     				std::ofstream parser(result_file.c_str(), std::ios::app);
     				parser << "d CHECKING "<<checking<<std::endl;
