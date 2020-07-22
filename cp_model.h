@@ -744,7 +744,7 @@ public:
 			}
 		}
 
-
+		int check_count = 0;
 		for (size_t i = 0; i < nb_examples; i++) {
 
 			preactivation_solution.resize(tmp-1);
@@ -769,19 +769,31 @@ public:
 					}
 				}
 			}
-			std::cout << "check ? "<< check_solution << '\n';
 			if (check_solution) {
-				std::cout << "starting check" << '\n';
 				std::clock_t c_start = std::clock();
 				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
 				std::clock_t c_end = std::clock();
-				std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
-				std::cout << " d CHECKING "<<index<<" : ";
-				bool checking = check_solution.run_solution(true, true, false);
+				bool checking;
+				if (!check_model) {
+					std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+					std::cout << " d CHECKING "<<i<<" : ";
+					checking = check_solution.run_solution(true, true, false);
+				}else
+					checking = check_solution.run_solution(true, false, false);
+
+				if (checking) {
+					check_count++;
+				}
 				std::ofstream parser(output_path.c_str(), std::ios::app);
 				parser << "d CHECKING "<<checking<<std::endl;
 				parser.close();
 			}
+		}
+		if (check_model && check_count == nb_examples) {
+			std::cout << " c VERIFICATION 1" << '\n';
+		}
+		if (check_model && check_count != nb_examples) {
+			std::cout << " c VERIFICATION 0" << '\n';
 		}
 	}
 

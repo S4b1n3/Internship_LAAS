@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
 		//std::cout << "index correct example : "<< i << '\n';
 	}
 
-	for (size_t i = 0; i < 60000; i++) {
+	for (size_t i = 0; i < 1000; i++) {
 		correct_examples.push_back(i);
 	}
 
@@ -254,12 +254,16 @@ int main(int argc, char **argv) {
 	}
 
 	if (_eval) {
-
+		std::cout << "c starting evaluation..." << '\n';
 		if(status == 2 || status == 4){
 			Evaluation test(weights, bnn_data, filename);
+			std::cout << " c Testing accuracy of the model with activation function : "<< std::round(accuracy_test) << '\n';
 			accuracy_test = test.run_evaluation(true, true);
+			std::cout << " c Training accuracy of the model with activation function : "<< std::round(accuracy_train) << '\n';
 			accuracy_train = test.run_evaluation(false, true);
+			std::cout << " c Testing accuracy of the model with all good metric : "<< std::round(accuracy_test_bis) << '\n';
 			accuracy_test_bis = test.run_evaluation(true, false);
+			std::cout << " c Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
 			accuracy_train_bis = test.run_evaluation(false, false);
 		}
 
@@ -276,10 +280,6 @@ int main(int argc, char **argv) {
 			accuracy_train_bis = 0;
 		}
 
-		std::cout << " c Testing accuracy of the model with activation function : "<< std::round(accuracy_test) << '\n';
-		std::cout << " c Training accuracy of the model with activation function : "<< std::round(accuracy_train) << '\n';
-		std::cout << " c Testing accuracy of the model with all good metric : "<< std::round(accuracy_test_bis) << '\n';
-		std::cout << " c Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
 		std::string result_file = filename+"/results_"+_strategy+".stat";
 		std::ofstream results(result_file.c_str(), std::ios::app);
 		results << "d TEST_ACCURACY " << accuracy_test << std::endl;

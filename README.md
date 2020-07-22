@@ -25,7 +25,7 @@ USAGE:
                    <int>] -M <char> [--] [--version] [-h]
 
 
-Where: 
+Where:
 
    -O <string>,  --output_file <string>
      Path of the output file
@@ -83,7 +83,7 @@ The order of the flags is not important, just be careful to write the value corr
 To complete the architecture of the network, use the flag -A (or --archi) for each hidden layer. The order that the arguments are added to the command line is the order that they will be parsed and added in the architecture.
 
 Some examples of execution :
-  ./bin/bnn-main  --index_model 1 --nb_examples 1 --seed 323  --index_model 1  --archi 1 --archi 1 --archi 1
+  ./bin/bnn-main  --index_model 1 --nb_examples 1 --seed 323 --archi 1 --archi 1 --archi 1
   ./bin/bnn-main -M 2 -C -X 3 -A 16 -A 16 -V -F
   ./bin/bnn-main -M 1 -C -E 10 -D antilex_max_0
 
