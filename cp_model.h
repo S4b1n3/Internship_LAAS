@@ -168,8 +168,8 @@ public:
 		bnn_data->print_dataset();
 
 		for (const int &i : _indexes_examples) {
-			inputs.push_back(bnn_data->get_dataset().test_images[i]);
-			labels.push_back((int)bnn_data->get_dataset().test_labels[i]);
+			inputs.push_back(bnn_data->get_dataset().training_images[i]);
+			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
 		}
 	}
 
@@ -718,7 +718,7 @@ public:
 
 		//long_double time_elapsed_ms = 1000.0 * ;
 		std::ofstream parser(output_path.c_str(), std::ios::app);
-		parser << "d SETUP TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+		parser << "d SETUP_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
 		parser.close();
 
 		std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
@@ -844,18 +844,18 @@ public:
 		//std::cout << "\nSome statistics on the model : " << '\n';
 		//LOG(INFO) << CpModelStats(cp_model_builder.Build());
 		if(parser){
-			parser << std::endl << "d RUN TIME " << response.wall_time() << std::endl;
+			parser << std::endl << "d RUN_TIME " << response.wall_time() << std::endl;
 			parser << "d MEMORY " << sysinfo::MemoryUsageProcess() << std::endl;
 			parser << "d STATUS "<<response.status() << std::endl;
 			if (response.status()== CpSolverStatus::OPTIMAL)
 				parser << "d OBJECTIVE "<<response.objective_value() << std::endl;
 			else
 				parser << "d OBJECTIVE "<<response.objective_value() << std::endl;
-			parser << "d BEST BOUND "<<response.best_objective_bound() << std::endl;
+			parser << "d BEST_BOUND "<<response.best_objective_bound() << std::endl;
 			parser << "d BOOLEANS " << response.num_booleans() << std::endl;
 			parser << "d CONFLICTS " << response.num_conflicts() << std::endl;
 			parser << "d PROPAGATION " << response.num_binary_propagations() << std::endl;
-			parser << "d INTEGER PROPAGATION " << response.num_integer_propagations() << std::endl;
+			parser << "d INTEGER_PROPAGATION " << response.num_integer_propagations() << std::endl;
 			parser << "d BRANCHES " << response.num_branches() << std::endl;
 			parser << CpModelStats(cp_model_builder.Build()) << std::endl;
 			parser << std::endl;

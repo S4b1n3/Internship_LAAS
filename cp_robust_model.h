@@ -238,7 +238,7 @@ namespace operations_research{
 
     		//long_double time_elapsed_ms = 1000.0 * ;
     		std::ofstream parser(output_path.c_str(), std::ios::app);
-    		parser << "d SETUP TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+    		parser << "d SETUP_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
     		parser.close();
 
     		std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;

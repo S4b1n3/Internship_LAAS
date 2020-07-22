@@ -91,14 +91,14 @@ int main(int argc, char **argv) {
 
 	std::vector<int> correct_examples;
 	Evaluation test(weights_temp, bnn_data, filename);
-	correct_examples = test.get_correct_examples();
+	//correct_examples = test.get_correct_examples();
 	std::cout << "correct examples : "<< correct_examples.size() << '\n';
 	for(const int &i : correct_examples){
 		//std::cout << "index correct example : "<< i << '\n';
 	}
 
-	for (size_t i = 0; i < 10; i++) {
-		//correct_examples.push_back(i);
+	for (size_t i = 0; i < 60000; i++) {
+		correct_examples.push_back(i);
 	}
 
 
@@ -282,10 +282,10 @@ int main(int argc, char **argv) {
 		std::cout << " c Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
 		std::string result_file = filename+"/results_"+_strategy+".stat";
 		std::ofstream results(result_file.c_str(), std::ios::app);
-		results << "d TEST ACCURACY " << accuracy_test << std::endl;
-		results << "d TRAIN ACCURACY " << accuracy_train << std::endl;
-		results << "d TEST ACCURACY MAX " << accuracy_test_bis << std::endl;
-		results << "d TRAIN ACCURACY MAX " << accuracy_train_bis << std::endl;
+		results << "d TEST_ACCURACY " << accuracy_test << std::endl;
+		results << "d TRAIN_ACCURACY " << accuracy_train << std::endl;
+		results << "d TEST_ACCURACY_MAX " << accuracy_test_bis << std::endl;
+		results << "d TRAIN_ACCURACY_MAX " << accuracy_train_bis << std::endl;
 		results.close();
 	}
 

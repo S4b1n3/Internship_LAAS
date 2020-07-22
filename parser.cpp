@@ -200,19 +200,19 @@ public:
                     if(line.substr(0,12) == "d CHECKING 0"){
                       std::cout << " c Error checking from file "<<file_name << '\n';
                     }
-                    if (line.substr(0, 22) == "d TRAIN ACCURACY TIME ") {
+                    if (line.substr(0, 22) == "d TRAIN_ACCURACY_TIME ") {
                       if (std::stoi(line.substr(0, 22)) > 5000) {
                         std::cout << " c Accuracy computing on training set is more than 5000 seconds on file : "<< file_name << '\n';
                       }
                     }
 
-                    if (line.substr(0, 21) == "d TEST ACCURACY TIME ") {
+                    if (line.substr(0, 21) == "d TEST_ACCURACY_TIME ") {
                       if (std::stoi(line.substr(0, 21)) > 800) {
                         std::cout << " c Accuracy computing on testing set is more than 800 seconds on file : "<< file_name << '\n';
                       }
                     }
 
-                    if(line.substr(0, 11) == "d RUN TIME "){
+                    if(line.substr(0, 11) == "d RUN_TIME "){
                         run_time += std::stoi(line.substr(11));
                         count +=1;
                     }
@@ -260,23 +260,23 @@ public:
                         split(line, temp, ' ');
                         nb_constraints += std::stoi(temp[1]);
                     }
-                    if (line.substr(0, 16) == "d TEST ACCURACY ") {
+                    if (line.substr(0, 16) == "d TEST_ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){
                     	     test_accuracy += std::stoi(line.substr(16));
 			                     count_accuracy += 1;
 			                  }
 		                }
-                    if (line.substr(0, 17) == "d TRAIN ACCURACY ") {
+                    if (line.substr(0, 17) == "d TRAIN_ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){
                       	   train_accuracy += std::stoi(line.substr(17));
 			                  }
                     }
-                    if (line.substr(0, 20) == "d TEST ACCURACY MAX ") {
+                    if (line.substr(0, 20) == "d TEST_ACCURACY_MAX ") {
 		                    if(status_temp == 2 || status_temp == 4){
                     	     test_accuracy_max += std::stoi(line.substr(20));
 			                  }
 		                }
-                    if (line.substr(0, 21) == "d TRAIN ACCURACY MAX ") {
+                    if (line.substr(0, 21) == "d TRAIN_ACCURACY_MAX ") {
 		                    if(status_temp == 2 || status_temp == 4){
                       	   train_accuracy_max += std::stoi(line.substr(21));
 			                  }

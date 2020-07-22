@@ -48,7 +48,7 @@ public:
       std::clock_t c_end = std::clock();
       std::cout << " c Evaluation on testing set finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
       std::ofstream parser(output_file.c_str(), std::ios::app);
-  		parser << "d TEST ACCURACY TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+  		parser << "d TEST_ACCURACY_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
   		parser.close();
       return 100*nb_correct_classifications/10000;
     }
@@ -62,7 +62,7 @@ public:
       std::clock_t c_end = std::clock();
       std::cout << " c Evaluation on training set finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
       std::ofstream parser(output_file.c_str(), std::ios::app);
-  		parser << "d TRAIN ACCURACY TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+  		parser << "d TRAIN_ACCURACY_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
   		parser.close();
       return 100*nb_correct_classifications/10000;
     }
