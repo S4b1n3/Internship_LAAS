@@ -39,7 +39,7 @@ public:
   - a vector representing the architecture of a BNN
     The lenght of this vector is the number of layers of the BNN
   */
-  explicit Data(const std::vector<int> &archi){
+  Data(const std::vector<int> &archi){
 	    nb_layers = archi.size();
 	    architecture = archi;
 	    nb_weights = 0;
@@ -47,6 +47,10 @@ public:
 	        nb_weights += architecture[l]*architecture[l-1];
 	    }
 	  }
+
+    Data(){
+
+    }
 
 
 
