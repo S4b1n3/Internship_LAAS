@@ -7,11 +7,11 @@
 #include "cp_maxsum_weights_example_model.h"
 #include "cp_robust_model.h"
 #include "evaluation.h"
-
 #include "tclap/CmdLine.h"
 
 #include <string>
 #include <vector>
+
 
 using namespace TCLAP;
 
@@ -354,7 +354,7 @@ void parseOptions(int argc, char** argv){
 		SwitchArg eval("F","evaluation", "indicates if the evaluation on the testing and training sets has to be done", false);
 		cmd.add(eval);
 
-		ValueArg<std::string> search_strategy("D", "strategy", "The search strategy", false, "lex", "string");
+		ValueArg<std::string> search_strategy("D", "strategy", "The search strategy", false, "default", "string");
 		cmd.add(search_strategy);
 
 		ValueArg<std::string> out_file("O", "output_file", "Path of the output file", false, "BNN", "string");
