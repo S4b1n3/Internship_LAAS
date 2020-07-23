@@ -66,9 +66,7 @@ void random(const int &nb_examples, const std::string &path) {
 
 int main(int argc, char **argv) {
     srand(time(NULL));
-    //const std::string path_folder("/pfcalcul/tmp/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/rocknrun/bnn_cp_model/BNN/results/"+std::string(argv[1]));
-    const std::string path_folder("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/"+std::string(argv[3]));
-    std::cout << path_folder <<std::endl << std::endl;
+    const std::string path_folder("dataset");
 
     int sampling = atoi(argv[1]);
     int nb_ex = atoi(argv[2]);
@@ -80,7 +78,7 @@ int main(int argc, char **argv) {
       if (sampling == 2) {
         random(nb_ex, path_folder);
       }else{
-        std::cout << "Please enter 1 to generate \"per_label\" sampling or 2 to generate \"random\" sampling" << '\n';
+        std::cout << "Please enter 1 to generate \"per_label\" sampling or 2 to generate \"pur random\" sampling" << '\n';
       }
     }
 
