@@ -257,13 +257,13 @@ int main(int argc, char **argv) {
 		std::cout << "c starting evaluation..." << '\n';
 		if(status == 2 || status == 4){
 			Evaluation test(weights, bnn_data, filename);
-			std::cout << " c Testing accuracy of the model with activation function : "<< std::round(accuracy_test) << '\n';
+			std::cout << " c Testing accuracy of the model with activation function : "<< '\n';
 			accuracy_test = test.run_evaluation(true, true);
-			std::cout << " c Training accuracy of the model with activation function : "<< std::round(accuracy_train) << '\n';
+			std::cout << " c Training accuracy of the model with activation function : "<< '\n';
 			accuracy_train = test.run_evaluation(false, true);
-			std::cout << " c Testing accuracy of the model with all good metric : "<< std::round(accuracy_test_bis) << '\n';
+			std::cout << " c Testing accuracy of the model with all good metric : "<< '\n';
 			accuracy_test_bis = test.run_evaluation(true, false);
-			std::cout << " c Training accuracy of the model with all good metric : "<< std::round(accuracy_train_bis) << '\n';
+			std::cout << " c Training accuracy of the model with all good metric : "<< '\n';
 			accuracy_train_bis = test.run_evaluation(false, false);
 		}
 

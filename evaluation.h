@@ -41,7 +41,7 @@ public:
     if (test_set) {
       nb_correct_classifications=0;
       for (size_t i = 0; i < 10000; i++) {
-        if (checker.run_solution(false, false, true, false, predict, true, i)) {
+        if (checker.run_solution(false, false, true, true, predict, true, i)) {
           nb_correct_classifications += 1;
         }
       }
@@ -56,7 +56,7 @@ public:
     else{
       nb_correct_classifications=0;
       for (size_t i = 0; i < 60000; i++) {
-        if (checker.run_solution(false, false, true, false, predict, false, i)) {
+        if (checker.run_solution(false, false, true, true, predict, false, i)) {
           nb_correct_classifications += 1;
         }
       }
@@ -73,7 +73,7 @@ public:
   std::vector<int> get_correct_examples(){
     std::vector<int> indexes;
     for (int i = 0; i < 10000; i++) {
-      if (checker.run_solution(false, false, true, false, true, true, i)) {
+      if (checker.run_solution(false, false, true, true, true, true, i)) {
         indexes.push_back(i);
       }
     }
