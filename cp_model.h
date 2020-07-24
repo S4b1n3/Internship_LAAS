@@ -19,16 +19,43 @@
 #include <algorithm>
 #include <memory>
 #include <time.h>
-#include <stdlib.h>
 
 #include <cstdio>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
 
+#include <string>
+#include <utility>
+#include <vector>
+#include <cstdlib>
+#include <dirent.h>
+#include <cstring>
+#include <sstream>
+#include <numeric>
+#include <cmath>
+#include <cinttypes>
+
+
 
 namespace operations_research{
 namespace sat{
+
+//method used to split a string given a delimiter and put the result in a container
+template <class Container>
+void split(const std::string& str, Container& cont, char delim = ' ')
+{
+    std::stringstream ss(str);
+    std::string token;
+    while (std::getline(ss, token, delim)) {
+        cont.push_back(token);
+    }
+}
+
+void print_vector(const std::vector<uint8_t>& vecteur){
+    for (const auto& i : vecteur)
+        std::cout << (int)i << std::endl;
+}
 
 
 class CP_Model {
@@ -170,6 +197,38 @@ public:
 		for (const int &i : _indexes_examples) {
 			inputs.push_back(bnn_data->get_dataset().training_images[i]);
 			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
+		}
+	}
+
+	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string _input_file):
+		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path), nb_examples(0){
+
+		bnn_data = _data;
+		std::cout << " c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
+		bnn_data->print_archi();
+		bnn_data->print_dataset();
+
+		std::ifstream input_file(_input_file);
+		if(input_file){
+			std::string line;
+			while (std::getline(input_file, line)){
+				if (line.substr(0, 6)=="LABEL ") {
+					labels.push_back(std::stoi(line.substr(6)));
+					nb_examples++;
+				}
+				if (line.substr(0, 6)=="IMAGE ") {
+					std::string temp_line = line.substr(6);
+					std::vector<std::string> temp;
+					split(temp_line, temp, ' ');
+					std::vector<uint8_t> temp_int;
+					for (size_t i = 0; i < temp.size(); i++) {
+						temp_int.push_back((uint8_t)atoi(temp[i].c_str()));
+					}
+					inputs.push_back(temp_int);
+				}
+			}
+		} else {
+			std::cout << "Error oppening input file" << '\n';
 		}
 	}
 

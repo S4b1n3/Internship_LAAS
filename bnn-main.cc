@@ -28,6 +28,7 @@ std::string _strategy;
 std::string _output_path;
 bool _check_solution;
 bool _eval;
+std::string _input_file;
 
 std::vector<std::vector<std::vector<int>>> weights_temp;
 
@@ -56,9 +57,6 @@ int main(int argc, char **argv) {
 		}
 	}
 
-
-	print_vector(weights_temp);
-
 	std::string filename;
 	filename.append(_output_path);
 
@@ -77,11 +75,6 @@ int main(int argc, char **argv) {
 	system(cmd.c_str());
 	filename.append("/results_"+_strategy+".stat");
 
-
-
-
-	std::cout << filename << std::endl;
-
 	double accuracy_train, accuracy_test, accuracy_train_bis, accuracy_test_bis;
 
 	std::vector<std::vector<std::vector<int>>> weights;
@@ -89,48 +82,48 @@ int main(int argc, char **argv) {
 	int status;
 
 
-	std::vector<int> correct_examples;
-	Evaluation test(weights_temp, bnn_data, filename);
-	//correct_examples = test.get_correct_examples();
-	std::cout << "correct examples : "<< correct_examples.size() << '\n';
-	for(const int &i : correct_examples){
-		//std::cout << "index correct example : "<< i << '\n';
-	}
-
-	for (size_t i = 0; i < 1000; i++) {
-		correct_examples.push_back(i);
-	}
-
-
 	switch (_index_model) {
 	case '1':
 	{
-		if (_nb_examples == 0 && _nb_examples_per_label != 0){
-			operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
+		if (_input_file != "") {
+			operations_research::sat::CPModel_MinWeight model(bnn_data, _prod_constraint, filename, _input_file);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
-		 }
-		else{
-			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
-				operations_research::sat::CPModel_MinWeight model(bnn_data, _nb_examples, _prod_constraint, filename);
+		} else {
+			if (_nb_examples == 0 && _nb_examples_per_label != 0){
+				operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
-			}
+			 }
 			else{
-				if (_nb_examples == 0 && _nb_examples_per_label == 0) {
-					operations_research::sat::CPModel_MinWeight model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+					operations_research::sat::CPModel_MinWeight model(bnn_data, _nb_examples, _prod_constraint, filename);
 					model.run(_time, _strategy);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 				}
 				else{
-					std::cout << " c Invalid number of examples : default mode launched" << '\n';
-					operations_research::sat::CPModel_MinWeight model(bnn_data, 1, _prod_constraint, filename);
-					model.run(_time, _strategy);
-					status = model.print_statistics(_check_solution, _strategy);
-					weights = std::move(model.get_weights_solution());
+					if (_nb_examples == 0 && _nb_examples_per_label == 0) {
+						std::vector<int> correct_examples;
+						Evaluation test(weights_temp, bnn_data, filename);
+						correct_examples = test.get_correct_examples();
+						for(const int &i : correct_examples){
+							//std::cout << "index correct example : "<< i << '\n';
+						}
+						operations_research::sat::CPModel_MinWeight model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+						model.run(_time, _strategy);
+						status = model.print_statistics(_check_solution, _strategy);
+						weights = std::move(model.get_weights_solution());
+					}
+					else{
+						std::cout << " c Invalid number of examples : default mode launched" << '\n';
+						operations_research::sat::CPModel_MinWeight model(bnn_data, 1, _prod_constraint, filename);
+						model.run(_time, _strategy);
+						status = model.print_statistics(_check_solution, _strategy);
+						weights = std::move(model.get_weights_solution());
+					}
 				}
 			}
 		}
@@ -138,31 +131,48 @@ int main(int argc, char **argv) {
 	}
 	case '2':
 	{
-		if (_nb_examples == 0 && _nb_examples_per_label != 0){
-			operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
+		if (_input_file != "") {
+			operations_research::sat::CPModel_MaxClassification model(bnn_data, _prod_constraint, filename, _input_file);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
-		}
-		else{
-			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
-				operations_research::sat::CPModel_MaxClassification model(bnn_data, _nb_examples, _prod_constraint, filename);
+		} else {
+			if (_nb_examples == 0 && _nb_examples_per_label != 0){
+				operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
+				weights = std::move(model.get_weights_solution());
 			}
 			else{
-				if (_nb_examples == 0 && _nb_examples_per_label == 0) {
-					operations_research::sat::CPModel_MaxClassification model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+					operations_research::sat::CPModel_MaxClassification model(bnn_data, _nb_examples, _prod_constraint, filename);
 					model.run(_time, _strategy);
 					status = model.print_statistics(_check_solution, _strategy);
-					weights = std::move(model.get_weights_solution());
 				}
 				else{
-					std::cout << " c Invalid number of examples : default mode launched" << '\n';
-					operations_research::sat::CPModel_MaxClassification model(bnn_data, 1, _prod_constraint, filename);
-					model.run(_time, _strategy);
-					status = model.print_statistics(_check_solution, _strategy);
-					weights = std::move(model.get_weights_solution());
+					if (_nb_examples == 0 && _nb_examples_per_label == 0) {
+						std::vector<int> correct_examples;
+						Evaluation test(weights_temp, bnn_data, filename);
+						//correct_examples = test.get_correct_examples();
+						for(const int &i : correct_examples){
+							//std::cout << "index correct example : "<< i << '\n';
+						}
+
+						for (size_t i = 0; i < 1000; i++) {
+							correct_examples.push_back(i);
+						}
+						operations_research::sat::CPModel_MaxClassification model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+						model.run(_time, _strategy);
+						status = model.print_statistics(_check_solution, _strategy);
+						weights = std::move(model.get_weights_solution());
+					}
+					else{
+						std::cout << " c Invalid number of examples : default mode launched" << '\n';
+						operations_research::sat::CPModel_MaxClassification model(bnn_data, 1, _prod_constraint, filename);
+						model.run(_time, _strategy);
+						status = model.print_statistics(_check_solution, _strategy);
+						weights = std::move(model.get_weights_solution());
+					}
 				}
 			}
 		}
@@ -170,33 +180,49 @@ int main(int argc, char **argv) {
 	}
 	case '3':
 	{
-		if (_nb_examples == 0 && _nb_examples_per_label != 0){
-			operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
+		if (_input_file != "") {
+			operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _prod_constraint, filename, _input_file);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
-		}
-
-		else{
-			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
-				operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _nb_examples, _prod_constraint, filename);
+		} else {
+			if (_nb_examples == 0 && _nb_examples_per_label != 0){
+				operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 			}
 			else{
-				if (_nb_examples == 0 && _nb_examples_per_label == 0) {
-					operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+					operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _nb_examples, _prod_constraint, filename);
 					model.run(_time, _strategy);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 				}
 				else{
-					std::cout << " c Invalid number of examples : default mode launched" << '\n';
-					operations_research::sat::CPModel_MaxClassification2 model(bnn_data, 1, _prod_constraint, filename);
-					model.run(_time, _strategy);
-					status = model.print_statistics(_check_solution, _strategy);
-					weights = std::move(model.get_weights_solution());
+					if (_nb_examples == 0 && _nb_examples_per_label == 0) {
+						std::vector<int> correct_examples;
+						Evaluation test(weights_temp, bnn_data, filename);
+						//correct_examples = test.get_correct_examples();
+						for(const int &i : correct_examples){
+							//std::cout << "index correct example : "<< i << '\n';
+						}
+
+						for (size_t i = 0; i < 1000; i++) {
+							correct_examples.push_back(i);
+						}
+						operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples);
+						model.run(_time, _strategy);
+						status = model.print_statistics(_check_solution, _strategy);
+						weights = std::move(model.get_weights_solution());
+					}
+					else{
+						std::cout << " c Invalid number of examples : default mode launched" << '\n';
+						operations_research::sat::CPModel_MaxClassification2 model(bnn_data, 1, _prod_constraint, filename);
+						model.run(_time, _strategy);
+						status = model.print_statistics(_check_solution, _strategy);
+						weights = std::move(model.get_weights_solution());
+					}
 				}
 			}
 		}
@@ -213,33 +239,46 @@ int main(int argc, char **argv) {
 	}
 	case '5':
 	{
-		if (_nb_examples == 0 && _nb_examples_per_label != 0){
-			operations_research::sat::CPModel_Robust model(_nb_examples_per_label, bnn_data, _prod_constraint, filename, _k);
+		if (_input_file != "") {
+			operations_research::sat::CPModel_Robust model(bnn_data, _prod_constraint, filename, _input_file);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
-		}
-
-		else{
-			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
-				operations_research::sat::CPModel_Robust model(bnn_data, _nb_examples, _prod_constraint, filename, _k);
+		} else {
+			if (_nb_examples == 0 && _nb_examples_per_label != 0){
+				operations_research::sat::CPModel_Robust model(_nb_examples_per_label, bnn_data, _prod_constraint, filename, _k);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 			}
+
 			else{
-				if (_nb_examples == 0 && _nb_examples_per_label == 0) {
-					operations_research::sat::CPModel_Robust model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples, _k);
+				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+					operations_research::sat::CPModel_Robust model(bnn_data, _nb_examples, _prod_constraint, filename, _k);
 					model.run(_time, _strategy);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 				}
 				else{
-					std::cout << " c Invalid number of examples : default mode launched" << '\n';
-					operations_research::sat::CPModel_Robust model(bnn_data, 1, _prod_constraint, filename, _k);
-					model.run(_time, _strategy);
-					status = model.print_statistics(_check_solution, _strategy);
-					weights = std::move(model.get_weights_solution());
+					if (_nb_examples == 0 && _nb_examples_per_label == 0) {
+						std::vector<int> correct_examples;
+						Evaluation test(weights_temp, bnn_data, filename);
+						correct_examples = test.get_correct_examples();
+						for(const int &i : correct_examples){
+							//std::cout << "index correct example : "<< i << '\n';
+						}
+						operations_research::sat::CPModel_Robust model(bnn_data, _prod_constraint, filename, weights_temp, correct_examples, _k);
+						model.run(_time, _strategy);
+						status = model.print_statistics(_check_solution, _strategy);
+						weights = std::move(model.get_weights_solution());
+					}
+					else{
+						std::cout << " c Invalid number of examples : default mode launched" << '\n';
+						operations_research::sat::CPModel_Robust model(bnn_data, 1, _prod_constraint, filename, _k);
+						model.run(_time, _strategy);
+						status = model.print_statistics(_check_solution, _strategy);
+						weights = std::move(model.get_weights_solution());
+					}
 				}
 			}
 		}
@@ -359,6 +398,10 @@ void parseOptions(int argc, char** argv){
 
 		ValueArg<std::string> out_file("O", "output_file", "Path of the output file", false, "BNN", "string");
 		cmd.add(out_file);
+
+		ValueArg<std::string> in_file("I", "input_file", "Path of the input file", false, "", "string");
+		cmd.add(in_file);
+
 		//
 		// Parse the command line.
 		//
@@ -375,6 +418,7 @@ void parseOptions(int argc, char** argv){
 		_prod_constraint = bool_prod.getValue();
 		_strategy =search_strategy.getValue();
 		_output_path = out_file.getValue();
+		_input_file = in_file.getValue();
 		_check_solution = check_sol.getValue();
 		_eval = eval.getValue();
 

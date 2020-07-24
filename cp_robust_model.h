@@ -47,6 +47,11 @@ namespace operations_research{
 
       }
 
+      CPModel_Robust(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string _input_file):
+                      CPModel_MinWeight(_data, _prod_constraint, _output_path, _input_file){
+
+      }
+
       void declare_a_e_j_variables(){
         a.resize(nb_examples);
         int temp = bnn_data->get_archi(1);

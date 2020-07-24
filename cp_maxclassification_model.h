@@ -78,7 +78,11 @@ namespace operations_research{
 
       CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
                       CP_Model(_data, _prod_constraint, _output_path, _weights, _indexes_examples){
-                        std::cout << " c checker constructor" << '\n';
+
+      }
+
+      CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string _input_file):
+                      CP_Model(_data, _prod_constraint, _output_path, _input_file){
 
       }
 

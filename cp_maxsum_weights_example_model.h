@@ -48,6 +48,21 @@ namespace operations_research{
                         CPModel_MaxClassification(_data, _nb_examples, _prod_constraint, _output_path){
       }
 
+      CPModel_MaxSum(const int &_nb_examples_per_label, Data *_data, const bool _prod_constraint, const std::string &_output_path):
+                        CPModel_MaxClassification(_nb_examples_per_label, _data, _prod_constraint, _output_path){
+
+      }
+
+      CPModel_MaxSum(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
+                      CPModel_MaxClassification(_data, _prod_constraint, _output_path, _weights, _indexes_examples){
+
+      }
+
+      CPModel_MaxSum(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string _input_file):
+                      CPModel_MaxClassification(_data, _prod_constraint, _output_path, _input_file){
+
+      }
+
 
       /* declare_sum_variable method
       Parameters : None
