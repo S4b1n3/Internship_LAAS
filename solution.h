@@ -180,7 +180,6 @@ public:
          compt++;
        }
     }
-
     if (check) {
       if (verification_mode) {
         if(compt > 1){
@@ -303,13 +302,11 @@ public:
     bool pred = true;
     bool act_preact = true;
     init(_init, test_set, index_example);
-
     if (use_predict) {
       pred = predict(verification_mode, classification);
     }
     else
       pred = all_good_metric(verification_mode, classification);
-
     if (check_act_preact) {
       act_preact = check_activation_preactivation();
     }
