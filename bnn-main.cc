@@ -37,7 +37,7 @@ int rand_a_b(int a, int b);
 void print_vector(const std::vector<std::vector<std::vector<int>>> &vecteur);
 
 int main(int argc, char **argv) {
-	srand(time(NULL));
+	srand(_seed);
 
 	architecture.push_back(784);
 	parseOptions(argc, argv);
