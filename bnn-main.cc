@@ -37,11 +37,13 @@ int rand_a_b(int a, int b);
 void print_vector(const std::vector<std::vector<std::vector<int>>> &vecteur);
 
 int main(int argc, char **argv) {
-	srand(_seed);
+
 
 	architecture.push_back(784);
 	parseOptions(argc, argv);
 	architecture.push_back(10);
+
+	srand(_seed);
 
 	int tmp = architecture.size()-1;
 	weights_temp.resize(tmp);
