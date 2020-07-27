@@ -165,7 +165,7 @@ public:
 		std::clock_t c_start = std::clock();
 
 		int compt_ex = 0;
-		std::vector<int> occ(10);
+		std::vector<int> occ(10, 0);
 		std::vector<int> ind;
 		while (compt_ex < nb_examples) {
 			index_rand = rand()%60000;

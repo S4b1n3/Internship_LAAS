@@ -54,6 +54,7 @@ namespace operations_research{
       protected :
         std::vector<BoolVar> classification;
         std::vector<int> classification_solution;
+        std::vector<IntVar> test;
 
       public :
 
@@ -73,7 +74,6 @@ namespace operations_research{
 
       CPModel_MaxClassification(const int &_nb_examples_per_label, Data *_data, const bool _prod_constraint, const std::string &_output_path):
                         CP_Model(_nb_examples_per_label, _data, _prod_constraint, _output_path){
-
       }
 
       CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):

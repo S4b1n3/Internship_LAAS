@@ -86,24 +86,7 @@ namespace operations_research{
 
       }
 
-
-      void declare_classification_variable(){
-        for (size_t i = 0; i < nb_examples; i++) {
-          classification[i] = cp_model_builder.NewBoolVar();
-        }
-      }
-
-      /* model_activation_constraint method
-            Parameters :
-            - index_example : index of the example to classifie
-            - l : layer \in [1, bnn_data->get_layers()]
-            - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
-
-            preactivation[l][j] >= 0 => activation[l][j] = 1
-            preactivation[l][j] < 0 => activation[l][j] = -1
-            Output : None
-    	 */
-    	void model_activation_constraint(const int &index_example, const int &l, const int &j){
+      void model_activation_constraint(const int &index_example, const int &l, const int &j){
     		/*assert (index_example>=0);
     		assert (index_example<nb_examples);
     		assert (l>0);
@@ -193,6 +176,27 @@ namespace operations_research{
     			cp_model_builder.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp)).OnlyEnforceIf(classification[index_example]);
     		}
     	}
+
+
+      void declare_classification_variable(){
+        for (size_t i = 0; i < nb_examples; i++) {
+          classification[i] = cp_model_builder.NewBoolVar();
+        }
+      }
+
+      /* model_activation_constraint method
+            Parameters :
+            - index_example : index of the example to classifie
+            - l : layer \in [1, bnn_data->get_layers()]
+            - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
+
+            preactivation[l][j] >= 0 => activation[l][j] = 1
+            preactivation[l][j] < 0 => activation[l][j] = -1
+            Output : None
+    	 */
+
+
+
 
       /* model_output_constraint method
 
@@ -293,22 +297,15 @@ namespace operations_research{
     					}
     				}
     			}
-          if (check_solution) { //classification_solution[i] == 1 &&
-            bool classif;
-            if (classification_solution[i] == 1) {
-              classif = true;
-            } else
-              classif = false;
+          if (check_solution && classification_solution[i] == 1) {
             std::clock_t c_start = std::clock();
             Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
             std::clock_t c_end = std::clock();
-            bool checking;
+            bool checking = check_solution.run_solution(true, false, false);
             if (!check_model) {
     					std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
-    					std::cout << " d CHECKING "<<i<<" : ";
-    					checking = check_solution.run_solution(true, true, false, classif);
-    				}else
-    					checking = check_solution.run_solution(true, false, false, classif);
+    					std::cout << " d CHECKING "<<i<<" : " << checking << std::endl;
+    				}
             if (checking) {
     					check_count++;
     				}
