@@ -331,6 +331,8 @@ int main(int argc, char **argv) {
 		results.close();
 	}
 
+	delete bnn_data;
+
 	return EXIT_SUCCESS;
 }
 
