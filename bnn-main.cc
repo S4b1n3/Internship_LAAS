@@ -27,6 +27,7 @@ bool _prod_constraint;
 std::string _strategy;
 std::string _output_path;
 bool _check_solution;
+bool _print_solution;
 bool _eval;
 std::string _input_file;
 
@@ -138,12 +139,16 @@ int main(int argc, char **argv) {
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
+			if (_print_solution)
+				model.print_solution(model.get_response());
 		} else {
 			if (_nb_examples == 0 && _nb_examples_per_label != 0){
 				operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
+				if (_print_solution)
+					model.print_solution(model.get_response());
 			}
 			else{
 				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
@@ -151,6 +156,8 @@ int main(int argc, char **argv) {
 					model.run(_time, _strategy);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
+					if (_print_solution)
+						model.print_solution(model.get_response());
 				}
 				else{
 					if (_nb_examples == 0 && _nb_examples_per_label == 0) {
@@ -175,6 +182,8 @@ int main(int argc, char **argv) {
 						model.run(_time, _strategy);
 						status = model.print_statistics(_check_solution, _strategy);
 						weights = std::move(model.get_weights_solution());
+						if (_print_solution)
+							model.print_solution(model.get_response());
 					}
 				}
 			}
@@ -188,12 +197,16 @@ int main(int argc, char **argv) {
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
+			if (_print_solution)
+				model.print_solution(model.get_response());
 		} else {
 			if (_nb_examples == 0 && _nb_examples_per_label != 0){
 				operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
+				if (_print_solution)
+					model.print_solution(model.get_response());
 			}
 			else{
 				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
@@ -201,6 +214,8 @@ int main(int argc, char **argv) {
 					model.run(_time, _strategy);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
+					if (_print_solution)
+						model.print_solution(model.get_response());
 				}
 				else{
 					if (_nb_examples == 0 && _nb_examples_per_label == 0) {
@@ -225,6 +240,8 @@ int main(int argc, char **argv) {
 						model.run(_time, _strategy);
 						status = model.print_statistics(_check_solution, _strategy);
 						weights = std::move(model.get_weights_solution());
+						if (_print_solution)
+							model.print_solution(model.get_response());
 					}
 				}
 			}
@@ -395,6 +412,9 @@ void parseOptions(int argc, char** argv){
 		SwitchArg check_sol("V","check", "indicates if the solution returned has to be tested", false);
 		cmd.add(check_sol);
 
+		SwitchArg print_sol("P","print", "indicates if the solution returned has to be printed", false);
+		cmd.add(print_sol);
+
 		SwitchArg eval("F","evaluation", "indicates if the evaluation on the testing and training sets has to be done", false);
 		cmd.add(eval);
 
@@ -425,6 +445,7 @@ void parseOptions(int argc, char** argv){
 		_output_path = out_file.getValue();
 		_input_file = in_file.getValue();
 		_check_solution = check_sol.getValue();
+		_print_solution = print_sol.getValue();
 		_eval = eval.getValue();
 
 		std::vector<int> v = archi.getValue();
