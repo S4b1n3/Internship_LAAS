@@ -253,7 +253,10 @@ namespace operations_research{
 
     		std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
     		std::cout << "\n c Some statistics on the model : " << '\n';
-    		LOG(INFO) << CpModelStats(cp_model_builder.Build());
+    		//LOG(INFO) << CpModelStats(cp_model_builder.Build());
+			parser <<  " d VARIABLES " << cp_model_builder.Build().variables_size() << std::endl ;
+			parser <<  " d DECISION_VARIABLES " << decision_variables_size << std::endl ;
+			parser <<  " d CONSTRAINTS " << cp_model_builder.Build().constraints_size() << std::endl ;
 
     		std::cout<< " c running the solver.. " <<std::endl;
         cp_model_builder.Minimize(objectif);

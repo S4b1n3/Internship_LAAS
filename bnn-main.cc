@@ -68,6 +68,7 @@ int main(int argc, char **argv) {
 	Data *bnn_data = new Data(architecture);
 	int status;
 
+
 	switch (_index_model) {
 	case '1':
 	{

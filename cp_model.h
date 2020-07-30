@@ -365,6 +365,7 @@ public:
 		}
 	}
 
+	int decision_variables_size ;
 
 	/* declare_preactivation_variable method
         Parameters :
@@ -610,7 +611,7 @@ public:
 
 	void setup_branching(std::string strategy){
 		std::cout << " c setting branching :  "  <<  strategy << std::endl;
-
+		decision_variables_size = cp_model_builder.Build().variables_size() ;
 		if (strategy != "default"){
 			std::vector<IntVar> w;
 			int tmp = bnn_data->get_layers();
@@ -624,6 +625,7 @@ public:
 					}
 				}
 			}
+			decision_variables_size = w.size();
 			std::vector<IntVar> reverse_w(w);
 			std::reverse(std::begin(reverse_w), std::end(reverse_w));
 			std::cout << " c number of branching variables is "  << w.size()  << std::endl;
@@ -928,7 +930,10 @@ public:
 
 		std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
 		std::cout << "\n c Some statistics on the model : " << '\n';
-		LOG(INFO) << CpModelStats(cp_model_builder.Build());
+		//LOG(INFO) << CpModelStats(cp_model_builder.Build());
+		std::cout <<  " d VARIABLES " << cp_model_builder.Build().variables_size() << std::endl ;
+		std::cout <<  " d DECISION_VARIABLES " << decision_variables_size << std::endl ;
+		std::cout <<  " d CONSTRAINTS " << cp_model_builder.Build().constraints_size() << std::endl ;
 
 		std::cout<< " c running the solver.. " <<std::endl;
 	}
@@ -1074,7 +1079,10 @@ public:
 			parser << "d PROPAGATION " << response.num_binary_propagations() << std::endl;
 			parser << "d INTEGER_PROPAGATION " << response.num_integer_propagations() << std::endl;
 			parser << "d BRANCHES " << response.num_branches() << std::endl;
-			parser << CpModelStats(cp_model_builder.Build()) << std::endl;
+			//parser << CpModelStats(cp_model_builder.Build()) << std::endl;
+			parser <<  " d VARIABLES " << cp_model_builder.Build().variables_size() << std::endl ;
+			parser <<  " d DECISION_VARIABLES " << decision_variables_size << std::endl ;
+			parser <<  " d CONSTRAINTS " << cp_model_builder.Build().constraints_size() << std::endl ;
 			parser << std::endl;
 			parser.close();
 		}
