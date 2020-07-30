@@ -201,13 +201,13 @@ public:
                       std::cout << " c Error checking from file "<<file_name << '\n';
                     }
                     if (line.substr(0, 22) == "d TRAIN_ACCURACY_TIME ") {
-                      if (std::stoi(line.substr(0, 22)) > 5000) {
+                      if (std::stoi(line.substr(22)) > 5000) {
                         std::cout << " c Accuracy computing on training set is more than 5000 seconds on file : "<< file_name << '\n';
                       }
                     }
 
                     if (line.substr(0, 21) == "d TEST_ACCURACY_TIME ") {
-                      if (std::stoi(line.substr(0, 21)) > 800) {
+                      if (std::stoi(line.substr(21)) > 800) {
                         std::cout << " c Accuracy computing on testing set is more than 800 seconds on file : "<< file_name << '\n';
                       }
                     }

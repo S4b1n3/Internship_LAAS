@@ -98,7 +98,6 @@ public:
   }
 
 
-
   /* activation_function method
   Given an preactivation x, returns 1 if the preactivation is positive and -1 either
   */

@@ -81,8 +81,13 @@ namespace operations_research{
 
       }
 
-      CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string _input_file):
+      CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
                       CP_Model(_data, _prod_constraint, _output_path, _input_file){
+
+      }
+
+      CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
+                      CP_Model(_data, _prod_constraint, _output_path, _input_file, _solution_file){
 
       }
 
@@ -149,7 +154,7 @@ namespace operations_research{
         cp_model_builder.Maximize(objectif);                        //objective function
       }
 
-      void check(const CpSolverResponse &r, const bool &check_solution, const std::string &strategy, const int &index=0){
+      void check(const CpSolverResponse &r, const bool &check_sol, const std::string &strategy, const int &index=0){
     		int tmp = bnn_data->get_layers();
     		weights_solution.resize(tmp);
     		for (size_t l = 1; l < tmp; ++l) {
@@ -165,7 +170,7 @@ namespace operations_research{
     		}
 
 
-        int check_count = 0;
+        int check_count = nb_examples;
     		for (size_t i = 0; i < nb_examples; i++) {
 
           classification_solution[i] = SolutionIntegerValue(r, classification[i]);
@@ -192,7 +197,7 @@ namespace operations_research{
     					}
     				}
     			}
-          if (check_solution) { //classification_solution[i] == 1 &&
+          if (check_sol) { //classification_solution[i] == 1 &&
             bool classif;
             if (classification_solution[i] == 1) {
               classif = true;
@@ -208,8 +213,8 @@ namespace operations_research{
     					checking = check_solution.run_solution(true, true, false, classif);
     				}else
     					checking = check_solution.run_solution(true, false, false, classif);
-            if (checking) {
-    					check_count++;
+            if (!checking) {
+    					check_count--;
     				}
     				std::ofstream parser(output_path.c_str(), std::ios::app);
     				parser << "d CHECKING "<<checking<<std::endl;

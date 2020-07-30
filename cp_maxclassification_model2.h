@@ -81,8 +81,13 @@ namespace operations_research{
 
       }
 
-      CPModel_MaxClassification2(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string _input_file):
+      CPModel_MaxClassification2(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
                       CP_Model(_data, _prod_constraint, _output_path, _input_file){
+
+      }
+
+      CPModel_MaxClassification2(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
+                      CP_Model(_data, _prod_constraint, _output_path, _input_file, _solution_file){
 
       }
 

@@ -200,7 +200,7 @@ public:
 		}
 	}
 
-	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string _input_file):
+	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path), nb_examples(0){
 
 		bnn_data = _data;
@@ -230,6 +230,81 @@ public:
 		} else {
 			std::cout << "Error oppening input file" << '\n';
 		}
+	}
+
+	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
+		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path), nb_examples(0), check_model(true){
+
+		bnn_data = _data;
+		std::cout << " c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
+		bnn_data->print_archi();
+		bnn_data->print_dataset();
+
+		std::ifstream input_file(_input_file.c_str());
+		if(input_file){
+			std::string line;
+			while (std::getline(input_file, line)){
+				if (line.substr(0, 6)=="LABEL ") {
+					labels.push_back(std::stoi(line.substr(6)));
+					nb_examples++;
+				}
+				if (line.substr(0, 6)=="IMAGE ") {
+					std::string temp_line = line.substr(6);
+					std::vector<std::string> temp;
+					split(temp_line, temp, ' ');
+					std::vector<uint8_t> temp_int;
+					for (size_t i = 0; i < temp.size(); i++) {
+						temp_int.push_back((uint8_t)atoi(temp[i].c_str()));
+					}
+					inputs.push_back(temp_int);
+				}
+			}
+		} else {
+			std::cout << "Error oppening dataset file" << '\n';
+		}
+
+		std::ifstream solution_file(_solution_file.c_str());
+		if (solution_file) {
+			std::string line;
+			std::vector<int> architecture;
+
+	    while (std::getline(solution_file, line)){
+	      if (line.substr(0, 6) == "ARCHI ") {
+					std::string temp;
+	        for (size_t i = 6; i < line.size(); i++) {
+	          if (line[i] != ' ') {
+	            temp += line[i];
+	          }
+	          if (line[i] == ' ') {
+	            architecture.push_back(std::stoi(temp));
+	            temp = "";
+	          }
+	        }
+	      }
+	      if (line.substr(0, 8) == "WEIGHTS ") {
+	        int index_str = 8;
+	        weights_check.resize(architecture.size());
+	        for (size_t l = 1; l < architecture.size(); l++) {
+	          weights_check[l-1].resize(architecture[l-1]);
+	          for (size_t i = 0; i < architecture[l-1]; i++) {
+	            weights_check[l-1][i].resize(architecture[l]);
+	            for (size_t j = 0; j < architecture[l]; j++) {
+								if (line[index_str] == '-') {
+									weights_check[l-1][i][j] = -1;
+									index_str += 3;
+								}
+								else {
+									weights_check[l-1][i][j] = line[index_str] - '0';
+		              index_str += 2;
+								}
+	            }
+	          }
+	        }
+	      }
+	    }
+	  } else {
+	    std::cout << "Error oppening solution file" << '\n';
+	  }
 	}
 
 	/* Getters */
@@ -858,7 +933,7 @@ public:
 		std::cout<< " c running the solver.. " <<std::endl;
 	}
 
-	virtual void check(const CpSolverResponse &r, const bool &check_solution, const std::string &strategy, const int &index=0){
+	virtual void check(const CpSolverResponse &r, const bool &check_sol, const std::string &strategy, const int &index=0){
 		std::cout << "entering check method" << '\n';
 		int tmp = bnn_data->get_layers();
 		weights_solution.resize(tmp);
@@ -874,7 +949,7 @@ public:
 			}
 		}
 
-		int check_count = 0;
+		int check_count = nb_examples;
 		for (size_t i = 0; i < nb_examples; i++) {
 
 			preactivation_solution.resize(tmp-1);
@@ -899,7 +974,7 @@ public:
 					}
 				}
 			}
-			if (check_solution) {
+			if (check_sol) {
 				std::clock_t c_start = std::clock();
 				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
 				std::clock_t c_end = std::clock();
@@ -911,8 +986,8 @@ public:
 				}else
 					checking = check_solution.run_solution(true, false, false);
 
-				if (checking) {
-					check_count++;
+				if (!checking) {
+					check_count--;
 				}
 				std::ofstream parser(output_path.c_str(), std::ios::app);
 				parser << "d CHECKING "<<checking<<std::endl;

@@ -1,7 +1,6 @@
 #ifndef EXAMPLES_CPP_EVALUATION_H_
 #define EXAMPLES_CPP_EVALUATION_H_
 
-#include "cp_model.h"
 #include "solution.h"
 
 
@@ -29,6 +28,10 @@ public:
   */
   Evaluation(std::vector<std::vector<std::vector<int>>> _weights, Data* model_data, const std::string &filename) :
             checker(model_data, _weights), output_file(filename){
+  }
+
+  Evaluation(std::vector<std::vector<std::vector<int>>> _weights, Data* model_data) :
+            checker(model_data, _weights){
   }
 
   /* run_evaluation method
@@ -70,13 +73,22 @@ public:
     }
   }
 
-  std::vector<int> get_correct_examples(){
+  std::vector<int> get_correct_examples(const bool &test_set = true){
     std::vector<int> indexes;
-    for (int i = 0; i < 10000; i++) {
-      if (checker.run_solution(false, false, true, true, true, true, i)) {
-        indexes.push_back(i);
+    if (test_set) {
+      for (int i = 0; i < 10000; i++) {
+        if (checker.run_solution(false, false, true, true, true, true, i)) {
+          indexes.push_back(i);
+        }
+      }
+    } else {
+      for (int i = 0; i < 60000; i++) {
+        if (checker.run_solution(false, false, true, true, true, false, i)) {
+          indexes.push_back(i);
+        }
       }
     }
+
     return indexes;
   }
 
