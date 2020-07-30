@@ -43,11 +43,15 @@ public:
     std::clock_t c_start = std::clock();
     if (test_set) {
       nb_correct_classifications=0;
+      checker.set_evaluation_config(false, false, true, predict, true);
       for (size_t i = 0; i < 10000; i++) {
-        if (checker.run_solution(false, false, true, true, predict, true, i)) {
-          nb_correct_classifications += 1;
-        }
+    	  //if ( ! (i % 100) )
+    	  //  std::cout<<"  c i "<< i << std::endl;
+    	  //if (checker.run_solution(false, false, true, true, predict, true, i)) {
+    	  if (checker.run_solution_light(i) )
+    		  nb_correct_classifications += 1;
       }
+
       std::clock_t c_end = std::clock();
       std::cout << " c Evaluation finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s ";
       std::ofstream parser(output_file.c_str(), std::ios::app);
@@ -57,12 +61,24 @@ public:
       return 100*nb_correct_classifications/10000;
     }
     else{
+        nb_correct_classifications=0;
+        checker.set_evaluation_config(false, false, true, predict, false);
+        for (size_t i = 0; i < 60000; i++) {
+      	  //if ( ! (i % 100) )
+      	   // std::cout<<"  c i "<< i << std::endl;
+      	  //if (checker.run_solution(false, false, true, true, predict, true, i)) {
+      	  if (checker.run_solution_light(i) )
+      		  nb_correct_classifications += 1;
+        }
+
+    	/*
       nb_correct_classifications=0;
       for (size_t i = 0; i < 60000; i++) {
         if (checker.run_solution(false, false, true, true, predict, false, i)) {
           nb_correct_classifications += 1;
         }
       }
+      */
       std::clock_t c_end = std::clock();
       std::cout << " c Evaluation finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s ";
       std::ofstream parser(output_file.c_str(), std::ios::app);
