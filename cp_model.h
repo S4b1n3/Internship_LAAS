@@ -1096,7 +1096,7 @@ public:
 
 
 
-	virtual void print_solution(const CpSolverResponse &r, const int &index = 0) = 0;
+	virtual void print_solution(const CpSolverResponse &r, const int &verbose, const int &index = 0) = 0;
 
 	/* print_solution method
         This function prints a solution returned by the solver

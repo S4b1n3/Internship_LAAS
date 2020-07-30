@@ -27,7 +27,7 @@ bool _prod_constraint;
 std::string _strategy;
 std::string _output_path;
 bool _check_solution;
-bool _print_solution;
+int _print_solution;
 bool _eval;
 std::string _input_file;
 
@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
 			if (_print_solution)
-				model.print_solution(model.get_response());
+				model.print_solution(model.get_response(), _print_solution);
 		} else {
 			if (_nb_examples == 0 && _nb_examples_per_label != 0){
 				operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 				if (_print_solution)
-					model.print_solution(model.get_response());
+					model.print_solution(model.get_response(), _print_solution);
 			}
 			else{
 				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 					if (_print_solution)
-						model.print_solution(model.get_response());
+						model.print_solution(model.get_response(), _print_solution);
 				}
 				else{
 					std::cout << " c Invalid number of examples : default mode launched" << '\n';
@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 					if (_print_solution)
-						model.print_solution(model.get_response());
+						model.print_solution(model.get_response(),_print_solution);
 				}
 			}
 		}
@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
 			if (_print_solution)
-				model.print_solution(model.get_response());
+				model.print_solution(model.get_response(), _print_solution);
 		} else {
 			if (_nb_examples == 0 && _nb_examples_per_label != 0){
 				operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 				if (_print_solution)
-					model.print_solution(model.get_response());
+					model.print_solution(model.get_response(), _print_solution);
 			}
 			else{
 				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 					if (_print_solution)
-						model.print_solution(model.get_response());
+						model.print_solution(model.get_response() , _print_solution);
 				}
 				else{
 					std::cout << " c Invalid number of examples : default mode launched" << '\n';
@@ -176,9 +176,10 @@ int main(int argc, char **argv) {
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 					if (_print_solution)
-						model.print_solution(model.get_response());
+						model.print_solution(model.get_response() , _print_solution);
 				}
 			}
+
 		}
 		break;
 	}
@@ -332,7 +333,7 @@ void parseOptions(int argc, char** argv){
 		SwitchArg check_sol("V","check", "indicates if the solution returned has to be tested", false);
 		cmd.add(check_sol);
 
-		SwitchArg print_sol("P","print", "indicates if the solution returned has to be printed", false);
+		ValueArg<int> print_sol("P","print", "indicates if the solution returned has to be printed, and to which level : 0 nope, 1 minimal, 2 full", false, 0, "int");
 		cmd.add(print_sol);
 
 		SwitchArg eval("F","evaluation", "indicates if the evaluation on the testing and training sets has to be done", false);

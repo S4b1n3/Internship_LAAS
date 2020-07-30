@@ -230,38 +230,52 @@ namespace operations_research{
     	}
 
 
-      void print_solution(const CpSolverResponse &r, const int &index = 0){
-        assert(index >=0);
-        if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
-          int tmp = bnn_data->get_layers();
-          std::cout << "\n s Solution "<< index << " : \n";
-          std::cout << "   Weights" << '\n';
-          for (size_t l = 1; l < tmp; ++l) {
-            std::cout << "   Layer "<< l << ": \n";
-            int tmp2 = bnn_data->get_archi(l-1);
-            for (size_t i = 0; i < tmp2; ++i) {
-              int tmp3 = bnn_data->get_archi(l);
-              for (size_t j = 0; j < bnn_data->get_archi(l); ++j) {
-                std::cout << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " << weights_solution[l-1][i][j];
-              }
-              std::cout << '\n';
-            }
-            std::cout << '\n';
-          }
-          for (size_t i = 0; i < nb_examples; i++) {
-            std::cout << " s Example "<< i << '\n';
-            std::cout << "   Input : " << '\n';
-            for (size_t j = 0; j < 784; j++) {
-              std::cout << (int)inputs[i][j] << " ";
-            }
-            std::cout << "\n   Label : "<< labels[i] << '\n';
-            std::cout << "   Classification : " << SolutionIntegerValue(r, classification[i]) << '\n';
-          }
+      void print_solution(const CpSolverResponse &r, const int &verbose , const int &index = 0){
+    	  assert(index >=0);
+    	  assert (verbose);
+    	  if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
 
-        }
-        if(r.status()==CpSolverStatus::MODEL_INVALID){
-          LOG(INFO) << ValidateCpModel(cp_model_builder.Build());
-        }
+    		  int tmp = bnn_data->get_layers();
+    		  if (verbose >1)
+    		  {
+    			  std::cout << "\n s Solution "<< index << " : \n";
+
+    			  std::cout << "   Weights" << '\n';
+    			  for (size_t l = 1; l < tmp; ++l) {
+    				  std::cout << "   Layer "<< l << ": \n";
+    				  int tmp2 = bnn_data->get_archi(l-1);
+    				  for (size_t i = 0; i < tmp2; ++i) {
+    					  int tmp3 = bnn_data->get_archi(l);
+    					  for (size_t j = 0; j < bnn_data->get_archi(l); ++j) {
+    						  std::cout << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " << weights_solution[l-1][i][j];
+    					  }
+    					  std::cout << '\n';
+    				  }
+    				  std::cout << '\n';
+    			  }
+    		  }
+    		  for (size_t i = 0; i < nb_examples; i++) {
+    			  std::cout << " s Example "<< i ;
+    			  if (verbose >1)
+    				  std::cout << " \n" ;
+    			  if (verbose >1)
+    				  std::cout << "   Input : " << '\n';
+    			  if (verbose >1)
+    				  for (size_t j = 0; j < 784; j++) {
+    					  std::cout << (int)inputs[i][j] << " ";
+    				  }
+    			  if (verbose >1)
+    				  std::cout << " \n" ;
+    			  std::cout << "  Label : "<< labels[i] ;
+    			  if (verbose >1)
+    				  std::cout << " \n" ;
+    			  std::cout << "   Classification : " << SolutionIntegerValue(r, classification[i]) << '\n';
+    		  }
+
+    	  }
+    	  if(r.status()==CpSolverStatus::MODEL_INVALID){
+    		  LOG(INFO) << ValidateCpModel(cp_model_builder.Build());
+    	  }
       }
 
     }; // close class CPModel

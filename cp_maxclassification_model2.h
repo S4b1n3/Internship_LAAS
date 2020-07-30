@@ -328,7 +328,8 @@ namespace operations_research{
     	}
 
 
-      void print_solution(const CpSolverResponse &r, const int &index = 0){
+  	  //void print_solution(const CpSolverResponse &r, const int &verbose, const int &index = 0)
+      void print_solution(const CpSolverResponse &r, const int &verbose, const int &index = 0){
         assert(index >=0);
         if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
           int tmp = bnn_data->get_layers();
