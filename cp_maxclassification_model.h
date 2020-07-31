@@ -200,10 +200,10 @@ namespace operations_research{
             Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution);
             bool classif = (classification_solution[i] == 1);
             if (!check_model) {
-    					check_solution.set_evaluation_config(false, true, classif, true, false);
+    					check_solution.set_evaluation_config(true, true, classif, true, false);
               std::cout << " d CHECKING "<<i << " : ";
     				}else
-    					check_solution.set_evaluation_config(false, false, classif, true, false);
+    					check_solution.set_evaluation_config(true, false, classif, true, false);
             bool checking = check_solution.run_solution_light(idx_examples[i]);
             if (!checking) {
     					check_count--;
