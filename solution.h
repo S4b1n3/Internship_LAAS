@@ -376,6 +376,60 @@ public:
 	    return result;
   }
 
+
+  bool all_good_metric_light(){
+	  bool result = true ;
+	  int first_layer = bnn_data->get_archi(0) ;
+	  //std::cout<<"  c start predict "   << std::endl;
+	  //assert (__test_set) ;
+
+	  example_label = (int) set_example_labels[idx_example];
+	  for (int i = 0; i < first_layer ; ++i)
+		  last_activation[i] = (int) set_example_images[idx_example][i];
+	  //std::cout<<"  c end  predict "   << std::endl;
+
+	  int size_previous_layer , size_current_layer=  bnn_data->get_archi(0)  ;
+	  for (size_t l = 1; l < nb_layers; ++l) {
+		  //std::cout<<"  c layer  "<< l   << std::endl;
+		  size_previous_layer =  size_current_layer;
+		  size_current_layer = bnn_data->get_archi(l);
+
+		  for (size_t j = 0; j < size_current_layer; ++j) {
+			  last_preactivation[j] = 0;
+			  for (size_t i = 0; i < size_previous_layer; ++i) {
+				  last_preactivation[j] += last_activation[i] * weights[l-1][i][j];
+			  }
+		  }
+		  for (size_t j = 0; j < size_current_layer; ++j)
+			  last_activation[j] = activation_function( last_preactivation[j] );
+	  }
+	  //std::cout<<"  c ENDDDDDD "   << std::endl;
+
+
+	  int predict = -1;
+
+	  if (last_activation[example_label] == 1)
+		  predict = example_label;
+
+	  if (__check) {
+		  if (__verification_mode) {
+			  if(predict != example_label){
+				  std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
+				  std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
+				  std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
+				  result =  false;
+			  }
+		  }
+		  else {
+			  if (predict != example_label) {
+				  result = false;
+			  }
+		  }
+	  }
+	  return result;
+  }
+
+
   bool all_good_metric(const bool &verification_mode = false, const bool &check = true){
     bool result = true ;
     for (size_t l = 1; l < nb_layers; l++) {
@@ -479,7 +533,7 @@ public:
 	      pred = predict_light();
 	    }
 	    else
-	      pred = all_good_metric(__verification_mode, __check);
+	      pred = all_good_metric_light();
 	    if (__check_act_preact) {
 	      act_preact = check_activation_preactivation();
 	    }
