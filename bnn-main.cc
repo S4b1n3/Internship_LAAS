@@ -300,8 +300,6 @@ void print_vector(const std::vector<std::vector<std::vector<int>>> &vecteur){
 	std::cout << "nb -1 : "<< count_m1 << '\n';
 }
 
-
-
 void parseOptions(int argc, char** argv){
 	try {
 		CmdLine cmd("BNN Parameters", ' ', "0.99" );
