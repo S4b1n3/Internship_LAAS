@@ -58,7 +58,9 @@ public:
       std::ofstream parser(output_file.c_str(), std::ios::app);
   		parser << "d TEST_ACCURACY_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
   		parser.close();
+
       std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
+
       std::cout << " and accuracy value is "<< 100*nb_correct_classifications/10000 << '\n';
       return 100*nb_correct_classifications/10000;
     }
@@ -86,7 +88,9 @@ public:
       std::ofstream parser(output_file.c_str(), std::ios::app);
   		parser << "d TRAIN_ACCURACY_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
   		parser.close();
+
       std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
+
       std::cout << " and accuracy value is "<< 100*nb_correct_classifications/60000 << '\n';
       return 100*nb_correct_classifications/60000;
     }
