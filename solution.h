@@ -69,16 +69,16 @@ public:
 
 
 
-	int max = 0 ;
-	for (int l =1 ; l < nb_layers ; ++l)
-		if (max <  bnn_data->get_archi(l)  )
-			max =  bnn_data->get_archi(l)  ;
+  	int max = 0 ;
+  	for (int l =1 ; l < nb_layers ; ++l)
+  		if (max <  bnn_data->get_archi(l)  )
+  			max =  bnn_data->get_archi(l)  ;
 
-	last_preactivation.resize(max) ;
-	if (max <  bnn_data->get_archi(0)  )
-		max =  bnn_data->get_archi(0)  ;
-	assert (max == 784) ;
-	last_activation.resize(max) ;
+  	last_preactivation.resize(max) ;
+  	if (max <  bnn_data->get_archi(0)  )
+  		max =  bnn_data->get_archi(0)  ;
+  	assert (max == 784) ;
+  	last_activation.resize(max) ;
 
   }
 
@@ -89,16 +89,16 @@ public:
     example_images = bnn_data->get_dataset().training_images[index_example];
 
 
-	int max = 0 ;
-	for (int l =1 ; l < nb_layers ; ++l)
-		if (max <  bnn_data->get_archi(l)  )
-			max =  bnn_data->get_archi(l)  ;
+  	int max = 0 ;
+  	for (int l =1 ; l < nb_layers ; ++l)
+  		if (max <  bnn_data->get_archi(l)  )
+  			max =  bnn_data->get_archi(l)  ;
 
-	last_preactivation.resize(max) ;
-	if (max <  bnn_data->get_archi(0)  )
-		max =  bnn_data->get_archi(0)  ;
-	assert (max == 784) ;
-	last_activation.resize(max) ;
+  	last_preactivation.resize(max) ;
+  	if (max <  bnn_data->get_archi(0)  )
+  		max =  bnn_data->get_archi(0)  ;
+  	assert (max == 784) ;
+  	last_activation.resize(max) ;
 
 
   }
@@ -108,16 +108,16 @@ public:
     bnn_data=model_data;
     nb_layers = bnn_data->get_layers();
 
-	int max = 0 ;
-	for (int l =1 ; l < nb_layers ; ++l)
-		if (max <  bnn_data->get_archi(l)  )
-			max =  bnn_data->get_archi(l)  ;
+  	int max = 0 ;
+  	for (int l =1 ; l < nb_layers ; ++l)
+  		if (max <  bnn_data->get_archi(l)  )
+  			max =  bnn_data->get_archi(l)  ;
 
-	last_preactivation.resize(max) ;
-	if (max <  bnn_data->get_archi(0)  )
-		max =  bnn_data->get_archi(0)  ;
-	assert (max == 784) ;
-	last_activation.resize(max) ;
+  	last_preactivation.resize(max) ;
+  	if (max <  bnn_data->get_archi(0)  )
+  		max =  bnn_data->get_archi(0)  ;
+  	assert (max == 784) ;
+  	last_activation.resize(max) ;
 
   }
 
@@ -127,16 +127,16 @@ public:
     nb_layers = bnn_data->get_layers();
 
 
-	int max = 0 ;
-	for (int l =1 ; l < nb_layers ; ++l)
-		if (max <  bnn_data->get_archi(l)  )
-			max =  bnn_data->get_archi(l)  ;
+  	int max = 0 ;
+  	for (int l =1 ; l < nb_layers ; ++l)
+  		if (max <  bnn_data->get_archi(l)  )
+  			max =  bnn_data->get_archi(l)  ;
 
-	last_preactivation.resize(max) ;
-	if (max <  bnn_data->get_archi(0)  )
-		max =  bnn_data->get_archi(0)  ;
-	assert (max == 784) ;
-	last_activation.resize(max) ;
+  	last_preactivation.resize(max) ;
+  	if (max <  bnn_data->get_archi(0)  )
+  		max =  bnn_data->get_archi(0)  ;
+  	assert (max == 784) ;
+  	last_activation.resize(max) ;
 
 
   }
@@ -155,16 +155,16 @@ public:
     }
 
 
-	int max = 0 ;
-	for (int l =1 ; l < nb_layers ; ++l)
-		if (max <  bnn_data->get_archi(l)  )
-			max =  bnn_data->get_archi(l)  ;
+  	int max = 0 ;
+  	for (int l =1 ; l < nb_layers ; ++l)
+  		if (max <  bnn_data->get_archi(l)  )
+  			max =  bnn_data->get_archi(l)  ;
 
-	last_preactivation.resize(max) ;
-	if (max <  bnn_data->get_archi(0)  )
-		max =  bnn_data->get_archi(0)  ;
-	assert (max == 784) ;
-	last_activation.resize(max) ;
+  	last_preactivation.resize(max) ;
+  	if (max <  bnn_data->get_archi(0)  )
+  		max =  bnn_data->get_archi(0)  ;
+  	assert (max == 784) ;
+  	last_activation.resize(max) ;
 
 
   }
@@ -174,16 +174,36 @@ public:
     nb_layers = bnn_data->get_layers();
 
 
-	int max = 0 ;
-	for (int l =1 ; l < nb_layers ; ++l)
-		if (max <  bnn_data->get_archi(l)  )
-			max =  bnn_data->get_archi(l)  ;
+  	int max = 0 ;
+  	for (int l =1 ; l < nb_layers ; ++l)
+  		if (max <  bnn_data->get_archi(l)  )
+  			max =  bnn_data->get_archi(l)  ;
 
-	last_preactivation.resize(max) ;
-	if (max <  bnn_data->get_archi(0)  )
-		max =  bnn_data->get_archi(0)  ;
-	assert (max == 784) ;
-	last_activation.resize(max) ;
+  	last_preactivation.resize(max) ;
+  	if (max <  bnn_data->get_archi(0)  )
+  		max =  bnn_data->get_archi(0)  ;
+  	assert (max == 784) ;
+  	last_activation.resize(max) ;
+
+
+  }
+
+  Solution(Data *model_data, std::vector<std::vector<std::vector<int>>> _weights, std::vector<std::vector<int>> _activation, std::vector<std::vector<int>> _preactivation):
+      weights(std::move(_weights)), solver_activation(std::move(_activation)), solver_preactivation(std::move(_preactivation)){
+    bnn_data=model_data;
+    nb_layers = bnn_data->get_layers();
+
+
+  	int max = 0 ;
+  	for (int l =1 ; l < nb_layers ; ++l)
+  		if (max <  bnn_data->get_archi(l)  )
+  			max =  bnn_data->get_archi(l)  ;
+
+  	last_preactivation.resize(max) ;
+  	if (max <  bnn_data->get_archi(0)  )
+  		max =  bnn_data->get_archi(0)  ;
+  	assert (max == 784) ;
+  	last_activation.resize(max) ;
 
 
   }
@@ -197,72 +217,55 @@ public:
     else return -1;
   }
 
-  /* init method
-  This function initialize the preactivation and the activation of each neuron of the network
+  /* predict method
+  This function tests if the output of the network with the weights returned
+  by the solver corresponds the label of the input
   Parameters : None
-  Output : None
+  Output : boolean -> true if the input is well classified and false either
   */
-  void init(const bool &_init, const bool &test_set=true, const int &index_example=0){
-    //preactivation[i][j] is the value of the preactivation of the neuron j on layer i
-    if (_init) {
-      if(test_set){
-        example_label = (int)bnn_data->get_dataset().test_labels[index_example];
-        example_images = bnn_data->get_dataset().test_images[index_example];
-      }
-      else{
-        example_label = (int)bnn_data->get_dataset().training_labels[index_example];
-        example_images = bnn_data->get_dataset().training_images[index_example];
-      }
-    }
-
-    preactivation.resize(nb_layers);
-    for (size_t l = 0; l < nb_layers; l++) {
-      preactivation[l].resize(bnn_data->get_archi(l));
-      for(size_t j = 0; j < bnn_data->get_archi(l); j++){
-        preactivation[l][j] = 0;
-      }
-    }
-
-    activation.resize(nb_layers);
-     //activation[i][j] is the value of the activation of the neuron j on layer i
-    for (size_t l = 0; l < nb_layers ; l++) {
-      activation[l].resize(bnn_data->get_archi(l));
-      for (size_t i = 0; i < bnn_data->get_archi(l); i++) {
-        if(l == 0){
-          activation[l][i] = (int)example_images[i];
-        }
-        else{
-          activation[l][i] = 0;
-        }
-      }
-    }
-  }
-
-  bool predict_light(){
+  bool strong_metric(){
 	  bool result = true ;
 	  int first_layer = bnn_data->get_archi(0) ;
 	  //std::cout<<"  c start predict "   << std::endl;
 	  //assert (__test_set) ;
 
 	  example_label = (int) set_example_labels[idx_example];
-	  for (int i = 0; i < first_layer ; ++i)
+	  for (int i = 0; i < first_layer ; ++i){
 		  last_activation[i] = (int) set_example_images[idx_example][i];
-	  //std::cout<<"  c end  predict "   << std::endl;
+      if (__check_act_preact) {
+        if (last_activation[i] != solver_activation[0][i]) {
+          std::cout << " v The value of the activation for neuron "<<i<<" on first layer is incorrect." << '\n';
+          std::cout << " v Value from solver is " <<solver_activation[0][i]<<" and the correct one is "<<last_activation[i]<< '\n';
+        }
+      }
+    }
 
 	  int size_previous_layer , size_current_layer=  bnn_data->get_archi(0)  ;
 	  for (size_t l = 1; l < nb_layers; ++l) {
 		  //std::cout<<"  c layer  "<< l   << std::endl;
 		  size_previous_layer =  size_current_layer;
 		  size_current_layer = bnn_data->get_archi(l);
-
 		  for (size_t j = 0; j < size_current_layer; ++j) {
 			  last_preactivation[j] = 0;
 			  for (size_t i = 0; i < size_previous_layer; ++i) {
 				  last_preactivation[j] += last_activation[i] * weights[l-1][i][j];
+          if (__check_act_preact) {
+            if (last_preactivation[j] != solver_preactivation[l-1][j]) {
+              std::cout << " v The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+              std::cout << " v Value from solver is " <<solver_preactivation[l-1][j]<<" and the correct one is "<<last_preactivation[j]<< '\n';
+            }
+          }
 			  }
 		  }
-		  for (size_t j = 0; j < size_current_layer; ++j)
+		  for (size_t j = 0; j < size_current_layer; ++j){
 			  last_activation[j] = activation_function( last_preactivation[j] );
+        if (__check_act_preact) {
+          if (last_activation[j] != solver_activation[l][j]) {
+            std::cout << " v The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+            std::cout << " v Value from solver is " <<solver_activation[l][j]<<" and the correct one is "<<last_activation[j]<< '\n';
+          }
+        }
+      }
 	  }
 	  //std::cout<<"  c ENDDDDDD "   << std::endl;
 
@@ -283,7 +286,7 @@ public:
 				  std::cout<<" v There is " << compt << " activated neurons on the output layer : "<<std::endl;
 				  std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
 				  for (size_t i = 0; i < bnn_data->get_archi(nb_layers-1); i++){
-					  if(activation[nb_layers-1][i]== 1)
+					  if(last_activation[i]== 1)
 						  std::cout<<" v Neuron " << i << " at the last layer is activated"<<std::endl;
 				  }
 			  }
@@ -311,132 +314,67 @@ public:
   }
 
 
-  /* predict method
-  This function tests if the output of the network with the weights returned
-  by the solver corresponds the label of the input
-  Parameters :
-   - verification_mode : boolean that indicates if verification logs have to be printed (default = false)
-  Output : boolean -> true if the input is well classified and false either
-  */
-  bool predict(const bool &verification_mode = false, const bool &check = true){
-	  bool result = true ;
 
-	  int first_layer = bnn_data->get_archi(0) ;
 
+  bool weak_metric(){
+    bool result = true;
+    bool act_preact = true;
+    int first_layer = bnn_data->get_archi(0) ;
 	  //std::cout<<"  c start predict "   << std::endl;
+	  //assert (__test_set) ;
 
-	  if(__test_set){
-		  example_label = (int)bnn_data->get_dataset().test_labels[idx_example];
-		  //example_images = bnn_data->get_dataset().test_images[index_example];
-		  example_images = bnn_data->get_dataset().test_images[idx_example];
-		  for (int i = 0; i < first_layer ; ++i)
-			  last_activation[i] = example_images[i];
-	  }
-	  else{
-		  //assert (false) ;
-		  example_label = (int)bnn_data->get_dataset().training_labels[idx_example];
-		  //example_images = bnn_data->get_dataset().training_images[index_example];
-		  example_images = bnn_data->get_dataset().test_images[idx_example];
-		  for (int i = 0; i < first_layer ; ++i)
-			  last_activation[i] = (int)example_images[i];
-	  }
+	  example_label = (int) set_example_labels[idx_example];
+	  for (int i = 0; i < first_layer ; ++i){
+		  last_activation[i] = (int) set_example_images[idx_example][i];
+      if (__check_act_preact) {
+        if (last_activation[i] != solver_activation[0][i]) {
+          std::cout << " v The value of the activation for neuron "<<i<<" on first layer is incorrect." << '\n';
+          std::cout << " v Value from solver is " <<solver_activation[0][i]<<" and the correct one is "<<last_activation[i]<< '\n';
+        }
+      }
+    }
 
-	  //std::cout<<"  c end  predict "   << std::endl;
-
-	  int size_previous_layer , size_current_layer  ;
+	  int size_previous_layer , size_current_layer=  bnn_data->get_archi(0)  ;
 	  for (size_t l = 1; l < nb_layers; ++l) {
 		  //std::cout<<"  c layer  "<< l   << std::endl;
-
-		   size_previous_layer =  bnn_data->get_archi(l-1);
-		   size_current_layer = bnn_data->get_archi(l);
-
+		  size_previous_layer =  size_current_layer;
+		  size_current_layer = bnn_data->get_archi(l);
 		  for (size_t j = 0; j < size_current_layer; ++j) {
 			  last_preactivation[j] = 0;
 			  for (size_t i = 0; i < size_previous_layer; ++i) {
 				  last_preactivation[j] += last_activation[i] * weights[l-1][i][j];
+          if (__check_act_preact) {
+            if (last_preactivation[j] != solver_preactivation[l-1][j]) {
+              std::cout << " v The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+              std::cout << " v Value from solver is " <<solver_preactivation[l-1][j]<<" and the correct one is "<<last_preactivation[j]<< '\n';
+            }
+          }
 			  }
 		  }
-		  for (size_t j = 0; j < size_current_layer; ++j)
-			  last_activation[j] = activation_function( last_preactivation[j] );
-	  }
-
-	  //std::cout<<"  c ENDDDDDD "   << std::endl;
-
-
-    int predict = 0, compt = 0;
-    //size_current_layer must be the last one
-    //int size_current_layer = bnn_data->get_archi(nb_layers-1);
-    for (size_t i = 0; i < size_current_layer; i++) {
-       if(last_activation[i]== 1)
-       {
-         predict = i;
-         compt++;
-       }
-    }
-    if (check) {
-      if (verification_mode) {
-        if(compt > 1){
-          result =  false;
-          std::cout<<" v There is " << compt << " activated neurons on the output layer : "<<std::endl;
-          std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-            for (size_t i = 0; i < bnn_data->get_archi(nb_layers-1); i++){
-              if(activation[nb_layers-1][i]== 1)
-                std::cout<<" v Neuron " << i << " at the last layer is activated"<<std::endl;
-            }
-        }
+		  for (size_t j = 0; j < size_current_layer; ++j){
+        if (l == nb_layers-1)
+          last_activation[j] = last_preactivation[j];
         else{
-          if(compt == 0){
-            std::cout<<" v There is no activated neuron on the output layer"<<std::endl;
-            result =  false;
+          last_activation[j] = activation_function( last_preactivation[j] );
+          if (__check_act_preact) {
+            if (last_activation[j] != solver_activation[l][j]) {
+              std::cout << " v The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+              std::cout << " v Value from solver is " <<solver_activation[l][j]<<" and the correct one is "<<last_activation[j]<< '\n';
+            }
           }
         }
-
-        if(predict != example_label){
-          std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
-          std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-          std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
-          result =  false;
-        }
       }
-      else {
-        if (compt > 1 || compt == 0 || predict != example_label) {
-          result = false;
-        }
-      }
-    }
+
+	  }
+
+    int predict = -1;
+
+	  if (last_activation[example_label] == 1)
+		  predict = example_label;
 
 
-    return result;
-  }
-
-  bool all_good_metric(const bool &verification_mode = false, const bool &check = true){
-    bool result = true ;
-    for (size_t l = 1; l < nb_layers; l++) {
-      int tmp =  bnn_data->get_archi(l-1);
-      for (size_t i = 0; i < tmp; i++) {
-        int tmp2 = bnn_data->get_archi(l);
-        for (size_t j = 0; j < tmp2; j++) {
-          preactivation[l][j] += activation[l-1][i] * weights[l-1][i][j];;
-        }
-        for (size_t j = 0; j < tmp2; j++) {
-          if (l == nb_layers-1)
-            activation[l][j] = preactivation[l][j];
-          else
-            activation[l][j] = activation_function(preactivation[l][j]);
-        }
-      }
-    }
-    int predict = 0, max = abs(activation[nb_layers-1][0]);
-    int tmp = bnn_data->get_archi(nb_layers-1);
-    for (size_t i = 0; i < tmp; i++) {
-       if(abs(activation[nb_layers-1][i])>= max)
-       {
-         max = abs(activation[nb_layers-1][i]);
-         predict = i;
-       }
-    }
-    if (check) {
-      if (verification_mode) {
+    if (__check) {
+      if (__verification_mode) {
         if(predict != example_label){
           std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
           std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
@@ -509,10 +447,10 @@ public:
 	    //init(_init, test_set, index_example);
 	    idx_example = index_example;
 	    if (__use_predict) {
-	      pred = predict_light();
+	      pred = strong_metric();
 	    }
 	    else
-	      pred = all_good_metric(__verification_mode, __check);
+	      pred = weak_metric();
 	    if (__check_act_preact) {
 	      act_preact = check_activation_preactivation();
 	    }
@@ -521,33 +459,6 @@ public:
 	    }
 	    return (pred && act_preact);
 	  }
-
-  /* run_solution method
-  This function runs all the methods above
-  Parameters :
-    - check_act_preact : boolean that indicates if the activation and preactivation values have to be checked
-    - verification_mode : argument for the predict method
-  Output : boolean -> true if the methods both return true
-  */
-  bool run_solution(const bool &check_act_preact, const bool &verification_mode, const bool &_init, const bool &classification = true, const bool &use_predict = true, const bool &test_set=true, const int &index_example = 0){
-    bool pred = true;
-    bool act_preact = true;
-    //init(_init, test_set, index_example);
-    idx_example = index_example;
-    if (use_predict) {
-    	__test_set = test_set ;
-      pred = predict(verification_mode, classification);
-    }
-    else
-      pred = all_good_metric(verification_mode, classification);
-    if (check_act_preact) {
-      act_preact = check_activation_preactivation();
-    }
-    if (pred && act_preact && verification_mode) {
-      std::cout << "OK" << '\n';
-    }
-    return (pred && act_preact);
-  }
 
 
 };

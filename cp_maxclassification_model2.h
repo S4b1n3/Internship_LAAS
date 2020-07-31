@@ -275,7 +275,7 @@ namespace operations_research{
     			}
     		}
 
-        int check_count = 0;
+        int check_count = nb_examples;
     		for (size_t i = 0; i < nb_examples; i++) {
 
           classification_solution[i] = SolutionIntegerValue(r, classification[i]);
@@ -303,29 +303,28 @@ namespace operations_research{
     				}
     			}
           if (check_solution && classification_solution[i] == 1) {
-            std::clock_t c_start = std::clock();
-            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
-            std::clock_t c_end = std::clock();
-            bool checking = check_solution.run_solution(true, false, false);
+            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution);
             if (!check_model) {
-    					std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
-    					std::cout << " d CHECKING "<<i<<" : " << checking << std::endl;
+    					check_solution.set_evaluation_config(false, true, true, true, false);
+              std::cout << " d CHECKING "<<i << " : ";
+    				}else
+    					check_solution.set_evaluation_config(false, false, true, true, false);
+            bool checking = check_solution.run_solution_light(idx_examples[i]);
+            if (!checking) {
+    					check_count--;
     				}
-            if (checking) {
-    					check_count++;
-    				}
-    				std::ofstream parser(output_path.c_str(), std::ios::app);
-    				parser << "d CHECKING "<<checking<<std::endl;
-    				parser.close();
-    			}
-    		}
-    		if (check_model && check_count == nb_examples) {
-    			std::cout << " c VERIFICATION 1" << '\n';
-    		}
-    		if (check_model && check_count != nb_examples) {
-    			std::cout << " c VERIFICATION 0" << '\n';
-    		}
-    	}
+          }
+        }
+        std::ofstream parser(output_path.c_str(), std::ios::app);
+        parser << "d CHECKING "<<(check_count == nb_examples)<<std::endl;
+        parser.close();
+        if (check_model && check_count == nb_examples) {
+          std::cout << " c VERIFICATION 1" << '\n';
+        }
+        if (check_model && check_count != nb_examples) {
+          std::cout << " c VERIFICATION 0" << '\n';
+        }
+      }
 
 
   	  //void print_solution(const CpSolverResponse &r, const int &verbose, const int &index = 0)
