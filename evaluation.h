@@ -17,6 +17,7 @@ private:
   int nb_correct_classifications = 0;
   Solution checker;
   std::string output_file;
+  Data bnn_data;
 
 public:
 
@@ -57,7 +58,9 @@ public:
       std::ofstream parser(output_file.c_str(), std::ios::app);
   		parser << "d TEST_ACCURACY_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
   		parser.close();
-  		std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
+
+      std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
+
       std::cout << " and accuracy value is "<< 100*nb_correct_classifications/10000 << '\n';
       return 100*nb_correct_classifications/10000;
     }
@@ -86,7 +89,8 @@ public:
   		parser << "d TRAIN_ACCURACY_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
   		parser.close();
 
-  		std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
+      std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
+
       std::cout << " and accuracy value is "<< 100*nb_correct_classifications/60000 << '\n';
       return 100*nb_correct_classifications/60000;
     }
@@ -94,16 +98,23 @@ public:
 
   std::vector<int> get_correct_examples(const bool &test_set = true){
     std::vector<int> indexes;
+    checker.set_evaluation_config(false, false, true, true, test_set);
     if (test_set) {
+      std::vector<int> occ(10, 0);
       for (int i = 0; i < 10000; i++) {
-        if (checker.run_solution(false, false, true, true, true, true, i)) {
+        int label = (int)bnn_data.get_dataset().test_labels[i];
+        if (checker.run_solution_light(i) && occ[label] == 0) {
           indexes.push_back(i);
+          occ[label]++;
         }
       }
     } else {
+      std::vector<int> occ(10, 0);
       for (int i = 0; i < 60000; i++) {
-        if (checker.run_solution(false, false, true, true, true, false, i)) {
+        int label = (int)bnn_data.get_dataset().training_labels[i];
+        if (checker.run_solution_light(i) && occ[label] == 0) {
           indexes.push_back(i);
+          occ[label]++;
         }
       }
     }

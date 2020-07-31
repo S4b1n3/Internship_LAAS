@@ -36,6 +36,7 @@ void per_label(const int &nb_examples_per_label, const std::string &path) {
   int compt_ex = 0;
   std::vector<int> occ(10);
   std::vector<int> ind;
+  std::vector<int> idx_examples;
   std::string output_path = path+"/per_label_"+std::to_string(nb_examples_per_label)+".data";
   std::ofstream file(output_path.c_str(), std::ios::out);
   while (compt_ex < nb_examples) {
@@ -45,6 +46,7 @@ void per_label(const int &nb_examples_per_label, const std::string &path) {
       ind.push_back(index_rand);
       int label = (int)bnn_data->get_dataset().training_labels[index_rand];
       if(occ[label] < nb_examples_per_label){
+        idx_examples.push_back(index_rand);
         file << "LABEL " << label << std::endl;
         file << "IMAGE ";
         for (size_t i = 0; i < 784; i++) {
@@ -56,7 +58,11 @@ void per_label(const int &nb_examples_per_label, const std::string &path) {
       }
     }
   }
-
+  file << "INDEXES ";
+  for (size_t i = 0; i < idx_examples.size(); i++) {
+    file << idx_examples[i] << " ";
+  }
+  file << std::endl;
   file.close();
   delete bnn_data;
 }
@@ -64,10 +70,12 @@ void per_label(const int &nb_examples_per_label, const std::string &path) {
 void random(const int &nb_examples, const std::string &path) {
   Data *bnn_data = new Data();
   int index_rand = rand()%(60000-nb_examples);
+  std::vector<int> idx_examples;
   std::string output_path = path+"/random_"+std::to_string(nb_examples)+".data";
   std::ofstream file(output_path.c_str(), std::ios::out);
   for (size_t i = 0; i < nb_examples; i++) {
     int label = (int)bnn_data->get_dataset().training_labels[index_rand+i];
+    idx_examples.push_back(index_rand+i);
     file << "LABEL " << label << std::endl;
     file << "IMAGE ";
     for (size_t j = 0; j < 784; j++) {
@@ -75,6 +83,11 @@ void random(const int &nb_examples, const std::string &path) {
     }
     file<<std::endl;
   }
+  file << "INDEXES ";
+  for (size_t i = 0; i < idx_examples.size(); i++) {
+    file << idx_examples[i] << " ";
+  }
+  file << std::endl;
   file.close();
   delete bnn_data;
 }
@@ -83,6 +96,7 @@ void correct(const std::string &output_file, const std::string &_input_file) {
   std::ifstream input_file(_input_file.c_str());
 
   std::vector<int> architecture;
+  std::vector<int> idx_examples;
   std::vector<std::vector<std::vector<int>>> weights;
   if(input_file){
     std::string line;
@@ -134,6 +148,7 @@ void correct(const std::string &output_file, const std::string &_input_file) {
 
   for(const auto &i : correct_examples){
     int label = (int)bnn_data->get_dataset().training_labels[i];
+    idx_examples.push_back(i);
     file << "LABEL " << label << std::endl;
     file << "IMAGE ";
     for (size_t j = 0; j < 784; j++) {
@@ -141,6 +156,11 @@ void correct(const std::string &output_file, const std::string &_input_file) {
     }
     file<<std::endl;
   }
+  file << "INDEXES ";
+  for (size_t i = 0; i < idx_examples.size(); i++) {
+    file << idx_examples[i] << " ";
+  }
+  file << std::endl;
   file.close();
   delete bnn_data;
 }

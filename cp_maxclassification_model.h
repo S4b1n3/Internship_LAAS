@@ -157,7 +157,7 @@ namespace operations_research{
       void check(const CpSolverResponse &r, const bool &check_sol, const std::string &strategy, const int &index=0){
     		int tmp = bnn_data->get_layers();
     		weights_solution.resize(tmp);
-    		for (size_t l = 1; l < tmp; ++l) {
+        for (size_t l = 1; l < tmp; ++l) {
     			int tmp2 = bnn_data->get_archi(l-1);
     			weights_solution[l-1].resize(tmp2);
     			for (size_t i = 0; i < tmp2; ++i) {
@@ -168,7 +168,6 @@ namespace operations_research{
     				}
     			}
     		}
-
 
         int check_count = nb_examples;
     		for (size_t i = 0; i < nb_examples; i++) {
@@ -197,37 +196,30 @@ namespace operations_research{
     					}
     				}
     			}
-          if (check_sol) { //classification_solution[i] == 1 &&
-            bool classif;
-            if (classification_solution[i] == 1) {
-              classif = true;
-            } else
-              classif = false;
-            std::clock_t c_start = std::clock();
-            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
-            std::clock_t c_end = std::clock();
-            bool checking;
+          if (check_sol) {
+            Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution);
+            bool classif = (classification_solution[i] == 1);
             if (!check_model) {
-    					std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
-    					std::cout << " d CHECKING "<<i<<" : ";
-    					checking = check_solution.run_solution(true, true, false, classif);
+    					check_solution.set_evaluation_config(true, true, classif, true, false);
+              std::cout << " d CHECKING "<<i << " : ";
     				}else
-    					checking = check_solution.run_solution(true, false, false, classif);
+    					check_solution.set_evaluation_config(true, false, classif, true, false);
+            bool checking = check_solution.run_solution_light(idx_examples[i]);
             if (!checking) {
     					check_count--;
     				}
-    				std::ofstream parser(output_path.c_str(), std::ios::app);
-    				parser << "d CHECKING "<<checking<<std::endl;
-    				parser.close();
-    			}
-    		}
-    		if (check_model && check_count == nb_examples) {
-    			std::cout << " c VERIFICATION 1" << '\n';
-    		}
-    		if (check_model && check_count != nb_examples) {
-    			std::cout << " c VERIFICATION 0" << '\n';
-    		}
-    	}
+          }
+        }
+        std::ofstream parser(output_path.c_str(), std::ios::app);
+        parser << "d CHECKING "<<(check_count == nb_examples)<<std::endl;
+        parser.close();
+        if (check_model && check_count == nb_examples) {
+          std::cout << " c VERIFICATION 1" << '\n';
+        }
+        if (check_model && check_count != nb_examples) {
+          std::cout << " c VERIFICATION 0" << '\n';
+        }
+      }
 
 
       void print_solution(const CpSolverResponse &r, const int &verbose , const int &index = 0){

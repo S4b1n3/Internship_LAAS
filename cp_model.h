@@ -92,6 +92,7 @@ protected:
 
 	std::vector<std::vector<uint8_t>> inputs;
 	std::vector<int> labels;
+  std::vector<int> idx_examples;
 
 	//weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
 	std::vector<std::vector <std::vector<IntVar>>> weights;
@@ -150,6 +151,7 @@ public:
 		for (size_t i = 0; i < nb_examples; i++) {
 			inputs[i] = bnn_data->get_dataset().training_images[index_rand+i];
 			labels[i] = (int)bnn_data->get_dataset().training_labels[index_rand+i];
+      idx_examples.push_back(index_rand+i);
 		}
 	}
 
@@ -176,6 +178,7 @@ public:
 				if(occ[label] < _nb_examples_per_label){
 					inputs.push_back(bnn_data->get_dataset().training_images[index_rand]);
 					labels.push_back(label);
+          idx_examples.push_back(index_rand);
 					compt_ex++;
 					occ[label]++;
 				}
@@ -197,6 +200,7 @@ public:
 		for (const int &i : _indexes_examples) {
 			inputs.push_back(bnn_data->get_dataset().training_images[i]);
 			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
+      idx_examples.push_back(i);
 		}
 	}
 
@@ -226,6 +230,14 @@ public:
 					}
 					inputs.push_back(temp_int);
 				}
+        if (line.substr(0, 8) == "INDEXES "){
+          std::string temp_line = line.substr(8);
+          std::vector<std::string> temp;
+					split(temp_line, temp, ' ');
+          for (size_t i = 0; i < temp.size(); i++) {
+						idx_examples.push_back(std::stoi(temp[i].c_str()));
+					}
+        }
 			}
 		} else {
 			std::cout << "Error oppening input file" << '\n';
@@ -258,6 +270,14 @@ public:
 					}
 					inputs.push_back(temp_int);
 				}
+        if (line.substr(0, 8) == "INDEXES "){
+          std::string temp_line = line.substr(8);
+          std::vector<std::string> temp;
+					split(temp_line, temp, ' ');
+          for (size_t i = 0; i < temp.size(); i++) {
+						idx_examples.push_back(std::stoi(temp[i].c_str()));
+					}
+        }
 			}
 		} else {
 			std::cout << "Error oppening dataset file" << '\n';
@@ -980,32 +1000,28 @@ public:
 				}
 			}
 			if (check_sol) {
-				std::clock_t c_start = std::clock();
-				Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution, labels[i], inputs[i]);
-				std::clock_t c_end = std::clock();
-				bool checking;
-				if (!check_model) {
-					std::cout << " c Build Solution time " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
-					std::cout << " d CHECKING "<<i<<" : ";
-					checking = check_solution.run_solution(true, true, false);
-				}else
-					checking = check_solution.run_solution(true, false, false);
-
-				if (!checking) {
-					check_count--;
-				}
-				std::ofstream parser(output_path.c_str(), std::ios::app);
-				parser << "d CHECKING "<<checking<<std::endl;
-				parser.close();
-			}
-		}
-		if (check_model && check_count == nb_examples) {
-			std::cout << " c VERIFICATION 1" << '\n';
-		}
-		if (check_model && check_count != nb_examples) {
-			std::cout << " c VERIFICATION 0" << '\n';
-		}
-	}
+        Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution);
+        if (!check_model) {
+          check_solution.set_evaluation_config(false, true, true, true, false);
+          std::cout << " d CHECKING "<<i << " : ";
+        }else
+          check_solution.set_evaluation_config(false, false, true, true, false);
+        bool checking = check_solution.run_solution_light(idx_examples[i]);
+        if (!checking) {
+          check_count--;
+        }
+      }
+    }
+    std::ofstream parser(output_path.c_str(), std::ios::app);
+    parser << "d CHECKING "<<(check_count == nb_examples)<<std::endl;
+    parser.close();
+    if (check_model && check_count == nb_examples) {
+      std::cout << " c VERIFICATION 1" << '\n';
+    }
+    if (check_model && check_count != nb_examples) {
+      std::cout << " c VERIFICATION 0" << '\n';
+    }
+  }
 
 
 	/*print_header_solution method
@@ -1062,27 +1078,32 @@ public:
 		response = SolveCpModel(cp_model_builder.Build(), &model);
 		std::ofstream parser(output_path.c_str(), std::ios::app);
 		std::cout << "\n c Some statistics on the solver response : " << '\n';
-		LOG(INFO) << CpSolverResponseStats(response);
+    std::cout << " d RUN_TIME " << response.wall_time() << std::endl;
+    std::cout << " d MEMORY " << sysinfo::MemoryUsageProcess() << std::endl;
+    std::cout << " d STATUS "<<response.status() << std::endl;
+    std::cout << " d OBJECTIVE "<<response.objective_value() << std::endl;
+    std::cout << " d BEST_BOUND "<<response.best_objective_bound() << std::endl;
+    std::cout << " d BOOLEANS " << response.num_booleans() << std::endl;
+    std::cout << " d CONFLICTS " << response.num_conflicts() << std::endl;
+    std::cout << " d PROPAGATION " << response.num_binary_propagations() << std::endl;
+    std::cout << " d INTEGER_PROPAGATION " << response.num_integer_propagations() << std::endl;
+    std::cout << " d BRANCHES " << response.num_branches() << std::endl;
 		//std::cout << "\nSome statistics on the model : " << '\n';
 		//LOG(INFO) << CpModelStats(cp_model_builder.Build());
 		if(parser){
 			parser << std::endl << "d RUN_TIME " << response.wall_time() << std::endl;
 			parser << "d MEMORY " << sysinfo::MemoryUsageProcess() << std::endl;
 			parser << "d STATUS "<<response.status() << std::endl;
-			if (response.status()== CpSolverStatus::OPTIMAL)
-				parser << "d OBJECTIVE "<<response.objective_value() << std::endl;
-			else
-				parser << "d OBJECTIVE "<<response.objective_value() << std::endl;
+			parser << "d OBJECTIVE "<<response.objective_value() << std::endl;
 			parser << "d BEST_BOUND "<<response.best_objective_bound() << std::endl;
 			parser << "d BOOLEANS " << response.num_booleans() << std::endl;
 			parser << "d CONFLICTS " << response.num_conflicts() << std::endl;
 			parser << "d PROPAGATION " << response.num_binary_propagations() << std::endl;
 			parser << "d INTEGER_PROPAGATION " << response.num_integer_propagations() << std::endl;
 			parser << "d BRANCHES " << response.num_branches() << std::endl;
-			//parser << CpModelStats(cp_model_builder.Build()) << std::endl;
-			parser <<  " d VARIABLES " << cp_model_builder.Build().variables_size() << std::endl ;
-			parser <<  " d DECISION_VARIABLES " << decision_variables_size << std::endl ;
-			parser <<  " d CONSTRAINTS " << cp_model_builder.Build().constraints_size() << std::endl ;
+			parser <<  "d VARIABLES " << cp_model_builder.Build().variables_size() << std::endl ;
+			parser <<  "d DECISION_VARIABLES " << decision_variables_size << std::endl ;
+			parser <<  "d CONSTRAINTS " << cp_model_builder.Build().constraints_size() << std::endl ;
 			parser << std::endl;
 			parser.close();
 		}
