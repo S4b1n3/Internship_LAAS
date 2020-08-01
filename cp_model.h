@@ -368,8 +368,8 @@ public:
 			if (activation_first_layer[index_example][i] == 0) {
 				int tmp = bnn_data->get_archi(1);
 				if(!check_model){
-					for (size_t j = 0; j < tmp; j++)
-						cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0);
+					//for (size_t j = 0; j < tmp; j++)
+					//	cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0);
 				}
 			}
 		}
