@@ -270,10 +270,10 @@ int main(int argc, char **argv) {
 		results << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
 		results.close();
 
-		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test << "%" << std::endl;
-		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train << "%" << std::endl;
-		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test_bis << "%" << std::endl;
-		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << "%" << std::endl;
+		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
+		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train << std::endl;
+		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test_bis << std::endl;
+		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
 	}
 
 	delete bnn_data;
