@@ -959,7 +959,7 @@ public:
 	}
 
 	virtual void check(const CpSolverResponse &r, const bool &check_sol, const std::string &strategy, const int &index=0){
-		std::cout << "entering check method" << '\n';
+		std::cout << " c entering check method" << '\n';
 		int tmp = bnn_data->get_layers();
 		weights_solution.resize(tmp);
 		for (size_t l = 1; l < tmp; ++l) {

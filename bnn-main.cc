@@ -79,12 +79,16 @@ int main(int argc, char **argv) {
 		model.run(_time, _strategy);
 		status = model.print_statistics(_check_solution, _strategy);
 		weights = std::move(model.get_weights_solution());
+		if (_print_solution)
+			model.print_solution(model.get_response(), _print_solution);
 	} else {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_Satisfaction model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 			model.run(_time, _strategy);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
+			if (_print_solution)
+				model.print_solution(model.get_response(), _print_solution);
 		 }
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
@@ -92,6 +96,8 @@ int main(int argc, char **argv) {
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
+				if (_print_solution)
+					model.print_solution(model.get_response(), _print_solution);
 			}
 			else{
 				std::cout << " c Invalid number of examples : default mode launched" << '\n';
@@ -99,6 +105,9 @@ int main(int argc, char **argv) {
 				model.run(_time, _strategy);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
+
+				if (_print_solution)
+					model.print_solution(model.get_response(), _print_solution);
 			}
 		}
 	}
@@ -306,10 +315,10 @@ int main(int argc, char **argv) {
 		results.close();
 
 
-		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
-		std::cout << "d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;
-		std::cout << "d TEST_WEAK_ACCURACY " << accuracy_test_bis << std::endl;
-		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
+		std::cout << " d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
+		std::cout << " d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;
+		std::cout << " d TEST_WEAK_ACCURACY " << accuracy_test_bis << std::endl;
+		std::cout << " d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
 	}
 
 	delete bnn_data;
