@@ -47,7 +47,7 @@ private:
   //The following vectors are used only for evaluation
   std::vector<int> last_preactivation;
   std::vector<int> last_activation;
-  bool __test_set , __check_act_preact, __verification_mode, __check,  __use_predict  ;
+  bool __test_set , __check_act_preact, __verification_mode, __check,  __strong_classification  ;
 
 public:
 
@@ -324,153 +324,96 @@ public:
 
 
   bool weak_metric(){
-    bool result = true;
-    bool act_preact = true;
-    int first_layer = bnn_data->get_archi(0) ;
+
+
+	  bool result = true ;
+	  bool act_preact = true;
+	  int first_layer = bnn_data->get_archi(0) ;
 	  //std::cout<<"  c start predict "   << std::endl;
 	  //assert (__test_set) ;
 
 	  example_label = (int) set_example_labels[idx_example];
 	  for (int i = 0; i < first_layer ; ++i){
 		  last_activation[i] = (int) set_example_images[idx_example][i];
-      if (__check_act_preact) {
-        if (last_activation[i] != solver_activation[0][i]) {
-          act_preact = false;
-          if (__verification_mode) {
-            std::cout << " v The value of the activation for neuron "<<i<<" on first layer is incorrect." << '\n';
-            std::cout << " v Value from solver is " <<solver_activation[0][i]<<" and the correct one is "<<last_activation[i]<< '\n';
-          }
-        }
-      }
-    }
-  }
-  /* predict method
-  This function tests if the output of the network with the weights returned
-  by the solver corresponds the label of the input
-  Parameters :
-   - verification_mode : boolean that indicates if verification logs have to be printed (default = false)
-  Output : boolean -> true if the input is well classified and false either
-  */
-  bool predict(const bool &verification_mode = false, const bool &check = true){
-	    bool result = true ;
-	    for (size_t l = 1; l < nb_layers; l++) {
-	      int tmp =  bnn_data->get_archi(l-1);
-	      for (size_t i = 0; i < tmp; i++) {
-	        int tmp2 = bnn_data->get_archi(l);
-	        for (size_t j = 0; j < tmp2; j++) {
-	          preactivation[l][j] += activation[l-1][i] * weights[l-1][i][j];
-	        }
-	        for (size_t j = 0; j < tmp2; j++) {
-	          activation[l][j] = activation_function(preactivation[l][j]);
-	        }
-	      }
-	    }
-	    int predict = 0, compt = 0;
-	    int tmp = bnn_data->get_archi(nb_layers-1);
-	    for (size_t i = 0; i < tmp; i++) {
-	       if(activation[nb_layers-1][i]== 1)
-	       {
-	         predict = i;
-	         compt++;
-	       }
-	    }
-	    if (check) {
-	      if (verification_mode) {
-	        if(compt > 1){
-	          result =  false;
-	          std::cout<<" v There is " << compt << " activated neurons on the output layer : "<<std::endl;
-	          std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-	            for (size_t i = 0; i < bnn_data->get_archi(nb_layers-1); i++){
-	              if(activation[nb_layers-1][i]== 1)
-	                std::cout<<" v Neuron " << i << " at the last layer is activated"<<std::endl;
-	            }
-	        }
-	        else{
-	          if(compt == 0){
-	            std::cout<<" v There is no activated neuron on the output layer"<<std::endl;
-	            result =  false;
-	          }
-	        }
-
-	        if(predict != example_label){
-	          std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
-	          std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-	          std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
-	          result =  false;
-	        }
-	      }
-	      else {
-	        if (compt > 1 || compt == 0 || predict != example_label) {
-	          result = false;
-	        }
-	      }
-	    }
-
-	    return result;
-  }
-
-
-  bool all_good_metric_light(){
-	  bool result = true ;
-	  int first_layer = bnn_data->get_archi(0) ;
-	  //std::cout<<"  c start predict "   << std::endl;
-	  //assert (__test_set) ;
-
-	  example_label = (int) set_example_labels[idx_example];
-	  for (int i = 0; i < first_layer ; ++i)
-		  last_activation[i] = (int) set_example_images[idx_example][i];
-	  //std::cout<<"  c end  predict "   << std::endl;
-
+		  if (__check_act_preact) {
+			  if (last_activation[i] != solver_activation[0][i]) {
+				  act_preact = false;
+				  if (__verification_mode) {
+					  std::cout << " v The value of the activation for neuron "<<i<<" on first layer is incorrect." << '\n';
+					  std::cout << " v Value from solver is " <<solver_activation[0][i]<<" and the correct one is "<<last_activation[i]<< '\n';
+				  }
+			  }
+		  }
+	  }
 
 	  int size_previous_layer , size_current_layer=  bnn_data->get_archi(0)  ;
 	  for (size_t l = 1; l < nb_layers; ++l) {
 		  //std::cout<<"  c layer  "<< l   << std::endl;
 		  size_previous_layer =  size_current_layer;
 		  size_current_layer = bnn_data->get_archi(l);
-
 		  for (size_t j = 0; j < size_current_layer; ++j) {
 			  last_preactivation[j] = 0;
 			  for (size_t i = 0; i < size_previous_layer; ++i) {
 				  last_preactivation[j] += last_activation[i] * weights[l-1][i][j];
 			  }
-
+			  if (__check_act_preact) {
+				  if (last_preactivation[j] != solver_preactivation[l-1][j]) {
+					  act_preact = false;
+					  if (__verification_mode) {
+						  std::cout << " v The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+						  std::cout << " v Value from solver is " <<solver_preactivation[l-1][j]<<" and the correct one is "<<last_preactivation[j]<< '\n';
+					  }
+				  }
+			  }
 		  }
-		  for (size_t j = 0; j < size_current_layer; ++j)
+		  for (size_t j = 0; j < size_current_layer; ++j){
 			  last_activation[j] = activation_function( last_preactivation[j] );
+			  if (__check_act_preact) {
+				  if (last_activation[j] != solver_activation[l][j]) {
+					  act_preact = false;
+					  if (__verification_mode) {
+						  std::cout << " v The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+						  std::cout << " v Value from solver is " <<solver_activation[l][j]<<" and the correct one is "<<last_activation[j]<< '\n';
+					  }
+				  }
+			  }
+		  }
 	  }
-	  //std::cout<<"  c ENDDDDDD "   << std::endl;
 
 
-	  int predict = -1;
+	  //size_current_layer must be the last one
+	  //int size_current_layer = bnn_data->get_archi(nb_layers-1);
 
-	  if (last_activation[example_label] == 1)
-		  predict = example_label;
+	  int max_preactivation = last_preactivation[example_label] ;
 
+	  for (size_t i = 0; i < size_current_layer; i++) {
+		  if(last_activation[i]> max_preactivation)
+		  {
+			  result = false;
+			  break;
+		  }
+	  }
 	  if (__check) {
+		  // TODO : Not sure how to integrate verification here ??
 		  if (__verification_mode) {
-			  if(predict != example_label){
-				  std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
-				  std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-				  std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
-				  result =  false;
-			  }
-		  }
-		  else {
-			  if (predict != example_label) {
-				  result = false;
+			  if(! result ){
+				  std::cout<<" \n v The output label does not correspond to the maximum preactivation "<<std::endl;
 			  }
 		  }
 	  }
-	  return result;
+
+	  return (result && act_preact);
+
   }
 
 
+
   // set a particular evaluation routine
-  void set_evaluation_config(const bool &check_act_preact, const bool &verification_mode, const bool &classification = true, const bool &use_predict = true, const bool &test_set = true) {
+  void set_evaluation_config(const bool &check_act_preact, const bool &verification_mode, const bool &classification = true, const bool &strong_classification = true, const bool &test_set = true) {
 	  __check_act_preact = check_act_preact ;
 	  __verification_mode = verification_mode ;
 	  __check = classification ;
-	  __use_predict =  use_predict ;
+	  __strong_classification =  strong_classification ;
 	  __test_set = test_set;
 	  //__check = check ;
 	  if (test_set)
@@ -486,23 +429,21 @@ public:
 
   bool run_solution_light(const int &index_example = 0){
 
-	    bool pred = true;
-	    bool act_preact = true;
-	    //init(_init, test_set, index_example);
-	    idx_example = index_example;
-	    if (__use_predict) {
-	      pred = strong_metric();
-	    }
-	    else
-
-	      pred = weak_metric();
+	  bool pred = true;
+	  bool act_preact = true;
+	  //init(_init, test_set, index_example);
+	  idx_example = index_example;
+	  if (__strong_classification)
+		  pred = strong_metric();
+	  else
+		  pred = weak_metric();
 
 
-	    if (pred && act_preact && __verification_mode) {
-	      std::cout << "OK" << '\n';
-	    }
-	    return (pred && act_preact);
+	  if (pred && act_preact && __verification_mode) {
+		  std::cout << "OK" << '\n';
 	  }
+	  return (pred && act_preact);
+  }
 
 
 };

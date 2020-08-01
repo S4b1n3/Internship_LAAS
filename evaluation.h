@@ -40,11 +40,11 @@ public:
     - test_set : boolean that indicate on which dataset the examples are taken (default : testing set)
   This method tests every example one by one from the dataset and return the accuracy
   */
-  double run_evaluation (const int &test_set, const bool &predict){
+  double run_evaluation (const int &test_set, const bool &strong_classification){
     std::clock_t c_start = std::clock();
     if (test_set) {
       nb_correct_classifications=0;
-      checker.set_evaluation_config(false, false, true, predict, true);
+      checker.set_evaluation_config(false, false, true, strong_classification, true);
       for (size_t i = 0; i < 10000; i++) {
     	  //if ( ! (i % 100) )
     	  //  std::cout<<"  c i "<< i << std::endl;
@@ -66,7 +66,7 @@ public:
     }
     else{
         nb_correct_classifications=0;
-        checker.set_evaluation_config(false, false, true, predict, false);
+        checker.set_evaluation_config(false, false, true, strong_classification, false);
         for (size_t i = 0; i < 60000; i++) {
       	  //if ( ! (i % 100) )
       	   // std::cout<<"  c i "<< i << std::endl;

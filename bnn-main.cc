@@ -235,18 +235,19 @@ int main(int argc, char **argv) {
 
 
 	if (_eval) {
-		std::cout << "c starting evaluation..." << '\n';
+		std::cout << " c starting evaluation..." << '\n';
 		if(status == 2 || status == 4){
 			Evaluation test(weights, bnn_data, filename);
-			std::cout << " c Testing accuracy of the model with activation function : "<< '\n';
+			std::cout << " c Testing accuracy with strong classification criterion : "<< '\n';
 			accuracy_test = test.run_evaluation(true, true);
-			std::cout << " c Training accuracy of the model with activation function : "<< '\n';
+			std::cout << " c Training accuracy with strong classification criterion : "<< '\n';
 			accuracy_train = test.run_evaluation(false, true);
-			std::cout << " c Testing accuracy of the model with all good metric : "<< '\n';
+			std::cout << " c Testing accuracy with weak classification criterion : "<< '\n';
 			accuracy_test_bis = test.run_evaluation(true, false);
-			std::cout << " c Training accuracy of the model with all good metric : "<< '\n';
+			std::cout << " c Training accuracy with weak classification criterion : "<< '\n';
 			accuracy_train_bis = test.run_evaluation(false, false);
 		}
+
 
 		if (accuracy_test < 0.1) {
 			accuracy_test = 0;
@@ -263,11 +264,16 @@ int main(int argc, char **argv) {
 
 		std::string result_file = filename+"/results_"+_strategy+".stat";
 		std::ofstream results(result_file.c_str(), std::ios::app);
-		results << "d TEST_ACCURACY " << accuracy_test << std::endl;
-		results << "d TRAIN_ACCURACY " << accuracy_train << std::endl;
-		results << "d TEST_ACCURACY_MAX " << accuracy_test_bis << std::endl;
-		results << "d TRAIN_ACCURACY_MAX " << accuracy_train_bis << std::endl;
+		results << "d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
+		results << "d TRAIN_WEAK_ACCURACY " << accuracy_train << std::endl;
+		results << "d TEST_STRONG_ACCURACY " << accuracy_test_bis << std::endl;
+		results << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
 		results.close();
+
+		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test << "%" << std::endl;
+		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train << "%" << std::endl;
+		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test_bis << "%" << std::endl;
+		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << "%" << std::endl;
 	}
 
 	delete bnn_data;
