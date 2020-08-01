@@ -47,7 +47,7 @@ private:
   //The following vectors are used only for evaluation
   std::vector<int> last_preactivation;
   std::vector<int> last_activation;
-  bool __test_set , __check_act_preact, __verification_mode, __check,  __strong_classification  ;
+  bool __test_set , __check_activationANDpreactivation, __verification_mode, __check,  __strong_classification  ;
 
 public:
 
@@ -225,7 +225,6 @@ public:
   */
   bool strong_metric(){
 	  bool result = true ;
-    bool act_preact = true;
 	  int first_layer = bnn_data->get_archi(0) ;
 	  //std::cout<<"  c start predict "   << std::endl;
 	  //assert (__test_set) ;
@@ -233,13 +232,11 @@ public:
 	  example_label = (int) set_example_labels[idx_example];
 	  for (int i = 0; i < first_layer ; ++i){
 		  last_activation[i] = (int) set_example_images[idx_example][i];
-      if (__check_act_preact) {
+      if (__check_activationANDpreactivation) {
         if (last_activation[i] != solver_activation[0][i]) {
-          act_preact = false;
-          if (__verification_mode) {
-            std::cout << " v The value of the activation for neuron "<<i<<" on first layer is incorrect." << '\n';
-            std::cout << " v Value from solver is " <<solver_activation[0][i]<<" and the correct one is "<<last_activation[i]<< '\n';
-          }
+        	std::cout << " v The value of the activation for neuron "<<i<<" on first layer is incorrect." << '\n';
+        	std::cout << " v Value from solver is " <<solver_activation[0][i]<<" and the correct one is "<<last_activation[i]<< '\n';
+        	exit(1);
         }
       }
     }
@@ -254,29 +251,25 @@ public:
 			  for (size_t i = 0; i < size_previous_layer; ++i) {
 				  last_preactivation[j] += last_activation[i] * weights[l-1][i][j];
 			  }
-        if (__check_act_preact) {
+        if (__check_activationANDpreactivation)
           if (last_preactivation[j] != solver_preactivation[l-1][j]) {
-            act_preact = false;
-            if (__verification_mode) {
               std::cout << " v The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
               std::cout << " v Value from solver is " <<solver_preactivation[l-1][j]<<" and the correct one is "<<last_preactivation[j]<< '\n';
+              exit(1);
             }
-          }
-        }
 		  }
 		  for (size_t j = 0; j < size_current_layer; ++j){
 			  last_activation[j] = activation_function( last_preactivation[j] );
-        if (__check_act_preact) {
+        if (__check_activationANDpreactivation) {
           if (last_activation[j] != solver_activation[l][j]) {
-            act_preact = false;
-            if (__verification_mode) {
               std::cout << " v The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
               std::cout << " v Value from solver is " <<solver_activation[l][j]<<" and the correct one is "<<last_activation[j]<< '\n';
-            }
+              exit(1);
+          }
           }
         }
       }
-	  }
+
 
 	  int predict = 0, compt = 0;
 	  //size_current_layer must be the last one
@@ -319,15 +312,13 @@ public:
 			  }
 		  }
 	  }
-	  return (result && act_preact);
+	  return (result);
   }
 
 
   bool weak_metric(){
 
-
 	  bool result = true ;
-	  bool act_preact = true;
 	  int first_layer = bnn_data->get_archi(0) ;
 	  //std::cout<<"  c start predict "   << std::endl;
 	  //assert (__test_set) ;
@@ -335,13 +326,13 @@ public:
 	  example_label = (int) set_example_labels[idx_example];
 	  for (int i = 0; i < first_layer ; ++i){
 		  last_activation[i] = (int) set_example_images[idx_example][i];
-		  if (__check_act_preact) {
+		  if (__check_activationANDpreactivation) {
 			  if (last_activation[i] != solver_activation[0][i]) {
-				  act_preact = false;
-				  if (__verification_mode) {
-					  std::cout << " v The value of the activation for neuron "<<i<<" on first layer is incorrect." << '\n';
-					  std::cout << " v Value from solver is " <<solver_activation[0][i]<<" and the correct one is "<<last_activation[i]<< '\n';
-				  }
+
+				  std::cout << " v The value of the activation for neuron "<<i<<" on first layer is incorrect." << '\n';
+				  std::cout << " v Value from solver is " <<solver_activation[0][i]<<" and the correct one is "<<last_activation[i]<< '\n';
+				  exit(1);
+
 			  }
 		  }
 	  }
@@ -356,25 +347,23 @@ public:
 			  for (size_t i = 0; i < size_previous_layer; ++i) {
 				  last_preactivation[j] += last_activation[i] * weights[l-1][i][j];
 			  }
-			  if (__check_act_preact) {
+			  if (__check_activationANDpreactivation) {
 				  if (last_preactivation[j] != solver_preactivation[l-1][j]) {
-					  act_preact = false;
-					  if (__verification_mode) {
-						  std::cout << " v The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
-						  std::cout << " v Value from solver is " <<solver_preactivation[l-1][j]<<" and the correct one is "<<last_preactivation[j]<< '\n';
-					  }
+
+					  std::cout << " v The value of the preactivation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+					  std::cout << " v Value from solver is " <<solver_preactivation[l-1][j]<<" and the correct one is "<<last_preactivation[j]<< '\n';
+					  exit(1);
 				  }
 			  }
 		  }
 		  for (size_t j = 0; j < size_current_layer; ++j){
 			  last_activation[j] = activation_function( last_preactivation[j] );
-			  if (__check_act_preact) {
+			  if (__check_activationANDpreactivation) {
 				  if (last_activation[j] != solver_activation[l][j]) {
-					  act_preact = false;
-					  if (__verification_mode) {
-						  std::cout << " v The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
-						  std::cout << " v Value from solver is " <<solver_activation[l][j]<<" and the correct one is "<<last_activation[j]<< '\n';
-					  }
+
+					  std::cout << " v The value of the activation for neuron "<<j<<" on layer "<<l<<" is incorrect." << '\n';
+					  std::cout << " v Value from solver is " <<solver_activation[l][j]<<" and the correct one is "<<last_activation[j]<< '\n';
+					  exit(1);
 				  }
 			  }
 		  }
@@ -387,7 +376,7 @@ public:
 	  int max_preactivation = last_preactivation[example_label] ;
 
 	  for (size_t i = 0; i < size_current_layer; i++) {
-		  if(last_activation[i]> max_preactivation)
+		  if(last_preactivation[i]> max_preactivation)
 		  {
 			  result = false;
 			  break;
@@ -401,16 +390,14 @@ public:
 			  }
 		  }
 	  }
-
-	  return (result && act_preact);
-
+	  return (result);
   }
 
 
 
   // set a particular evaluation routine
   void set_evaluation_config(const bool &check_act_preact, const bool &verification_mode, const bool &classification = true, const bool &strong_classification = true, const bool &test_set = true) {
-	  __check_act_preact = check_act_preact ;
+	  __check_activationANDpreactivation = check_act_preact ;
 	  __verification_mode = verification_mode ;
 	  __check = classification ;
 	  __strong_classification =  strong_classification ;
@@ -438,11 +425,10 @@ public:
 	  else
 		  pred = weak_metric();
 
-
-	  if (pred && act_preact && __verification_mode) {
-		  std::cout << "OK" << '\n';
+	  if (pred  && __verification_mode) {
+		  std::cout << " c OK" << '\n';
 	  }
-	  return (pred && act_preact);
+	  return pred ;
   }
 
 

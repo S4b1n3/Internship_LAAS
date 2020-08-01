@@ -41,59 +41,23 @@ public:
   This method tests every example one by one from the dataset and return the accuracy
   */
   double run_evaluation (const int &test_set, const bool &strong_classification){
-    std::clock_t c_start = std::clock();
-    if (test_set) {
-      nb_correct_classifications=0;
-      checker.set_evaluation_config(false, false, true, strong_classification, true);
-      for (size_t i = 0; i < 10000; i++) {
-    	  //if ( ! (i % 100) )
-    	  //  std::cout<<"  c i "<< i << std::endl;
-    	  //if (checker.run_solution(false, false, true, true, predict, true, i)) {
-    	  if (checker.run_solution_light(i) )
-    		  nb_correct_classifications += 1;
-      }
+	  std::clock_t c_start = std::clock();
+	  int size = 60000;
+	  if (test_set)
+		  size = 10000;
 
-      std::clock_t c_end = std::clock();
-      std::cout << " c Evaluation finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s ";
-      std::ofstream parser(output_file.c_str(), std::ios::app);
-  		parser << "d TEST_ACCURACY_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
-  		parser.close();
+	  nb_correct_classifications=0;
+	  checker.set_evaluation_config(false, false, true, strong_classification, test_set);
+	  for (size_t i = 0; i < size; i++) {
+		  if (checker.run_solution_light(i) )
+			  nb_correct_classifications += 1;
+	  }
 
-      std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
-
-      std::cout << " and accuracy value is "<< 100*nb_correct_classifications/10000 << '\n';
-      return 100*nb_correct_classifications/10000;
-    }
-    else{
-        nb_correct_classifications=0;
-        checker.set_evaluation_config(false, false, true, strong_classification, false);
-        for (size_t i = 0; i < 60000; i++) {
-      	  //if ( ! (i % 100) )
-      	   // std::cout<<"  c i "<< i << std::endl;
-      	  //if (checker.run_solution(false, false, true, true, predict, true, i)) {
-      	  if (checker.run_solution_light(i) )
-      		  nb_correct_classifications += 1;
-        }
-
-    	/*
-      nb_correct_classifications=0;
-      for (size_t i = 0; i < 60000; i++) {
-        if (checker.run_solution(false, false, true, true, predict, false, i)) {
-          nb_correct_classifications += 1;
-        }
-      }
-      */
-      std::clock_t c_end = std::clock();
-      std::cout << " c Evaluation finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s ";
-      std::ofstream parser(output_file.c_str(), std::ios::app);
-  		parser << "d TRAIN_ACCURACY_TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
-  		parser.close();
-
-      std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
-
-      std::cout << " and accuracy value is "<< 100*nb_correct_classifications/60000 << '\n';
-      return 100*nb_correct_classifications/60000;
-    }
+	  std::clock_t c_end = std::clock();
+	  std::cout << " c Evaluation finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s ";
+	  std::cout << " ; nb_correct_classifications is "<< nb_correct_classifications ;
+	  std::cout << " and accuracy value is "<< (100*nb_correct_classifications)/size << '\n';
+	  return (100*nb_correct_classifications)/size;
   }
 
   std::vector<int> get_correct_examples(const bool &test_set = true){

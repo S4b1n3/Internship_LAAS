@@ -100,20 +100,7 @@ namespace operations_research{
       Parameters : None
       Output : None
       */
-      void model_declare_objective(){
-        int tmp = bnn_data->get_layers();
-        for (size_t l = 1; l < tmp; l++) {
-          int tmp2 = bnn_data->get_archi(l-1);
-          for(size_t i = 0; i < tmp2; i++) {
-            int tmp3 = bnn_data->get_archi(l);
-            for (size_t j = 0; j < tmp3; j++) {
-              IntVar abs = cp_model_builder.NewIntVar(Domain(0,1));
-              cp_model_builder.AddAbsEquality(abs, weights[l-1][i][j]);
-              objectif.AddVar(abs);
-            }
-          }
-        }
-      }
+      void model_declare_objective(){}
 
       /* model_output_constraint method
       This function forces the output to match the label
@@ -136,40 +123,54 @@ namespace operations_research{
       }
 
 
-      void print_solution(const CpSolverResponse &r, const int &index = 0){
-        assert(index >=0);
-        if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
-          std::cout << "\n s Solution "<< index << " : \n";
-          for (size_t l = 1; l < bnn_data->get_layers(); ++l) {
-            std::cout << " s Layer "<< l << ": \n";
-            for (size_t i = 0; i < bnn_data->get_archi(l-1); ++i) {
-              for (size_t j = 0; j < bnn_data->get_archi(l); ++j) {
-                std::cout << "\t s w["<<l<<"]["<<i<<"]["<<j<<"] = " <<SolutionIntegerValue(r, weights[l-1][i][j]);
-              }
-              std::cout << '\n';
-            }
-            std::cout << '\n';
-          }
+      void print_solution(const CpSolverResponse &r, const int &verbose, const int &index = 0){
 
-          for (size_t l = 0; l < bnn_data->get_layers()-1; l++) {
-            for(size_t j = 0; j < bnn_data->get_archi(l+1); j++){
-              std::cout << " s preactivation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,preactivation[0][l][j])<<std::endl;
-            }
-          }
+    	  assert(index >=0);
+    	  assert (verbose);
+    	  if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
 
-          for(size_t j = 0; j < bnn_data->get_archi(0); ++j){
-            std::cout << " s activation_first_layer["<<j<<"] = " << SolutionIntegerValue(r,activation_first_layer[0][j]) << std::endl;
-          }
-          for (size_t l = 0; l < bnn_data->get_layers()-1; ++l) {
-            for(size_t j = 0; j < bnn_data->get_archi(l+1); ++j){
-              std::cout << " s activation["<<l<<"]["<<j<<"] = " << SolutionIntegerValue(r,activation[0][l][j])<<std::endl;
-            }
-          }
+    		  int tmp = bnn_data->get_layers();
+    		  if (verbose >1)
+    		  {
+    			  std::cout << "\n s Solution "<< index << " : \n";
 
-        }
-        if(r.status()==CpSolverStatus::MODEL_INVALID){
-          LOG(INFO) << ValidateCpModel(cp_model_builder.Build());
-        }
+    			  std::cout << "   Weights" << '\n';
+    			  for (size_t l = 1; l < tmp; ++l) {
+    				  std::cout << "   Layer "<< l << ": \n";
+    				  int tmp2 = bnn_data->get_archi(l-1);
+    				  for (size_t i = 0; i < tmp2; ++i) {
+    					  int tmp3 = bnn_data->get_archi(l);
+    					  for (size_t j = 0; j < bnn_data->get_archi(l); ++j) {
+    						  std::cout << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " << weights_solution[l-1][i][j];
+    					  }
+    					  std::cout << '\n';
+    				  }
+    				  std::cout << '\n';
+    			  }
+    		  }
+    		  for (size_t i = 0; i < nb_examples; i++) {
+    			  std::cout << " s Example "<< i ;
+    			  if (verbose >1)
+    				  std::cout << " \n" ;
+    			  if (verbose >1)
+    				  std::cout << "   Input : " << '\n';
+    			  if (verbose >1)
+    				  for (size_t j = 0; j < 784; j++) {
+    					  std::cout << (int)inputs[i][j] << " ";
+    				  }
+    			  if (verbose >1)
+    				  std::cout << " \n" ;
+    			  std::cout << "  Label : "<< labels[i] ;
+    			  if (verbose >1)
+    				  std::cout << " \n" ;
+    			  std::cout << "   Classification : " << 1 << '\n';
+    		  }
+
+    	  }
+    	  if(r.status()==CpSolverStatus::MODEL_INVALID){
+    		  LOG(INFO) << ValidateCpModel(cp_model_builder.Build());
+    	  }
+
       }
 
     } ; //close class CPModel

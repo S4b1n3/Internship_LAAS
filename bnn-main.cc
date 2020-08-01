@@ -2,6 +2,7 @@
 #include "data.h"
 #include "solution.h"
 #include "cp_minweight_model.h"
+#include "cp_satisfaction_model.h"
 #include "cp_maxclassification_model.h"
 #include "cp_maxclassification_model2.h"
 #include "cp_maxsum_weights_example_model.h"
@@ -70,6 +71,40 @@ int main(int argc, char **argv) {
 
 
 	switch (_index_model) {
+
+	case '0':
+	{
+	if (_input_file != "") {
+		operations_research::sat::CPModel_Satisfaction model(bnn_data, _prod_constraint, filename, _input_file);
+		model.run(_time, _strategy);
+		status = model.print_statistics(_check_solution, _strategy);
+		weights = std::move(model.get_weights_solution());
+	} else {
+		if (_nb_examples == 0 && _nb_examples_per_label != 0){
+			operations_research::sat::CPModel_Satisfaction model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
+			model.run(_time, _strategy);
+			status = model.print_statistics(_check_solution, _strategy);
+			weights = std::move(model.get_weights_solution());
+		 }
+		else{
+			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
+				operations_research::sat::CPModel_Satisfaction model(bnn_data, _nb_examples, _prod_constraint, filename);
+				model.run(_time, _strategy);
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = std::move(model.get_weights_solution());
+			}
+			else{
+				std::cout << " c Invalid number of examples : default mode launched" << '\n';
+				operations_research::sat::CPModel_Satisfaction model(bnn_data, 1, _prod_constraint, filename);
+				model.run(_time, _strategy);
+				status = model.print_statistics(_check_solution, _strategy);
+				weights = std::move(model.get_weights_solution());
+			}
+		}
+	}
+	break;
+	}
+
 	case '1':
 	{
 		if (_input_file != "") {
@@ -265,14 +300,15 @@ int main(int argc, char **argv) {
 		std::string result_file = filename+"/results_"+_strategy+".stat";
 		std::ofstream results(result_file.c_str(), std::ios::app);
 		results << "d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
-		results << "d TRAIN_WEAK_ACCURACY " << accuracy_train << std::endl;
-		results << "d TEST_STRONG_ACCURACY " << accuracy_test_bis << std::endl;
+		results << "d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;
+		results << "d TEST_WEAK_ACCURACY " << accuracy_test_bis << std::endl;
 		results << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
 		results.close();
 
+
 		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
-		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train << std::endl;
-		std::cout << "d TEST_STRONG_ACCURACY " << accuracy_test_bis << std::endl;
+		std::cout << "d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;
+		std::cout << "d TEST_WEAK_ACCURACY " << accuracy_test_bis << std::endl;
 		std::cout << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
 	}
 
