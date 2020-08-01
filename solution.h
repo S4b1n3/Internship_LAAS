@@ -343,7 +343,7 @@ public:
         }
       }
     }
-
+  }
   /* predict method
   This function tests if the output of the network with the weights returned
   by the solver corresponds the label of the input
@@ -462,52 +462,6 @@ public:
 		  }
 	  }
 	  return result;
-  }
-
-
-  bool all_good_metric(const bool &verification_mode = false, const bool &check = true){
-    bool result = true ;
-    for (size_t l = 1; l < nb_layers; l++) {
-      int tmp =  bnn_data->get_archi(l-1);
-      for (size_t i = 0; i < tmp; i++) {
-        int tmp2 = bnn_data->get_archi(l);
-        for (size_t j = 0; j < tmp2; j++) {
-          preactivation[l][j] += activation[l-1][i] * weights[l-1][i][j];;
-        }
-        for (size_t j = 0; j < tmp2; j++) {
-          if (l == nb_layers-1)
-            activation[l][j] = preactivation[l][j];
-          else
-            activation[l][j] = activation_function(preactivation[l][j]);
-        }
-      }
-    }
-    int predict = 0, max = abs(activation[nb_layers-1][0]);
-    int tmp = bnn_data->get_archi(nb_layers-1);
-    for (size_t i = 0; i < tmp; i++) {
-       if(abs(activation[nb_layers-1][i])>= max)
-       {
-         max = abs(activation[nb_layers-1][i]);
-         predict = i;
-       }
-    }
-    if (check) {
-      if (verification_mode) {
-
-        if(predict != example_label){
-          std::cout<<" v The output label does not correspond to the expected one"<<std::endl;
-          std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
-          std::cout<<" v Activated neuron on the output layer is" << predict <<std::endl;
-          result =  false;
-        }
-      }
-      else {
-        if (predict != example_label) {
-          result = false;
-        }
-      }
-    }
-    return (result && act_preact);
   }
 
 
