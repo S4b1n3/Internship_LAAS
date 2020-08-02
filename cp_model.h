@@ -482,6 +482,32 @@ public:
 				}
 			}
 		}
+
+		std::cout << " \n c START SETTING Weights to 0  \n  " << std::endl;
+		int first_layer_size = bnn_data->get_archi(0) , count = 0;
+		if (inputs.size() >1 )
+			for (int i = 0 ; i< first_layer_size ; ++i){
+				int value_pixed = inputs[0][i] ;
+				bool fixed = true;
+				for (int idx = 1 ; idx< inputs.size() ; ++idx){
+					if ( inputs[idx][i] != value_pixed ){
+						fixed = false;
+						break;
+					}
+				}
+				if (fixed) {
+					++count;
+					int second_layer_size = bnn_data->get_archi(1);
+					for (int j = 0 ; j< second_layer_size ; ++j)
+						cp_model_builder.AddEquality(weights[0][i][j], 0);
+				}
+			}
+		else
+			std::cout << " \n c SETTING Weights to 0 doesn't work with one training example \n" << std::endl;
+
+		std::cout << " \n c " << count << " Weights on the first layer are fixed to 0" << std::endl;
+		std::cout << " d FIRST_LAYER_FIXED_WEIGHTS" << count << std::endl;
+
 	}
 
 
