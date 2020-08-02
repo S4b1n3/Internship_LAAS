@@ -524,7 +524,7 @@ public:
 			std::cout << " \n c SETTING Weights to 0 doesn't work with one training example \n" << std::endl;
 
 		std::cout << " \n c " << count << " Weights on the first layer are fixed to 0" << std::endl;
-		std::cout << " d FIRST_LAYER_FIXED_WEIGHTS" << count << std::endl;
+		std::cout << " d FIRST_LAYER_FIXED_WEIGHTS " << count << std::endl;
 
 	}
 
