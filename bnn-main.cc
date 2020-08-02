@@ -6,7 +6,8 @@
 #include "cp_maxclassification_model.h"
 #include "cp_maxclassification_model2.h"
 #include "cp_maxsum_weights_example_model.h"
-#include "cp_robust_model.h"
+//#include "cp_model.h"
+//#include "cp_robust_model.h"
 #include "evaluation.h"
 #include "tclap/CmdLine.h"
 
@@ -25,7 +26,17 @@ double _time;
 std::vector<int> architecture;
 int _nb_neurons;
 bool _prod_constraint;
+//This is no longer used : --> Remove it's usage
 std::string _strategy;
+//Use specific search strategy ?
+bool _search_strategy ;
+//Use layer per layer branching
+bool _per_layer_branching ;
+std::string _variable_heuristic ;
+std::string	_value_heuristic ;
+// Use automatic search ?
+int _automatic ;
+
 std::string _output_path;
 bool _check_solution;
 int _print_solution;
@@ -70,13 +81,15 @@ int main(int argc, char **argv) {
 	int status;
 
 
+	operations_research::sat::Search_parameters search (_search_strategy , _per_layer_branching , _variable_heuristic , _value_heuristic , _automatic) ;
+
 	switch (_index_model) {
 
 	case '0':
 	{
 	if (_input_file != "") {
 		operations_research::sat::CPModel_Satisfaction model(bnn_data, _prod_constraint, filename, _input_file);
-		model.run(_time, _strategy);
+		model.run(_time, search);
 		status = model.print_statistics(_check_solution, _strategy);
 		weights = std::move(model.get_weights_solution());
 		if (_print_solution)
@@ -84,7 +97,7 @@ int main(int argc, char **argv) {
 	} else {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_Satisfaction model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
-			model.run(_time, _strategy);
+			model.run(_time, search);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
 			if (_print_solution)
@@ -93,7 +106,7 @@ int main(int argc, char **argv) {
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_Satisfaction model(bnn_data, _nb_examples, _prod_constraint, filename);
-				model.run(_time, _strategy);
+				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 				if (_print_solution)
@@ -102,7 +115,7 @@ int main(int argc, char **argv) {
 			else{
 				std::cout << " c Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_Satisfaction model(bnn_data, 1, _prod_constraint, filename);
-				model.run(_time, _strategy);
+				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 
@@ -118,27 +131,27 @@ int main(int argc, char **argv) {
 	{
 		if (_input_file != "") {
 			operations_research::sat::CPModel_MinWeight model(bnn_data, _prod_constraint, filename, _input_file);
-			model.run(_time, _strategy);
+			model.run(_time, search);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
 		} else {
 			if (_nb_examples == 0 && _nb_examples_per_label != 0){
 				operations_research::sat::CPModel_MinWeight model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
-				model.run(_time, _strategy);
+				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 			 }
 			else{
 				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 					operations_research::sat::CPModel_MinWeight model(bnn_data, _nb_examples, _prod_constraint, filename);
-					model.run(_time, _strategy);
+					model.run(_time, search);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 				}
 				else{
 					std::cout << " c Invalid number of examples : default mode launched" << '\n';
 					operations_research::sat::CPModel_MinWeight model(bnn_data, 1, _prod_constraint, filename);
-					model.run(_time, _strategy);
+					model.run(_time, search);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 				}
@@ -150,7 +163,7 @@ int main(int argc, char **argv) {
 	{
 		if (_input_file != "") {
 			operations_research::sat::CPModel_MaxClassification model(bnn_data, _prod_constraint, filename, _input_file);
-			model.run(_time, _strategy);
+			model.run(_time, search);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
 			if (_print_solution)
@@ -158,7 +171,7 @@ int main(int argc, char **argv) {
 		} else {
 			if (_nb_examples == 0 && _nb_examples_per_label != 0){
 				operations_research::sat::CPModel_MaxClassification model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
-				model.run(_time, _strategy);
+				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 				if (_print_solution)
@@ -167,7 +180,7 @@ int main(int argc, char **argv) {
 			else{
 				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 					operations_research::sat::CPModel_MaxClassification model(bnn_data, _nb_examples, _prod_constraint, filename);
-					model.run(_time, _strategy);
+					model.run(_time, search);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 					if (_print_solution)
@@ -176,7 +189,7 @@ int main(int argc, char **argv) {
 				else{
 					std::cout << " c Invalid number of examples : default mode launched" << '\n';
 					operations_research::sat::CPModel_MaxClassification model(bnn_data, 1, _prod_constraint, filename);
-					model.run(_time, _strategy);
+					model.run(_time, search);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 					if (_print_solution)
@@ -190,7 +203,7 @@ int main(int argc, char **argv) {
 	{
 		if (_input_file != "") {
 			operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _prod_constraint, filename, _input_file);
-			model.run(_time, _strategy);
+			model.run(_time, search);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
 			if (_print_solution)
@@ -198,7 +211,7 @@ int main(int argc, char **argv) {
 		} else {
 			if (_nb_examples == 0 && _nb_examples_per_label != 0){
 				operations_research::sat::CPModel_MaxClassification2 model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
-				model.run(_time, _strategy);
+				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 				if (_print_solution)
@@ -207,7 +220,7 @@ int main(int argc, char **argv) {
 			else{
 				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 					operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _nb_examples, _prod_constraint, filename);
-					model.run(_time, _strategy);
+					model.run(_time, search);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 					if (_print_solution)
@@ -216,7 +229,7 @@ int main(int argc, char **argv) {
 				else{
 					std::cout << " c Invalid number of examples : default mode launched" << '\n';
 					operations_research::sat::CPModel_MaxClassification2 model(bnn_data, 1, _prod_constraint, filename);
-					model.run(_time, _strategy);
+					model.run(_time, search);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 					if (_print_solution)
@@ -231,22 +244,24 @@ int main(int argc, char **argv) {
 	{
 		operations_research::sat::CPModel_MaxSum model(bnn_data, _nb_examples, _prod_constraint, filename);
 		std::cout<<std::endl<<std::endl;
-		model.run(_time ,  _strategy) ;
+		model.run(_time ,  search) ;
 		status = model.print_statistics(_check_solution, _strategy);
 		weights = std::move(model.get_weights_solution());
 		break;
 	}
 	case '5':
 	{
+		assert (false);
+		/*
 		if (_input_file != "") {
 			operations_research::sat::CPModel_Robust model(bnn_data, _prod_constraint, filename, _input_file);
-			model.run(_time, _strategy);
+			model.run(_time, search);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
 		} else {
 			if (_nb_examples == 0 && _nb_examples_per_label != 0){
 				operations_research::sat::CPModel_Robust model(_nb_examples_per_label, bnn_data, _prod_constraint, filename, _k);
-				model.run(_time, _strategy);
+				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
 			}
@@ -254,20 +269,21 @@ int main(int argc, char **argv) {
 			else{
 				if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 					operations_research::sat::CPModel_Robust model(bnn_data, _nb_examples, _prod_constraint, filename, _k);
-					model.run(_time, _strategy);
+					model.run(_time, search);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 				}
 				else{
 					std::cout << " c Invalid number of examples : default mode launched" << '\n';
 					operations_research::sat::CPModel_Robust model(bnn_data, 1, _prod_constraint, filename, _k);
-					model.run(_time, _strategy);
+					model.run(_time, search);
 					status = model.print_statistics(_check_solution, _strategy);
 					weights = std::move(model.get_weights_solution());
 				}
 			}
 		}
 		break;
+		*/
 	}
 	default:
 	{
@@ -391,8 +407,24 @@ void parseOptions(int argc, char** argv){
 		SwitchArg eval("F","evaluation", "indicates if the evaluation on the testing and training sets has to be done", false);
 		cmd.add(eval);
 
-		ValueArg<std::string> search_strategy("D", "strategy", "The search strategy", false, "default", "string");
+		//Search parameters:
+		SwitchArg search_strategy("D", "specific_strategy", "Use a specific search strategy", false);
 		cmd.add(search_strategy);
+
+		SwitchArg per_layer_branching("B", "per_layer", "branch per layer", false);
+		cmd.add(per_layer_branching);
+
+
+		ValueArg<std::string> variable_heuristic("H", "var_heuristic", "variable heuristic: lex, min_domain, none", false, "none", "string");
+		cmd.add(variable_heuristic);
+
+		ValueArg<std::string> value_heuristic("G", "value_heuristic", "value heuristic: max, min, median, none ", false, "none", "string");
+		cmd.add(value_heuristic);
+
+		ValueArg<int> automatic("J", "automatic", "level of automatic search: 0,1,2 ", false, 0, "double");
+		cmd.add(automatic);
+
+		//END OF SEARCH Arguments
 
 		ValueArg<std::string> out_file("O", "output_file", "Path of the output file", false, "BNN", "string");
 		cmd.add(out_file);
@@ -414,7 +446,31 @@ void parseOptions(int argc, char** argv){
 		_k = param_k.getValue();
 		_time = time.getValue();
 		_prod_constraint = bool_prod.getValue();
-		_strategy =search_strategy.getValue();
+
+
+		//Search parameters
+		_search_strategy = search_strategy.getValue();
+		_per_layer_branching = per_layer_branching.getValue();
+		_variable_heuristic = variable_heuristic.getValue();
+		_value_heuristic = value_heuristic.getValue();
+		_automatic = automatic.getValue() ;
+
+		//_strategy is no longer used
+		if (!_search_strategy)
+			_strategy = "default" ;
+		else{
+		//_strategy = std::to_string(_search_strategy);
+		_strategy = std::to_string (_per_layer_branching) ;
+		_strategy.append("-") ;
+		_strategy.append(_variable_heuristic) ;
+		_strategy.append("-") ;
+		_strategy.append(_value_heuristic) ;
+		_strategy.append("-") ;
+		_strategy.append(std::to_string (_automatic)) ;
+		}
+
+		std::cout << " c _strategy is : " << _strategy << std::endl;
+
 		_output_path = out_file.getValue();
 		_input_file = in_file.getValue();
 		_check_solution = check_sol.getValue();

@@ -58,6 +58,24 @@ void print_vector(const std::vector<uint8_t>& vecteur){
 }
 
 
+//The different parameters of a search strategy
+class Search_parameters {
+
+public :
+	//Use a specific search strategy (i.e. non default)
+	bool _search_strategy ;
+	//Use layer per layer branching
+	bool _per_layer_branching ;
+	std::string _variable_heuristic ;
+	std::string	_value_heuristic ;
+	// Use automatic search ?
+	int _automatic ;
+	Search_parameters ( bool s, bool p, std::string var, std::string val, int a) :
+		_search_strategy(s), _per_layer_branching(p) ,  _variable_heuristic (var) , _value_heuristic (val), _automatic(a) {
+	}
+};
+
+
 class CP_Model {
 
 	/* CPModel_MinWeight contains the constraint programming model for the full classification and minweight problem
@@ -92,7 +110,7 @@ protected:
 
 	std::vector<std::vector<uint8_t>> inputs;
 	std::vector<int> labels;
-  std::vector<int> idx_examples;
+	std::vector<int> idx_examples;
 
 	//weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
 	std::vector<std::vector <std::vector<IntVar>>> weights;
@@ -151,7 +169,7 @@ public:
 		for (size_t i = 0; i < nb_examples; i++) {
 			inputs[i] = bnn_data->get_dataset().training_images[index_rand+i];
 			labels[i] = (int)bnn_data->get_dataset().training_labels[index_rand+i];
-      idx_examples.push_back(index_rand+i);
+			idx_examples.push_back(index_rand+i);
 		}
 	}
 
@@ -178,7 +196,7 @@ public:
 				if(occ[label] < _nb_examples_per_label){
 					inputs.push_back(bnn_data->get_dataset().training_images[index_rand]);
 					labels.push_back(label);
-          idx_examples.push_back(index_rand);
+					idx_examples.push_back(index_rand);
 					compt_ex++;
 					occ[label]++;
 				}
@@ -200,7 +218,7 @@ public:
 		for (const int &i : _indexes_examples) {
 			inputs.push_back(bnn_data->get_dataset().training_images[i]);
 			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
-      idx_examples.push_back(i);
+			idx_examples.push_back(i);
 		}
 	}
 
@@ -230,14 +248,14 @@ public:
 					}
 					inputs.push_back(temp_int);
 				}
-        if (line.substr(0, 8) == "INDEXES "){
-          std::string temp_line = line.substr(8);
-          std::vector<std::string> temp;
+				if (line.substr(0, 8) == "INDEXES "){
+					std::string temp_line = line.substr(8);
+					std::vector<std::string> temp;
 					split(temp_line, temp, ' ');
-          for (size_t i = 0; i < temp.size(); i++) {
+					for (size_t i = 0; i < temp.size(); i++) {
 						idx_examples.push_back(std::stoi(temp[i].c_str()));
 					}
-        }
+				}
 			}
 		} else {
 			std::cout << "Error oppening input file" << '\n';
@@ -270,14 +288,14 @@ public:
 					}
 					inputs.push_back(temp_int);
 				}
-        if (line.substr(0, 8) == "INDEXES "){
-          std::string temp_line = line.substr(8);
-          std::vector<std::string> temp;
+				if (line.substr(0, 8) == "INDEXES "){
+					std::string temp_line = line.substr(8);
+					std::vector<std::string> temp;
 					split(temp_line, temp, ' ');
-          for (size_t i = 0; i < temp.size(); i++) {
+					for (size_t i = 0; i < temp.size(); i++) {
 						idx_examples.push_back(std::stoi(temp[i].c_str()));
 					}
-        }
+				}
 			}
 		} else {
 			std::cout << "Error oppening dataset file" << '\n';
@@ -288,43 +306,43 @@ public:
 			std::string line;
 			std::vector<int> architecture;
 
-	    while (std::getline(solution_file, line)){
-	      if (line.substr(0, 6) == "ARCHI ") {
+			while (std::getline(solution_file, line)){
+				if (line.substr(0, 6) == "ARCHI ") {
 					std::string temp;
-	        for (size_t i = 6; i < line.size(); i++) {
-	          if (line[i] != ' ') {
-	            temp += line[i];
-	          }
-	          if (line[i] == ' ') {
-	            architecture.push_back(std::stoi(temp));
-	            temp = "";
-	          }
-	        }
-	      }
-	      if (line.substr(0, 8) == "WEIGHTS ") {
-	        int index_str = 8;
-	        weights_check.resize(architecture.size());
-	        for (size_t l = 1; l < architecture.size(); l++) {
-	          weights_check[l-1].resize(architecture[l-1]);
-	          for (size_t i = 0; i < architecture[l-1]; i++) {
-	            weights_check[l-1][i].resize(architecture[l]);
-	            for (size_t j = 0; j < architecture[l]; j++) {
+					for (size_t i = 6; i < line.size(); i++) {
+						if (line[i] != ' ') {
+							temp += line[i];
+						}
+						if (line[i] == ' ') {
+							architecture.push_back(std::stoi(temp));
+							temp = "";
+						}
+					}
+				}
+				if (line.substr(0, 8) == "WEIGHTS ") {
+					int index_str = 8;
+					weights_check.resize(architecture.size());
+					for (size_t l = 1; l < architecture.size(); l++) {
+						weights_check[l-1].resize(architecture[l-1]);
+						for (size_t i = 0; i < architecture[l-1]; i++) {
+							weights_check[l-1][i].resize(architecture[l]);
+							for (size_t j = 0; j < architecture[l]; j++) {
 								if (line[index_str] == '-') {
 									weights_check[l-1][i][j] = -1;
 									index_str += 3;
 								}
 								else {
 									weights_check[l-1][i][j] = line[index_str] - '0';
-		              index_str += 2;
+									index_str += 2;
 								}
-	            }
-	          }
-	        }
-	      }
-	    }
-	  } else {
-	    std::cout << "Error oppening solution file" << '\n';
-	  }
+							}
+						}
+					}
+				}
+			}
+		} else {
+			std::cout << "Error oppening solution file" << '\n';
+		}
 	}
 
 	/* Getters */
@@ -399,7 +417,7 @@ public:
 
 		int sum_image = 0;
 		for(std::vector<uint8_t>::iterator it = inputs[index_example].begin(); it != inputs[index_example].end(); ++it)
-	    sum_image += (int)*it;
+			sum_image += (int)*it;
 
 		int tmp = bnn_data->get_layers()-1;
 		preactivation[index_example].resize(tmp);
@@ -462,7 +480,7 @@ public:
 				int tmp3 = bnn_data->get_archi(l);
 				weights[l-1][i].resize(tmp3);
 				if (prod_constraint && (l>=2))
-						weight_is_0[l-2][i].resize(tmp3);
+					weight_is_0[l-2][i].resize(tmp3);
 				for (size_t j = 0; j < tmp3; j++) {
 
 					/*One weight for each connection between the neurons i of layer
@@ -626,14 +644,14 @@ public:
 
 					 */
 
-//					BoolVar b1 = cp_model_builder.NewBoolVar();
+					//					BoolVar b1 = cp_model_builder.NewBoolVar();
 					//std::cout << " HERE " << std::endl;
 					// Implement b1 == (temp[i] == 0)
 					cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(get_weight_is_0_ilj (i,l,j));
 					cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf(Not(get_weight_is_0_ilj (i,l,j) ) );
 					//Implement b1 == (weights == 0)
-//					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b1);
-//					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), 0).OnlyEnforceIf(Not(b1));
+					//					cp_model_builder.AddEquality(get_w_ilj(i, l, j), 0).OnlyEnforceIf(b1);
+					//					cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), 0).OnlyEnforceIf(Not(b1));
 
 					BoolVar b3 = cp_model_builder.NewBoolVar();
 
@@ -654,7 +672,107 @@ public:
 	virtual void model_output_constraint(const int &index_examples) = 0;
 
 
+	void set_porto_heuristic( DecisionStrategyProto* proto , std::string variable_heuristic,
+			std::string value_heuristic){
+		if (variable_heuristic == "lex")
+			proto->set_variable_selection_strategy(DecisionStrategyProto::CHOOSE_FIRST);
+		else if  (variable_heuristic == "min_domain")
+			proto->set_variable_selection_strategy(DecisionStrategyProto::CHOOSE_MIN_DOMAIN_SIZE);
+		else
+			assert (variable_heuristic == "none") ;
 
+			if (value_heuristic == "max")
+				proto->set_domain_reduction_strategy(DecisionStrategyProto::SELECT_MAX_VALUE);
+			else if  (value_heuristic == "min")
+				proto->set_domain_reduction_strategy(DecisionStrategyProto::SELECT_MIN_VALUE);
+			else if  (value_heuristic == "median")
+				proto->set_domain_reduction_strategy(DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+			else
+				assert (value_heuristic == "none");
+	}
+
+	void setup_branching( bool branch_per_layer,  std::string variable_heuristic,
+			std::string value_heuristic, int automatic ){
+		std::cout << " c setting specific branching :  "
+				<< " branch_per_layer : "
+				<< " var : " << variable_heuristic
+				<< " val : " << value_heuristic
+				<< " automatic " << automatic <<	std::endl;
+		decision_variables_size = cp_model_builder.Build().variables_size() ;
+
+		std::vector<IntVar> w;
+		std::vector<std::vector<IntVar>> w_level;
+
+		if (branch_per_layer){
+			int nb_layers = bnn_data->get_layers();
+			w_level.resize(nb_layers -1) ;
+			int count  = 0 ;
+			for (size_t l = 1; l < nb_layers; l++){
+				int current  = bnn_data->get_archi(l);
+				int previous = bnn_data->get_archi(l-1);
+				for(size_t i = 0; i < previous; i++){
+					for (size_t j = 0; j < current; j++){
+						//Todo :  later removed fixed weights
+						w_level[l-1].push_back( weights[l-1][i][j] );
+						++count;
+					}
+				}
+			}
+			decision_variables_size = count ;
+		}
+		else{
+			int nb_layers = bnn_data->get_layers();
+			for (size_t l = 1; l < nb_layers; l++){
+
+				int current = bnn_data->get_archi(l);
+				int previous = bnn_data->get_archi(l-1);
+				for(size_t i = 0; i < previous; i++){
+					for (size_t j = 0; j < current; j++){
+						//Todo :  later removed fixed weights
+						w.push_back( weights[l-1][i][j] );
+					}
+				}
+			}
+			decision_variables_size = w.size();
+		}
+		//std::vector<IntVar> reverse_w(w);
+		//std::reverse(std::begin(reverse_w), std::end(reverse_w));
+		std::cout << " c number of branching variables is "  << decision_variables_size  << std::endl;
+		CpModelProto* cp_model_ = cp_model_builder.MutableProto() ;
+		if (branch_per_layer){
+			//Branch per layer
+			for (int i =0; i < w_level.size() ; ++i){
+				DecisionStrategyProto* proto ;
+				proto = cp_model_->add_search_strategy();
+				for (const IntVar& var : w_level[i]) {
+					proto->add_variables(var.index());
+				}
+				set_porto_heuristic(proto, variable_heuristic, value_heuristic);
+			}
+		}
+		else {
+			//Branch on all weight variables
+			DecisionStrategyProto* proto ;
+			proto = cp_model_->add_search_strategy();
+			for (const IntVar& var : w) {
+				proto->add_variables(var.index());
+			}
+			set_porto_heuristic(proto, variable_heuristic, value_heuristic);
+		}
+
+		if (automatic >0)
+			parameters.set_search_branching(SatParameters::AUTOMATIC_SEARCH );
+		if (automatic >1)
+		{
+			parameters.set_interleave_search(true);
+			parameters.set_reduce_memory_usage_in_interleave_mode(true);
+		}
+	}
+
+
+
+	// This is no longer used!
+	/*
 	void setup_branching(std::string strategy){
 		std::cout << " c setting branching :  "  <<  strategy << std::endl;
 		decision_variables_size = cp_model_builder.Build().variables_size() ;
@@ -926,13 +1044,14 @@ public:
 		}
 	}
 
+	*/
 	/* run method
         This function calls all the necessary methods to run the solver
         Parameters :
         - nb_seconds : Sets a time limit of nb_seconds
         Output : None
 	 */
-	virtual void run(const double &nb_seconds, std::string _strategy){
+	virtual void run(const double &nb_seconds, Search_parameters search){
 		std::cout<< " c declare variables and constraints " <<std::endl;
 
 		std::clock_t c_start = std::clock();
@@ -962,7 +1081,11 @@ public:
 			model_output_constraint(i);
 		}
 		model_declare_objective() ;                 //initialization of the objective
-		setup_branching(_strategy) ;
+		decision_variables_size = cp_model_builder.Build().variables_size() ;
+		if (search._search_strategy)
+			setup_branching(search._per_layer_branching, search._variable_heuristic,
+					search._value_heuristic, search._automatic);
+		//setup_branching(_strategy) ;
 		parameters.set_max_time_in_seconds(nb_seconds);     //Add a timelimit
 		parameters.set_random_seed(1000);
 		model.Add(NewSatParameters(parameters));                       //objective function

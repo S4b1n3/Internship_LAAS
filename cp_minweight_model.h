@@ -150,8 +150,8 @@ namespace operations_research{
       - nb_seconds : Sets a time limit of nb_seconds
       Output : None
       */
-      void run(const double &nb_seconds , std::string _strategy){
-        CP_Model::run(nb_seconds,_strategy);
+      void run(const double &nb_seconds ,Search_parameters search){
+        CP_Model::run(nb_seconds,search);
         cp_model_builder.Minimize(objectif);                        //objective function
       }
 

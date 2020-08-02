@@ -173,9 +173,9 @@ namespace operations_research{
       - nb_seconds : Sets a time limit of nb_seconds
       Output : None
       */
-      void run(const double &nb_seconds ,  std::string _strategy){
+      void run(const double &nb_seconds , Search_parameters search){
         declare_sum_variable();
-        CPModel_MaxClassification::run(nb_seconds, _strategy);
+        CPModel_MaxClassification::run(nb_seconds, search);
       }
 
     };
