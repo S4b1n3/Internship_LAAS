@@ -49,8 +49,6 @@ std::string _input_file;
 std::vector<std::vector<std::vector<int>>> weights_temp;
 
 void parseOptions(int argc, char** argv);
-int rand_a_b(int a, int b);
-bool fexists(const std::string& filename);
 
 
 int main(int argc, char **argv) {
@@ -79,33 +77,6 @@ int main(int argc, char **argv) {
 	std::string cmd("mkdir -p "+filename);
 	system(cmd.c_str());
 
-  if(!fexists(_sol_path)){
-    std::cout << " c creating solution" << '\n';
-    std::ofstream solution(_sol_path.c_str(), std::ios::out);
-
-    solution << "ARCHI ";
-    for (size_t i = 0; i < architecture.size(); i++) {
-      solution << architecture[i] << " ";
-    }
-    solution << std::endl;
-    solution << "WEIGHTS ";
-
-    int tmp = architecture.size()-1;
-  	weights_temp.resize(tmp);
-  	for (size_t i = 1; i < tmp+1; i++) {
-  		int tmp2 = architecture[i-1];
-  		weights_temp[i-1].resize(tmp2);
-  		for (size_t j = 0; j < tmp2; j++) {
-  			int tmp3 = architecture[i];
-  			weights_temp[i-1][j].resize(tmp3);
-  			for (size_t k = 0; k < tmp3; k++) {
-  				weights_temp[i-1][j][k] = rand_a_b(-1,1);
-          solution << weights_temp[i-1][j][k] << " ";
-  			}
-  		}
-  	}
-  }
-
 
 	filename.append("/results_"+_strategy+".stat");
 
@@ -125,7 +96,7 @@ int main(int argc, char **argv) {
       if (_sol_path != "solution" && _data_path != "dataset") {
         if(!fexists(_data_path)){
             std::cout << " c creating dataset" << '\n';
-            correct(_data_path, _sol_path);
+            correct(_data_path, _sol_path, architecture);
         }
         operations_research::sat::CPModel_Satisfaction model(bnn_data, _prod_constraint, filename, _data_path, _sol_path);
         model.run(_time, search);
@@ -152,7 +123,7 @@ int main(int argc, char **argv) {
       if (_sol_path != "solution" && _data_path != "dataset") {
         if(!fexists(_data_path)){
             std::cout << " c creating dataset" << '\n';
-            correct(_data_path, _sol_path);
+            correct(_data_path, _sol_path, architecture);
         }
         operations_research::sat::CPModel_MinWeight model(bnn_data, _prod_constraint, filename, _data_path, _sol_path);
         model.run(_time, search);
@@ -179,7 +150,7 @@ int main(int argc, char **argv) {
       if (_sol_path != "solution" && _data_path != "dataset") {
         if(!fexists(_data_path)){
             std::cout << " c creating dataset" << '\n';
-            correct(_data_path, _sol_path);
+            correct(_data_path, _sol_path, architecture);
         }
         operations_research::sat::CPModel_MaxClassification model(bnn_data, _prod_constraint, filename, _data_path, _sol_path);
         model.run(_time, search);
@@ -206,7 +177,7 @@ int main(int argc, char **argv) {
       if (_sol_path != "solution" && _data_path != "dataset") {
         if(!fexists(_data_path)){
             std::cout << " c creating dataset" << '\n';
-            correct(_data_path, _sol_path);
+            correct(_data_path, _sol_path, architecture);
         }
         operations_research::sat::CPModel_MaxClassification2 model(bnn_data, _prod_constraint, filename, _data_path, _sol_path);
         model.run(_time, search);
@@ -281,15 +252,6 @@ int main(int argc, char **argv) {
 
   delete bnn_data;
   return EXIT_SUCCESS;
-}
-
-int rand_a_b(int a, int b){
-	return rand()%((b-a)+1)+a;
-}
-
-bool fexists(const std::string& filename) {
-  std::ifstream ifile(filename.c_str());
-  return (bool)ifile;
 }
 
 void parseOptions(int argc, char** argv){

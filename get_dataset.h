@@ -30,6 +30,15 @@ void split(const std::string& str, Container& cont, char delim = ' ')
     }
 }
 
+int rand_a_b(int a, int b){
+	return rand()%((b-a)+1)+a;
+}
+
+bool fexists(const std::string& filename) {
+  std::ifstream ifile(filename.c_str());
+  return (bool)ifile;
+}
+
 void per_label(const int &nb_examples_per_label, const std::string &path, const int &index_file) {
   Data *bnn_data = new Data();
   int nb_examples = 10*nb_examples_per_label;
@@ -47,12 +56,6 @@ void per_label(const int &nb_examples_per_label, const std::string &path, const 
       int label = (int)bnn_data->get_dataset().training_labels[index_rand];
       if(occ[label] < nb_examples_per_label){
         idx_examples.push_back(index_rand);
-        file << "LABEL " << label << std::endl;
-        file << "IMAGE ";
-        for (size_t i = 0; i < 784; i++) {
-          file << (int)bnn_data->get_dataset().training_images[index_rand][i] << " ";
-        }
-        file<<std::endl;
         compt_ex++;
         occ[label]++;
       }
@@ -70,98 +73,93 @@ void per_label(const int &nb_examples_per_label, const std::string &path, const 
 void random(const int &nb_examples, const std::string &path, const int &index_file) {
   Data *bnn_data = new Data();
   int index_rand = rand()%(60000-nb_examples);
-  std::vector<int> idx_examples;
   std::string output_path = path+"/random_"+std::to_string(nb_examples)+"_"+std::to_string(index_file)+".data";
   std::ofstream file(output_path.c_str(), std::ios::out);
-  for (size_t i = 0; i < nb_examples; i++) {
-    int label = (int)bnn_data->get_dataset().training_labels[index_rand+i];
-    idx_examples.push_back(index_rand+i);
-    file << "LABEL " << label << std::endl;
-    file << "IMAGE ";
-    for (size_t j = 0; j < 784; j++) {
-      file << (int)bnn_data->get_dataset().training_images[index_rand+i][j] << " ";
-    }
-    file<<std::endl;
-  }
   file << "INDEXES ";
-  for (size_t i = 0; i < idx_examples.size(); i++) {
-    file << idx_examples[i] << " ";
+  for (size_t i = 0; i < nb_examples; i++) {
+    file << index_rand+i << " ";
   }
   file << std::endl;
   file.close();
   delete bnn_data;
 }
 
-void correct(const std::string &output_file, const std::string &_input_file) {
+void correct(const std::string &_output_file, const std::string &_input_file, const std::vector<int> &_architecture) {
   std::ifstream input_file(_input_file.c_str());
-
-  std::vector<int> architecture;
-  std::vector<int> idx_examples;
   std::vector<std::vector<std::vector<int>>> weights;
-  if(input_file){
-    std::string line;
+  std::ofstream file(_output_file.c_str(), std::ios::out);
 
-    while (std::getline(input_file, line)){
-      if (line.substr(0, 6) == "ARCHI ") {
-        std::string temp;
-        for (size_t i = 6; i < line.size(); i++) {
-          if (line[i] != ' ') {
-            temp += line[i];
-          }
-          if (line[i] == ' ') {
-            architecture.push_back(std::stoi(temp));
-            temp = "";
-          }
-        }
-      }
-      if (line.substr(0, 8) == "WEIGHTS ") {
-        int index_str = 8;
-        weights.resize(architecture.size());
-        for (size_t l = 1; l < architecture.size(); l++) {
-          weights[l-1].resize(architecture[l-1]);
-          for (size_t i = 0; i < architecture[l-1]; i++) {
-            weights[l-1][i].resize(architecture[l]);
-            for (size_t j = 0; j < architecture[l]; j++) {
-              if (line[index_str] == '-') {
-                weights[l-1][i][j] = -1;
-                index_str += 3;
-              }
-              else {
-                weights[l-1][i][j] = line[index_str] - '0';
-                index_str += 2;
+  if(!fexists(_input_file)){
+    std::cout << " c creating solution" << '\n';
+    std::ofstream solution(_input_file.c_str(), std::ios::out);
+
+
+    solution << "ARCHI ";
+    for (size_t i = 0; i < _architecture.size(); i++) {
+      solution << _architecture[i] << " ";
+    }
+    solution << std::endl;
+    solution << "WEIGHTS ";
+
+    int tmp = _architecture.size()-1;
+  	weights.resize(tmp);
+  	for (size_t i = 1; i < tmp+1; i++) {
+  		int tmp2 = _architecture[i-1];
+  		weights[i-1].resize(tmp2);
+  		for (size_t j = 0; j < tmp2; j++) {
+  			int tmp3 = _architecture[i];
+  			weights[i-1][j].resize(tmp3);
+  			for (size_t k = 0; k < tmp3; k++) {
+  				weights[i-1][j][k] = rand_a_b(-1,1);
+          solution << weights[i-1][j][k] << " ";
+  			}
+  		}
+  	}
+  }else {
+    if(input_file){
+      std::string line;
+
+      while (std::getline(input_file, line)){
+        if (line.substr(0, 8) == "WEIGHTS ") {
+          int index_str = 8;
+          weights.resize(_architecture.size());
+          for (size_t l = 1; l < _architecture.size(); l++) {
+            weights[l-1].resize(_architecture[l-1]);
+            for (size_t i = 0; i < _architecture[l-1]; i++) {
+              weights[l-1][i].resize(_architecture[l]);
+              for (size_t j = 0; j < _architecture[l]; j++) {
+                if (line[index_str] == '-') {
+                  weights[l-1][i][j] = -1;
+                  index_str += 3;
+                }
+                else {
+                  weights[l-1][i][j] = line[index_str] - '0';
+                  index_str += 2;
+                }
               }
             }
           }
         }
       }
+    } else {
+      std::cout << "Error oppening input file : " << _input_file << '\n';
     }
-  } else {
-    std::cout << "Error oppening input file" << '\n';
   }
 
+
   std::vector<int> correct_examples;
-  Data *bnn_data = new Data (architecture);
+  Data *bnn_data = new Data (_architecture);
   Evaluation test(weights, bnn_data);
   correct_examples = test.get_correct_examples(false);
 
-  std::ofstream file(output_file.c_str(), std::ios::out);
 
-  for(const auto &i : correct_examples){
-    int label = (int)bnn_data->get_dataset().training_labels[i];
-    idx_examples.push_back(i);
-    file << "LABEL " << label << std::endl;
-    file << "IMAGE ";
-    for (size_t j = 0; j < 784; j++) {
-      file << (int)bnn_data->get_dataset().training_images[i][j] << " ";
-    }
-    file<<std::endl;
-  }
   file << "INDEXES ";
-  for (size_t i = 0; i < idx_examples.size(); i++) {
-    file << idx_examples[i] << " ";
+  for(const auto &i : correct_examples){
+    file << i << " ";
   }
   file << std::endl;
   file.close();
+  std::cout << " c nb correct examples : " << correct_examples.size() << '\n';
   delete bnn_data;
 }
 

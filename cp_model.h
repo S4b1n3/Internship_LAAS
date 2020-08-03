@@ -238,16 +238,6 @@ public:
 					labels.push_back(std::stoi(line.substr(6)));
 					nb_examples++;
 				}
-				if (line.substr(0, 6)=="IMAGE ") {
-					std::string temp_line = line.substr(6);
-					std::vector<std::string> temp;
-					split(temp_line, temp, ' ');
-					std::vector<uint8_t> temp_int;
-					for (size_t i = 0; i < temp.size(); i++) {
-						temp_int.push_back((uint8_t)atoi(temp[i].c_str()));
-					}
-					inputs.push_back(temp_int);
-				}
 				if (line.substr(0, 8) == "INDEXES "){
 					std::string temp_line = line.substr(8);
 					std::vector<std::string> temp;
@@ -258,8 +248,14 @@ public:
 				}
 			}
 		} else {
-			std::cout << "Error oppening input file" << '\n';
+			std::cout << "Error oppening input file : " << _input_file << '\n';
 		}
+
+    for(const int &i : idx_examples){
+      inputs.push_back(bnn_data->get_dataset().training_images[i]);
+			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
+    }
+
 	}
 
 	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
@@ -278,16 +274,6 @@ public:
 					labels.push_back(std::stoi(line.substr(6)));
 					nb_examples++;
 				}
-				if (line.substr(0, 6)=="IMAGE ") {
-					std::string temp_line = line.substr(6);
-					std::vector<std::string> temp;
-					split(temp_line, temp, ' ');
-					std::vector<uint8_t> temp_int;
-					for (size_t i = 0; i < temp.size(); i++) {
-						temp_int.push_back((uint8_t)atoi(temp[i].c_str()));
-					}
-					inputs.push_back(temp_int);
-				}
 				if (line.substr(0, 8) == "INDEXES "){
 					std::string temp_line = line.substr(8);
 					std::vector<std::string> temp;
@@ -298,8 +284,13 @@ public:
 				}
 			}
 		} else {
-			std::cout << "Error oppening dataset file" << '\n';
+			std::cout << "Error oppening dataset file " << _input_file << '\n';
 		}
+
+    for(const int &i : idx_examples){
+      inputs.push_back(bnn_data->get_dataset().training_images[i]);
+			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
+    }
 
 		std::ifstream solution_file(_solution_file.c_str());
 		if (solution_file) {

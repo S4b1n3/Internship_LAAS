@@ -62,29 +62,43 @@ public:
 
   std::vector<int> get_correct_examples(const bool &test_set = true){
     std::vector<int> indexes;
+    int size = 60000;
+	  if (test_set)
+		  size = 10000;
     checker.set_evaluation_config(false, false, true, true, test_set);
-    if (test_set) {
-      std::vector<int> occ(10, 0);
-      for (int i = 0; i < 10000; i++) {
-        int label = (int)bnn_data.get_dataset().test_labels[i];
-        if (checker.run_solution_light(i) && occ[label] == 0) {
-          indexes.push_back(i);
-          occ[label]++;
-        }
-      }
-    } else {
-      std::vector<int> occ(10, 0);
-      for (int i = 0; i < 60000; i++) {
-        int label = (int)bnn_data.get_dataset().training_labels[i];
-        if (checker.run_solution_light(i) && occ[label] == 0) {
-          indexes.push_back(i);
-          occ[label]++;
-        }
+
+    std::vector<int> occ(10, 0);
+    int label;
+
+    for (int i = 0; i < size; i++) {
+      if (checker.run_solution_light(i)) {
+        indexes.push_back(i);
+        occ[label]++;
       }
     }
-
     return indexes;
   }
+
+  /*
+  if (test_set)
+    label = (int)bnn_data.get_dataset().test_labels[i];
+  else
+    label = (int)bnn_data.get_dataset().training_labels[i];
+
+  if (occ[label] == 0) {
+    if (checker.run_solution_light(i)) {
+      indexes.push_back(i);
+      occ[label]++;
+    }
+  }
+  int compt = 0;
+  for (size_t j = 0; j < 10; j++) {
+    if(occ[j] == 0)
+      compt ++;
+  }
+  if(compt == 0)
+    break;
+  */
 
 
 };
