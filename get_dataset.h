@@ -30,14 +30,14 @@ void split(const std::string& str, Container& cont, char delim = ' ')
     }
 }
 
-void per_label(const int &nb_examples_per_label, const std::string &path) {
+void per_label(const int &nb_examples_per_label, const std::string &path, const int &index_file) {
   Data *bnn_data = new Data();
   int nb_examples = 10*nb_examples_per_label;
   int compt_ex = 0;
   std::vector<int> occ(10);
   std::vector<int> ind;
   std::vector<int> idx_examples;
-  std::string output_path = path+"/per_label_"+std::to_string(nb_examples_per_label)+".data";
+  std::string output_path = path+"/per_label_"+std::to_string(nb_examples_per_label)+"_"+std::to_string(index_file)+".data";
   std::ofstream file(output_path.c_str(), std::ios::out);
   while (compt_ex < nb_examples) {
     int index_rand = rand()%60000;
@@ -67,11 +67,11 @@ void per_label(const int &nb_examples_per_label, const std::string &path) {
   delete bnn_data;
 }
 
-void random(const int &nb_examples, const std::string &path) {
+void random(const int &nb_examples, const std::string &path, const int &index_file) {
   Data *bnn_data = new Data();
   int index_rand = rand()%(60000-nb_examples);
   std::vector<int> idx_examples;
-  std::string output_path = path+"/random_"+std::to_string(nb_examples)+".data";
+  std::string output_path = path+"/random_"+std::to_string(nb_examples)+"_"+std::to_string(index_file)+".data";
   std::ofstream file(output_path.c_str(), std::ios::out);
   for (size_t i = 0; i < nb_examples; i++) {
     int label = (int)bnn_data->get_dataset().training_labels[index_rand+i];

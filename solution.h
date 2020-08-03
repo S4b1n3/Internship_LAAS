@@ -374,10 +374,12 @@ public:
 	  //int size_current_layer = bnn_data->get_archi(nb_layers-1);
 
 	  int max_preactivation = last_preactivation[example_label] ;
+    int first_wrong_output;
 
 	  for (size_t i = 0; i < size_current_layer; i++) {
 		  if(last_preactivation[i]> max_preactivation)
 		  {
+        first_wrong_output = i;
 			  result = false;
 			  break;
 		  }
@@ -387,6 +389,8 @@ public:
 		  if (__verification_mode) {
 			  if(! result ){
 				  std::cout<<" \n v The output label does not correspond to the maximum preactivation "<<std::endl;
+				  std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
+          std::cout << " v First wrong activated neuron is " << first_wrong_output << '\n';
 			  }
 		  }
 	  }

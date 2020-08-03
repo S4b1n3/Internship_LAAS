@@ -17,22 +17,24 @@
 
 
 int main(int argc, char **argv) {
-    srand(time(NULL));
+    int seed = atoi(argv[3]);
+    srand(seed);
     const std::string path_folder("dataset");
 
     int sampling = atoi(argv[1]);
     int nb_ex = atoi(argv[2]);
+    int index = atoi(argv[3]);
 
     if (sampling == 1) {
-      per_label(nb_ex, path_folder);
+      per_label(nb_ex, path_folder, index);
     }
     else {
       if (sampling == 2) {
-        random(nb_ex, path_folder);
+        random(nb_ex, path_folder, index);
       }else{
         std::cout << "Please enter 1 to generate \"per_label\" sampling or 2 to generate \"pur random\" sampling" << '\n';
       }
     }
-    
+
     return 0;
 }
