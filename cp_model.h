@@ -106,6 +106,9 @@ protected:
 	Data bnn_data;
 	//Mohamed: Its is confusing to declare an object cp_model inside a class called Cp_model --> change this
 	CpModelBuilder cp_model_builder;
+
+  //const int initialization_mode;
+
 	int nb_examples;
 
 	std::vector<std::vector<uint8_t>> inputs;
@@ -156,6 +159,20 @@ public:
         The constructor initialize the data of the problem and the domain of the variables
         Call the constructor launch the method to solve the problem
 	 */
+
+
+   /*CP_Model(const Data &_data, const int &_mode, const bool &_prod_constraint):
+     domain(-1,1), activation_domain(Domain::FromValues({-1,1})),prod_constraint(_prod_constraint), initialization_mode(_mode){
+
+       bnn_data = _data;
+       std::cout << " c NUMBER OF LAYERS "<<bnn_data.get_layers() << '\n';
+       bnn_data.print_archi();
+       bnn_data.print_dataset();
+
+
+   }*/
+
+
 	CP_Model(Data _data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"),
 		file_out_extension(".tex"), nb_examples(_nb_examples), prod_constraint(_prod_constraint), output_path(_output_path){
@@ -241,6 +258,7 @@ public:
 					split(temp_line, temp, ' ');
 					for (size_t i = 0; i < temp.size(); i++) {
 						idx_examples.push_back(std::stoi(temp[i].c_str()));
+            nb_examples++;
 					}
 				}
 			}
@@ -275,6 +293,7 @@ public:
 					split(temp_line, temp, ' ');
 					for (size_t i = 0; i < temp.size(); i++) {
 						idx_examples.push_back(std::stoi(temp[i].c_str()));
+            nb_examples++;
 					}
 				}
 			}
@@ -354,6 +373,152 @@ public:
 	std::vector<std::vector <int>> get_activation_solution() const{
 		return activation_solution;
 	}
+
+  /*void init(const int &_nb_ex) {
+    switch (initialization_mode) {
+      case 1:{
+        nb_examples = _nb_ex;
+        index_rand = rand()%(60000-_nb_ex);
+    		inputs.resize(_nb_ex);
+    		labels.resize(_nb_ex);
+    		for (size_t i = 0; i < nb_examples; i++) {
+    			inputs[i] = bnn_data.get_dataset().training_images[index_rand+i];
+    			labels[i] = (int)bnn_data.get_dataset().training_labels[index_rand+i];
+    			idx_examples.push_back(index_rand+i);
+    		}
+        break;
+      }
+      case 2:{
+        nb_examples = _nb_ex*10;
+        int compt_ex = 0;
+    		std::vector<int> occ(10, 0);
+    		std::vector<int> ind;
+    		while (compt_ex < nb_examples) {
+    			index_rand = rand()%60000;
+    			auto it = std::find(std::begin(ind), std::end(ind), index_rand);
+    			if (it == ind.end()) {
+    				ind.push_back(index_rand);
+    				int label = (int)bnn_data.get_dataset().training_labels[index_rand];
+    				if(occ[label] < _nb_ex){
+    					inputs.push_back(bnn_data.get_dataset().training_images[index_rand]);
+    					labels.push_back(label);
+    					idx_examples.push_back(index_rand);
+    					compt_ex++;
+    					occ[label]++;
+    				}
+    			}
+    		}
+        break;
+      }
+    }
+  }
+
+  void init(const std::string &_input_file) {
+    switch (initialization_mode) {
+      case 3:{
+        nb_examples = 0;
+        std::ifstream input_file(_input_file);
+        if(input_file){
+          std::string line;
+          while (std::getline(input_file, line)){
+            if (line.substr(0, 8) == "INDEXES "){
+              std::string temp_line = line.substr(8);
+              std::vector<std::string> temp;
+              split(temp_line, temp, ' ');
+              for (size_t i = 0; i < temp.size(); i++) {
+                idx_examples.push_back(std::stoi(temp[i].c_str()));
+                nb_examples++;
+              }
+            }
+          }
+        } else {
+          std::cout << "Error oppening input file : " << _input_file << '\n';
+        }
+
+        for(const int &i : idx_examples){
+          inputs.push_back(bnn_data.get_dataset().training_images[i]);
+          labels.push_back((int)bnn_data.get_dataset().training_labels[i]);
+        }
+
+        std::cout << " c dataset size : " << inputs.size() << '\n';
+        break;
+      }
+      case 4 :{
+        check_model = true;
+        nb_examples = 0;
+
+        std::ifstream input_file(_input_file.c_str());
+    		if(input_file){
+    			std::string line;
+    			while (std::getline(input_file, line)){
+    				if (line.substr(0, 8) == "INDEXES "){
+    					std::string temp_line = line.substr(8);
+    					std::vector<std::string> temp;
+    					split(temp_line, temp, ' ');
+    					for (size_t i = 0; i < temp.size(); i++) {
+    						idx_examples.push_back(std::stoi(temp[i].c_str()));
+                nb_examples++;
+    					}
+    				}
+    			}
+    		} else {
+    			std::cout << "Error oppening dataset file " << _input_file << '\n';
+    		}
+
+        for(const int &i : idx_examples){
+          inputs.push_back(bnn_data.get_dataset().training_images[i]);
+    			labels.push_back((int)bnn_data.get_dataset().training_labels[i]);
+        }
+
+        size_t index;
+        index = _input_file.find_last_of("/");
+        std::string filename = _input_file.substr(0, index+1);
+        std::string _solution_file = filename+"solutions/solution_"+_input_file.substr(index+9, _input_file.size()-(index+14))+".sol";
+    		std::ifstream solution_file(_solution_file.c_str());
+    		if (solution_file) {
+    			std::string line;
+    			std::vector<int> architecture;
+
+    			while (std::getline(solution_file, line)){
+    				if (line.substr(0, 6) == "ARCHI ") {
+    					std::string temp;
+    					for (size_t i = 6; i < line.size(); i++) {
+    						if (line[i] != ' ') {
+    							temp += line[i];
+    						}
+    						if (line[i] == ' ') {
+    							architecture.push_back(std::stoi(temp));
+    							temp = "";
+    						}
+    					}
+    				}
+    				if (line.substr(0, 8) == "WEIGHTS ") {
+    					int index_str = 8;
+    					weights_check.resize(architecture.size());
+    					for (size_t l = 1; l < architecture.size(); l++) {
+    						weights_check[l-1].resize(architecture[l-1]);
+    						for (size_t i = 0; i < architecture[l-1]; i++) {
+    							weights_check[l-1][i].resize(architecture[l]);
+    							for (size_t j = 0; j < architecture[l]; j++) {
+    								if (line[index_str] == '-') {
+    									weights_check[l-1][i][j] = -1;
+    									index_str += 3;
+    								}
+    								else {
+    									weights_check[l-1][i][j] = line[index_str] - '0';
+    									index_str += 2;
+    								}
+    							}
+    						}
+    					}
+    				}
+    			}
+    		} else {
+    			std::cout << "Error oppening solution file" << '\n';
+    		}
+      }
+    }
+  }*/
 
 	/* declare_activation_variable method
         Parameters :
