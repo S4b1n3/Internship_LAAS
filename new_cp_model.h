@@ -122,6 +122,7 @@ namespace operations_research{
 
         void set_data(const int &_type_data, const int &_nb_examples){
             int index_rand;
+            check_model = false;
             switch (_type_data) {
                 case 1:{
                     nb_examples = _nb_examples;
@@ -155,6 +156,7 @@ namespace operations_research{
 
         void set_data(const std::string &_input_file){
             nb_examples = 0;
+            check_model = false;
             std::ifstream input_file(_input_file);
             std::vector<int> index_temp;
             if(input_file){
@@ -405,7 +407,7 @@ namespace operations_research{
 
         void declare_weight_variables() {
 
-            //Initialization of the variables
+            //Initialisation of the variables
             int nb_layers = bnn_data.get_layers();
             weights.resize(nb_layers-1);
             //std::cout << " c weight is fixed size is " << bnn_data.get_archi(nb_layers-1) << std::endl;

@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 		filename.append("_0");
 	}
 	std::string cmd("mkdir -p "+filename);
-	system(cmd.c_str());
+	int launch_cmd = system(cmd.c_str());
 	filename.append("/results_"+_strategy+".stat");
 
 	double accuracy_train, accuracy_test, accuracy_train_bis, accuracy_test_bis;
