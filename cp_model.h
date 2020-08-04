@@ -183,12 +183,8 @@ public:
 
 
 		index_rand = rand()%(60000-_nb_examples);
-		inputs.resize(nb_examples);
-		labels.resize(nb_examples);
 		for (size_t i = 0; i < nb_examples; i++) {
-			inputs[i] = bnn_data.get_dataset().training_images[index_rand+i];
-			labels[i] = (int)bnn_data.get_dataset().training_labels[index_rand+i];
-			idx_examples.push_back(index_rand+i);
+      init_dataset(index_rand+i);
 		}
 	}
 
@@ -212,9 +208,7 @@ public:
 				ind.push_back(index_rand);
 				int label = (int)bnn_data.get_dataset().training_labels[index_rand];
 				if(occ[label] < _nb_examples_per_label){
-					inputs.push_back(bnn_data.get_dataset().training_images[index_rand]);
-					labels.push_back(label);
-					idx_examples.push_back(index_rand);
+					init_dataset(index_rand);
 					compt_ex++;
 					occ[label]++;
 				}
@@ -234,9 +228,7 @@ public:
 		bnn_data.print_dataset();
 
 		for (const int &i : _indexes_examples) {
-			inputs.push_back(bnn_data.get_dataset().training_images[i]);
-			labels.push_back((int)bnn_data.get_dataset().training_labels[i]);
-			idx_examples.push_back(i);
+			init_dataset(i);
 		}
 	}
 
@@ -249,6 +241,7 @@ public:
 		bnn_data.print_dataset();
 
 		std::ifstream input_file(_input_file);
+    std::vector<int> index_temp;
 		if(input_file){
 			std::string line;
 			while (std::getline(input_file, line)){
@@ -257,7 +250,7 @@ public:
 					std::vector<std::string> temp;
 					split(temp_line, temp, ' ');
 					for (size_t i = 0; i < temp.size(); i++) {
-						idx_examples.push_back(std::stoi(temp[i].c_str()));
+						index_temp.push_back(std::stoi(temp[i].c_str()));
             nb_examples++;
 					}
 				}
@@ -266,9 +259,8 @@ public:
 			std::cout << "Error oppening input file : " << _input_file << '\n';
 		}
 
-    for(const int &i : idx_examples){
-      inputs.push_back(bnn_data.get_dataset().training_images[i]);
-			labels.push_back((int)bnn_data.get_dataset().training_labels[i]);
+    for(const int &i : index_temp){
+      init_dataset(i);
     }
 
     std::cout << " c dataset size : " << inputs.size() << '\n';
@@ -284,6 +276,7 @@ public:
 		bnn_data.print_dataset();
 
 		std::ifstream input_file(_input_file.c_str());
+    std::vector<int> index_temp;
 		if(input_file){
 			std::string line;
 			while (std::getline(input_file, line)){
@@ -292,7 +285,7 @@ public:
 					std::vector<std::string> temp;
 					split(temp_line, temp, ' ');
 					for (size_t i = 0; i < temp.size(); i++) {
-						idx_examples.push_back(std::stoi(temp[i].c_str()));
+						index_temp.push_back(std::stoi(temp[i].c_str()));
             nb_examples++;
 					}
 				}
@@ -301,9 +294,8 @@ public:
 			std::cout << "Error oppening dataset file " << _input_file << '\n';
 		}
 
-    for(const int &i : idx_examples){
-      inputs.push_back(bnn_data.get_dataset().training_images[i]);
-			labels.push_back((int)bnn_data.get_dataset().training_labels[i]);
+    for(const int &i : index_temp){
+      init_dataset(i);
     }
 
 		std::ifstream solution_file(_solution_file.c_str());
@@ -373,6 +365,12 @@ public:
 	std::vector<std::vector <int>> get_activation_solution() const{
 		return activation_solution;
 	}
+
+  void init_dataset(const int &index) {
+    inputs.push_back(bnn_data.get_dataset().training_images[index]);
+    labels.push_back((int)bnn_data.get_dataset().training_labels[index]);
+    idx_examples.push_back(index);
+  }
 
   /*void init(const int &_nb_ex) {
     switch (initialization_mode) {
