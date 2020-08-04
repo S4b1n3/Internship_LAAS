@@ -616,7 +616,7 @@ public:
 		//Initialization of the variables
 		int nb_layers = bnn_data.get_layers();
 		weights.resize(nb_layers-1);
-		std::cout << " weight is fixed size is " << bnn_data.get_archi(nb_layers-1) << std::endl;
+		//std::cout << " c weight is fixed size is " << bnn_data.get_archi(nb_layers-1) << std::endl;
 		//We use weight_is_0 only for all layers exept the first one (the pre-activation constraints from layer  0 et 0 use a linear constraint).
 		if (prod_constraint)
 			weight_is_0.resize(nb_layers-2);
