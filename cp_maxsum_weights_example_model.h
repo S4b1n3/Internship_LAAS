@@ -44,26 +44,26 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_MaxSum(Data *_data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
+      CPModel_MaxSum(Data _data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
                         CPModel_MaxClassification(_data, _nb_examples, _prod_constraint, _output_path){
       }
 
-      CPModel_MaxSum(const int &_nb_examples_per_label, Data *_data, const bool _prod_constraint, const std::string &_output_path):
+      CPModel_MaxSum(const int &_nb_examples_per_label, Data _data, const bool _prod_constraint, const std::string &_output_path):
                         CPModel_MaxClassification(_nb_examples_per_label, _data, _prod_constraint, _output_path){
 
       }
 
-      CPModel_MaxSum(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
+      CPModel_MaxSum(Data _data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
                       CPModel_MaxClassification(_data, _prod_constraint, _output_path, _weights, _indexes_examples){
 
       }
 
-      CPModel_MaxSum(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
+      CPModel_MaxSum(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
                       CPModel_MaxClassification(_data, _prod_constraint, _output_path, _input_file){
 
       }
 
-      CPModel_MaxSum(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
+      CPModel_MaxSum(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
                       CPModel_MaxClassification(_data, _prod_constraint, _output_path, _input_file, _solution_file){
 
       }
@@ -77,16 +77,16 @@ namespace operations_research{
         sum_weights_example.resize(nb_examples);
         temp_objective.resize(nb_examples);
         for (size_t i = 0; i < nb_examples; i++) {
-          sum_weights_example[i] = cp_model_builder.NewIntVar(Domain(-255*bnn_data->get_archi(0),255*bnn_data->get_archi(0)));
-          temp_objective[i] = cp_model_builder.NewIntVar(Domain(-255*bnn_data->get_archi(0),255*bnn_data->get_archi(0)));
+          sum_weights_example[i] = cp_model_builder.NewIntVar(Domain(-255*bnn_data.get_archi(0),255*bnn_data.get_archi(0)));
+          temp_objective[i] = cp_model_builder.NewIntVar(Domain(-255*bnn_data.get_archi(0),255*bnn_data.get_archi(0)));
         }
       }
 
       /* model_preactivation_constraint method
       Parameters :
       - index_example : index of the example to classifie
-      - l : layer \in [1, bnn_data->get_layers()-1]
-      - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
+      - l : layer \in [1, bnn_data.get_layers()-1]
+      - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
       Output : None
       Redefinition of the method in class cp_model in order to get the term of weights and
       activation values on the first layer instead of compute it again
@@ -95,13 +95,13 @@ namespace operations_research{
         /*assert(index_example>=0);
         assert(index_example<nb_examples);
         assert(l>0);
-        assert(l<bnn_data->get_layers());
+        assert(l<bnn_data.get_layers());
         assert(j>=0);
-        assert(j<bnn_data->get_archi(l));*/
+        assert(j<bnn_data.get_archi(l));*/
 
         if(l == 1){
           LinearExpr temp(0);
-          int tmp = bnn_data->get_archi(0);
+          int tmp = bnn_data.get_archi(0);
           for (size_t i = 0; i < tmp; i++) {
             if (activation_first_layer[index_example][i] != 0) {
     					temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
@@ -111,7 +111,7 @@ namespace operations_research{
           cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp);
           }
         else{
-          int tmp = bnn_data->get_archi(l-1);
+          int tmp = bnn_data.get_archi(l-1);
           std::vector<IntVar> temp(tmp);
           for (size_t i = 0; i < tmp; i++) {
             temp[i] = cp_model_builder.NewIntVar(domain);

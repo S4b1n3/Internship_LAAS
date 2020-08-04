@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 	double accuracy_train, accuracy_test, accuracy_train_bis, accuracy_test_bis;
 
 	std::vector<std::vector<std::vector<int>>> weights;
-	Data *bnn_data = new Data(architecture);
+	Data bnn_data(architecture);
 	int status;
 
 	operations_research::sat::Search_parameters search (_search_strategy , _per_layer_branching , _variable_heuristic , _value_heuristic , _automatic) ;
@@ -249,8 +249,6 @@ int main(int argc, char **argv) {
 		else
 			std::cout << " c starting evaluation..." << '\n';
 
-
-  delete bnn_data;
   return EXIT_SUCCESS;
 }
 

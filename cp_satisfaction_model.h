@@ -69,27 +69,27 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_Satisfaction(Data *_data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
+      CPModel_Satisfaction(Data _data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
                         CP_Model(_data, _nb_examples, _prod_constraint, _output_path){
 
       }
 
-      CPModel_Satisfaction(const int &_nb_examples_per_label, Data *_data, const bool _prod_constraint, const std::string &_output_path):
+      CPModel_Satisfaction(const int &_nb_examples_per_label, Data _data, const bool _prod_constraint, const std::string &_output_path):
                         CP_Model(_nb_examples_per_label, _data, _prod_constraint, _output_path){
 
       }
 
-      CPModel_Satisfaction(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
+      CPModel_Satisfaction(Data _data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
                       CP_Model(_data, _prod_constraint, _output_path, _weights, _indexes_examples){
 
       }
 
-      CPModel_Satisfaction(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
+      CPModel_Satisfaction(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
                       CP_Model(_data, _prod_constraint, _output_path, _input_file){
 
       }
 
-      CPModel_Satisfaction(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
+      CPModel_Satisfaction(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
                       CP_Model(_data, _prod_constraint, _output_path, _input_file, _solution_file){
 
       }
@@ -112,9 +112,9 @@ namespace operations_research{
         /*assert(index_examples >= 0);
         assert(index_example < nb_examples);*/
         const int label = labels[index_examples];
-        int tmp2 = bnn_data->get_layers()-2;
+        int tmp2 = bnn_data.get_layers()-2;
         cp_model_builder.AddEquality(activation[index_examples][tmp2][label], 1);
-        int tmp = bnn_data->get_archi(bnn_data->get_layers()-1);
+        int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
         for (size_t i = 0; i < tmp; i++) {
           if (i != label) {
             cp_model_builder.AddEquality(activation[index_examples][tmp2][i], -1);
@@ -129,7 +129,7 @@ namespace operations_research{
     	  assert (verbose);
     	  if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
 
-    		  int tmp = bnn_data->get_layers();
+    		  int tmp = bnn_data.get_layers();
     		  if (verbose >1)
     		  {
     			  std::cout << "\n s Solution "<< index << " : \n";
@@ -137,10 +137,10 @@ namespace operations_research{
     			  std::cout << "   Weights" << '\n';
     			  for (size_t l = 1; l < tmp; ++l) {
     				  std::cout << "   Layer "<< l << ": \n";
-    				  int tmp2 = bnn_data->get_archi(l-1);
+    				  int tmp2 = bnn_data.get_archi(l-1);
     				  for (size_t i = 0; i < tmp2; ++i) {
-    					  int tmp3 = bnn_data->get_archi(l);
-    					  for (size_t j = 0; j < bnn_data->get_archi(l); ++j) {
+    					  int tmp3 = bnn_data.get_archi(l);
+    					  for (size_t j = 0; j < bnn_data.get_archi(l); ++j) {
     						  std::cout << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " << weights_solution[l-1][i][j];
     					  }
     					  std::cout << '\n';

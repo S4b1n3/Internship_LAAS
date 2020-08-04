@@ -27,11 +27,11 @@ public:
     - _weights : values of the weights returned by the solver
     - archi : architecture of the network
   */
-  Evaluation(std::vector<std::vector<std::vector<int>>> _weights, Data* model_data, const std::string &filename) :
+  Evaluation(std::vector<std::vector<std::vector<int>>> _weights, Data model_data, const std::string &filename) :
             checker(model_data, _weights), output_file(filename){
   }
 
-  Evaluation(std::vector<std::vector<std::vector<int>>> _weights, Data* model_data) :
+  Evaluation(std::vector<std::vector<std::vector<int>>> _weights, Data model_data) :
             checker(model_data, _weights){
   }
 

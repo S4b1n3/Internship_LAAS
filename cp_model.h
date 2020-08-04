@@ -103,7 +103,7 @@ class CP_Model {
 
 protected:
 
-	Data *bnn_data;
+	Data bnn_data;
 	//Mohamed: Its is confusing to declare an object cp_model inside a class called Cp_model --> change this
 	CpModelBuilder cp_model_builder;
 	int nb_examples;
@@ -156,31 +156,32 @@ public:
         The constructor initialize the data of the problem and the domain of the variables
         Call the constructor launch the method to solve the problem
 	 */
-	CP_Model(Data *_data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
+	CP_Model(Data _data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"),
 		file_out_extension(".tex"), nb_examples(_nb_examples), prod_constraint(_prod_constraint), output_path(_output_path){
 		bnn_data = _data;
-		std::cout << " c NUMBER OF LAYERS "<<bnn_data->get_layers() << '\n';
-		bnn_data->print_archi();
-		bnn_data->print_dataset();
+		std::cout << " c NUMBER OF LAYERS "<<bnn_data.get_layers() << '\n';
+		bnn_data.print_archi();
+		bnn_data.print_dataset();
+
+
 		index_rand = rand()%(60000-_nb_examples);
 		inputs.resize(nb_examples);
 		labels.resize(nb_examples);
 		for (size_t i = 0; i < nb_examples; i++) {
-			inputs[i] = bnn_data->get_dataset().training_images[index_rand+i];
-			labels[i] = (int)bnn_data->get_dataset().training_labels[index_rand+i];
+			inputs[i] = bnn_data.get_dataset().training_images[index_rand+i];
+			labels[i] = (int)bnn_data.get_dataset().training_labels[index_rand+i];
 			idx_examples.push_back(index_rand+i);
 		}
 	}
 
-	CP_Model(const int &_nb_examples_per_label, Data* _data, const bool _prod_constraint, const std::string &_output_path):
+	CP_Model(const int &_nb_examples_per_label, Data _data, const bool _prod_constraint, const std::string &_output_path):
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"),
 		file_out_extension(".tex"), nb_examples(10*_nb_examples_per_label), prod_constraint(_prod_constraint), output_path(_output_path){
 		bnn_data = _data;
-		std::cout << " c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
-		bnn_data->print_archi();
-		bnn_data->print_dataset();
-		//index_rand = rand()%50000;
+		std::cout << " c NUMBER OF LAYERS : "<<bnn_data.get_layers() << '\n';
+		bnn_data.print_archi();
+		bnn_data.print_dataset();
 
 		std::clock_t c_start = std::clock();
 
@@ -192,9 +193,9 @@ public:
 			auto it = std::find(std::begin(ind), std::end(ind), index_rand);
 			if (it == ind.end()) {
 				ind.push_back(index_rand);
-				int label = (int)bnn_data->get_dataset().training_labels[index_rand];
+				int label = (int)bnn_data.get_dataset().training_labels[index_rand];
 				if(occ[label] < _nb_examples_per_label){
-					inputs.push_back(bnn_data->get_dataset().training_images[index_rand]);
+					inputs.push_back(bnn_data.get_dataset().training_images[index_rand]);
 					labels.push_back(label);
 					idx_examples.push_back(index_rand);
 					compt_ex++;
@@ -207,37 +208,33 @@ public:
 		std::cout << " c Building dataset finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
 	}
 
-	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
+	CP_Model(Data _data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
 		weights_check(std::move(_weights)), check_model(true), nb_examples(_indexes_examples.size()), domain(-1,1), activation_domain(Domain::FromValues({-1,1})),
 		file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path){
 		bnn_data = _data;
-		std::cout << " c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
-		bnn_data->print_archi();
-		bnn_data->print_dataset();
+		std::cout << " c NUMBER OF LAYERS : "<<bnn_data.get_layers() << '\n';
+		bnn_data.print_archi();
+		bnn_data.print_dataset();
 
 		for (const int &i : _indexes_examples) {
-			inputs.push_back(bnn_data->get_dataset().training_images[i]);
-			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
+			inputs.push_back(bnn_data.get_dataset().training_images[i]);
+			labels.push_back((int)bnn_data.get_dataset().training_labels[i]);
 			idx_examples.push_back(i);
 		}
 	}
 
-	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
+	CP_Model(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path), nb_examples(0){
 
 		bnn_data = _data;
-		std::cout << " c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
-		bnn_data->print_archi();
-		bnn_data->print_dataset();
+		std::cout << " c NUMBER OF LAYERS : "<<bnn_data.get_layers() << '\n';
+		bnn_data.print_archi();
+		bnn_data.print_dataset();
 
 		std::ifstream input_file(_input_file);
 		if(input_file){
 			std::string line;
 			while (std::getline(input_file, line)){
-				if (line.substr(0, 6)=="LABEL ") {
-					labels.push_back(std::stoi(line.substr(6)));
-					nb_examples++;
-				}
 				if (line.substr(0, 8) == "INDEXES "){
 					std::string temp_line = line.substr(8);
 					std::vector<std::string> temp;
@@ -252,28 +249,26 @@ public:
 		}
 
     for(const int &i : idx_examples){
-      inputs.push_back(bnn_data->get_dataset().training_images[i]);
-			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
+      inputs.push_back(bnn_data.get_dataset().training_images[i]);
+			labels.push_back((int)bnn_data.get_dataset().training_labels[i]);
     }
+
+    std::cout << " c dataset size : " << inputs.size() << '\n';
 
 	}
 
-	CP_Model(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
+	CP_Model(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path), nb_examples(0), check_model(true){
 
 		bnn_data = _data;
-		std::cout << " c NUMBER OF LAYERS : "<<bnn_data->get_layers() << '\n';
-		bnn_data->print_archi();
-		bnn_data->print_dataset();
+		std::cout << " c NUMBER OF LAYERS : "<<bnn_data.get_layers() << '\n';
+		bnn_data.print_archi();
+		bnn_data.print_dataset();
 
 		std::ifstream input_file(_input_file.c_str());
 		if(input_file){
 			std::string line;
 			while (std::getline(input_file, line)){
-				if (line.substr(0, 6)=="LABEL ") {
-					labels.push_back(std::stoi(line.substr(6)));
-					nb_examples++;
-				}
 				if (line.substr(0, 8) == "INDEXES "){
 					std::string temp_line = line.substr(8);
 					std::vector<std::string> temp;
@@ -288,8 +283,8 @@ public:
 		}
 
     for(const int &i : idx_examples){
-      inputs.push_back(bnn_data->get_dataset().training_images[i]);
-			labels.push_back((int)bnn_data->get_dataset().training_labels[i]);
+      inputs.push_back(bnn_data.get_dataset().training_images[i]);
+			labels.push_back((int)bnn_data.get_dataset().training_labels[i]);
     }
 
 		std::ifstream solution_file(_solution_file.c_str());
@@ -339,7 +334,7 @@ public:
 	/* Getters */
 
 	//returns the data of the problem
-	Data* get_data() const{
+	Data get_data() const{
 		return bnn_data;
 	}
 
@@ -375,7 +370,7 @@ public:
 		for (size_t i = 0; i < size; i++) {
 			activation_first_layer[index_example][i] = (int)inputs[index_example][i];
 			if (activation_first_layer[index_example][i] == 0) {
-				int tmp = bnn_data->get_archi(1);
+				int tmp = bnn_data.get_archi(1);
 				if(!check_model){
 					//for (size_t j = 0; j < tmp; j++)
 					//	cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0);
@@ -383,10 +378,10 @@ public:
 			}
 		}
 
-		int tmp = bnn_data->get_layers()-1;
+		int tmp = bnn_data.get_layers()-1;
 		activation[index_example].resize(tmp);
 		for (size_t l = 0; l < tmp; ++l) {
-			int tmp2 = bnn_data->get_archi(l+1);
+			int tmp2 = bnn_data.get_archi(l+1);
 			activation[index_example][l].resize(tmp2);
 			for(size_t j = 0; j < tmp2; ++j){
 				activation[index_example][l][j] = cp_model_builder.NewIntVar(activation_domain);
@@ -400,7 +395,7 @@ public:
         Parameters :
         - index_example : index of the training example to classifie
         Output : None
-        preactivation[l] represents the preactivation of layer l+1 where l \in [0,bnn_data->get_layers()-1]
+        preactivation[l] represents the preactivation of layer l+1 where l \in [0,bnn_data.get_layers()-1]
 	 */
 	void declare_preactivation_variables(const int &index_example){
 		//assert(index_example>=0);
@@ -410,12 +405,12 @@ public:
 		for(std::vector<uint8_t>::iterator it = inputs[index_example].begin(); it != inputs[index_example].end(); ++it)
 			sum_image += (int)*it;
 
-		int tmp = bnn_data->get_layers()-1;
+		int tmp = bnn_data.get_layers()-1;
 		preactivation[index_example].resize(tmp);
 		for (size_t l = 0; l < tmp; l++) {
-			int tmp2 = bnn_data->get_archi(l+1);
+			int tmp2 = bnn_data.get_archi(l+1);
 			preactivation[index_example][l].resize(tmp2);
-			int tmp3 = bnn_data->get_archi(l);
+			int tmp3 = bnn_data.get_archi(l);
 			for(size_t j = 0; j < tmp2; j++){
 				if(l == 0){
 					preactivation[index_example][l][j] = cp_model_builder.NewIntVar(Domain(-sum_image, sum_image));
@@ -430,8 +425,8 @@ public:
 	/* get_a_lj method
         Parameters :
         - index_example : index of the example to classifie
-        - l : layer \in [1, bnn_data->get_layers()]
-        - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
+        - l : layer \in [1, bnn_data.get_layers()]
+        - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
         Output :
         a_{lj} variables from the CP paper
 	 */
@@ -439,9 +434,9 @@ public:
 		assert(index_example>=0);
 		assert(index_example<nb_examples);
 		assert(l>0);
-		assert(l<bnn_data->get_layers());
+		assert(l<bnn_data.get_layers());
 		assert(j>=0);
-		assert(j<bnn_data->get_archi(l));
+		assert(j<bnn_data.get_archi(l));
 		return preactivation[index_example][l-1][j];
 	}
 
@@ -456,19 +451,19 @@ public:
 
 		//Initialization of the variables
 
-		int nb_layers = bnn_data->get_layers();
+		int nb_layers = bnn_data.get_layers();
 		weights.resize(nb_layers-1);
 		//We use weight_is_0 only for all layers exept the first one (the pre-activation constraints from layer  0 et 0 use a linear constraint).
 		if (prod_constraint)
 			weight_is_0.resize(nb_layers-2);
 		for (size_t l = 1; l < nb_layers; l++) {
-			int tmp2 = bnn_data->get_archi(l-1);
+			int tmp2 = bnn_data.get_archi(l-1);
 			weights[l-1].resize(tmp2);
 			if (prod_constraint && (l>=2))
 				weight_is_0[l-2].resize(tmp2);
 
 			for(size_t i = 0; i < tmp2; i++){
-				int tmp3 = bnn_data->get_archi(l);
+				int tmp3 = bnn_data.get_archi(l);
 				weights[l-1][i].resize(tmp3);
 				if (prod_constraint && (l>=2))
 					weight_is_0[l-2][i].resize(tmp3);
@@ -493,7 +488,7 @@ public:
 		}
 
 		std::cout << " \n c START SETTING Weights to 0  \n  " << std::endl;
-		int first_layer_size = bnn_data->get_archi(0) , count = 0;
+		int first_layer_size = bnn_data.get_archi(0) , count = 0;
 		if (inputs.size() >1 )
 			for (int i = 0 ; i< first_layer_size ; ++i){
 				int value_pixed = inputs[0][i] ;
@@ -506,7 +501,7 @@ public:
 				}
 				if (fixed) {
 					++count;
-					int second_layer_size = bnn_data->get_archi(1);
+					int second_layer_size = bnn_data.get_archi(1);
 					for (int j = 0 ; j< second_layer_size ; ++j)
 						cp_model_builder.AddEquality(weights[0][i][j], 0);
 				}
@@ -522,29 +517,29 @@ public:
 
 	/* get_w_ilj method
         Parameters :
-        - i : neuron on layer l-1 \in [0, bnn_data->get_archi(l-1)]
-        - l : layer \in [1, bnn_data->get_layers()-1]
-        - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
+        - i : neuron on layer l-1 \in [0, bnn_data.get_archi(l-1)]
+        - l : layer \in [1, bnn_data.get_layers()-1]
+        - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
         Output :
         w_{ilj} variables from the CP paper
 	 */
 	IntVar get_w_ilj(const int &i, const int &l, const int &j){
 		assert(l>0);
-		assert(l<bnn_data->get_layers());
+		assert(l<bnn_data.get_layers());
 		assert(i>=0);
-		assert(i<bnn_data->get_archi(l-1));
+		assert(i<bnn_data.get_archi(l-1));
 		assert(j>=0);
-		assert(j<bnn_data->get_archi(l));
+		assert(j<bnn_data.get_archi(l));
 		return weights[l-1][i][j];
 	}
 
 	BoolVar get_weight_is_0_ilj(const int &i, const int &l, const int &j){
 		assert(l>=2);
-		assert(l<bnn_data->get_layers());
+		assert(l<bnn_data.get_layers());
 		assert(i>=0);
-		assert(i<bnn_data->get_archi(l-1));
+		assert(i<bnn_data.get_archi(l-1));
 		assert(j>=0);
-		assert(j<bnn_data->get_archi(l));
+		assert(j<bnn_data.get_archi(l));
 		return weight_is_0[l-2][i][j];
 	}
 
@@ -555,8 +550,8 @@ public:
 	/* model_activation_constraint method
         Parameters :
         - index_example : index of the example to classifie
-        - l : layer \in [1, bnn_data->get_layers()]
-        - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
+        - l : layer \in [1, bnn_data.get_layers()]
+        - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
 
         preactivation[l][j] >= 0 => activation[l][j] = 1
         preactivation[l][j] < 0 => activation[l][j] = -1
@@ -566,9 +561,9 @@ public:
 		/*assert (index_example>=0);
 		assert (index_example<nb_examples);
 		assert (l>0);
-		assert (l<bnn_data->get_layers());
+		assert (l<bnn_data.get_layers());
 		assert (j>=0);
-		assert (j<bnn_data->get_archi(l));*/
+		assert (j<bnn_data.get_archi(l));*/
 
 		//_temp_bool is true iff preactivation[l][j] < 0
 		//_temp_bool is false iff preactivation[l][j] >= 0
@@ -583,8 +578,8 @@ public:
 	/* model_preactivation_constraint method
         Parameters :
         - index_example : index of the example to classifie
-        - l : layer \in [1, bnn_data->get_layers()-1]
-        - j : neuron on layer l \in [0, bnn_data->get_archi(l)]
+        - l : layer \in [1, bnn_data.get_layers()-1]
+        - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
         Output : None
 	 */
 	virtual void model_preactivation_constraint(const int &index_example, const int &l, const int &j){
@@ -593,15 +588,15 @@ public:
 		//No need for this
 		assert(l>0);
 		//No need for this
-		assert(l<bnn_data->get_layers());
+		assert(l<bnn_data.get_layers());
 		//No need for this
 		assert(j>=0);
 		//No need for this
-		assert(j<bnn_data->get_archi(l));
+		assert(j<bnn_data.get_archi(l));
 
 		if(l == 1){
 			LinearExpr temp(0);
-			int tmp = bnn_data->get_archi(0);
+			int tmp = bnn_data.get_archi(0);
 			for (size_t i = 0; i < tmp; i++) {
 				if (activation_first_layer[index_example][i] != 0) {
 					temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
@@ -610,8 +605,8 @@ public:
 			cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp);
 		}
 		else{
-			std::vector<IntVar> temp(bnn_data->get_archi(l-1));
-			int tmp = bnn_data->get_archi(l-1) ;
+			std::vector<IntVar> temp(bnn_data.get_archi(l-1));
+			int tmp = bnn_data.get_archi(l-1) ;
 			for (size_t i = 0; i < tmp; i++) {
 				temp[i] = cp_model_builder.NewIntVar(domain);
 				if(!prod_constraint){
@@ -695,12 +690,12 @@ public:
 		std::vector<std::vector<IntVar>> w_level;
 
 		if (branch_per_layer){
-			int nb_layers = bnn_data->get_layers();
+			int nb_layers = bnn_data.get_layers();
 			w_level.resize(nb_layers -1) ;
 			int count  = 0 ;
 			for (size_t l = 1; l < nb_layers; l++){
-				int current  = bnn_data->get_archi(l);
-				int previous = bnn_data->get_archi(l-1);
+				int current  = bnn_data.get_archi(l);
+				int previous = bnn_data.get_archi(l-1);
 				for(size_t i = 0; i < previous; i++){
 					for (size_t j = 0; j < current; j++){
 						//Todo :  later removed fixed weights
@@ -712,11 +707,11 @@ public:
 			decision_variables_size = count ;
 		}
 		else{
-			int nb_layers = bnn_data->get_layers();
+			int nb_layers = bnn_data.get_layers();
 			for (size_t l = 1; l < nb_layers; l++){
 
-				int current = bnn_data->get_archi(l);
-				int previous = bnn_data->get_archi(l-1);
+				int current = bnn_data.get_archi(l);
+				int previous = bnn_data.get_archi(l-1);
 				for(size_t i = 0; i < previous; i++){
 					for (size_t j = 0; j < current; j++){
 						//Todo :  later removed fixed weights
@@ -769,11 +764,11 @@ public:
 		decision_variables_size = cp_model_builder.Build().variables_size() ;
 		if (strategy != "default"){
 			std::vector<IntVar> w;
-			int tmp = bnn_data->get_layers();
+			int tmp = bnn_data.get_layers();
 			for (size_t l = 1; l < tmp; l++){
-				int tmp2 = bnn_data->get_archi(l-1);
+				int tmp2 = bnn_data.get_archi(l-1);
 				for(size_t i = 0; i < tmp2; i++){
-					int tmp3 = bnn_data->get_archi(l);
+					int tmp3 = bnn_data.get_archi(l);
 					for (size_t j = 0; j < tmp3; j++){
 						w.push_back( weights[l-1][i][j] );
 
@@ -786,14 +781,14 @@ public:
 			std::cout << " c number of branching variables is "  << w.size()  << std::endl;
 
 			std::vector<std::vector<IntVar>> w_level;
-			//int tmp = bnn_data->get_layers();
-			//std::cout << " c bnn_data->get_layers() is "  <<  tmp << std::endl;
+			//int tmp = bnn_data.get_layers();
+			//std::cout << " c bnn_data.get_layers() is "  <<  tmp << std::endl;
 			w_level.resize(tmp -1) ;
 
 			for (size_t l = 1; l < tmp; l++){
-				int tmp2 = bnn_data->get_archi(l-1);
+				int tmp2 = bnn_data.get_archi(l-1);
 				for(size_t i = 0; i < tmp2; i++){
-					int tmp3 = bnn_data->get_archi(l);
+					int tmp3 = bnn_data.get_archi(l);
 					for (size_t j = 0; j < tmp3; j++){
 						w_level[l-1].push_back( weights[l-1][i][j] );
 					}
@@ -1059,9 +1054,9 @@ public:
 			declare_activation_variables(i);
 		}
 		for (size_t i = 0; i < nb_examples; i++) {
-			int tmp = bnn_data->get_layers();
+			int tmp = bnn_data.get_layers();
 			for (size_t l = 1; l < tmp; l++) {
-				int tmp2 =  bnn_data->get_archi(l);
+				int tmp2 =  bnn_data.get_archi(l);
 				for (size_t j = 0; j < tmp2; j++) {
 					model_preactivation_constraint(i, l, j);
 					model_activation_constraint(i, l, j);
@@ -1100,13 +1095,13 @@ public:
 
 	virtual void check(const CpSolverResponse &r, const bool &check_sol, const std::string &strategy, const int &index=0){
 		std::cout << " c entering check method" << '\n';
-		int tmp = bnn_data->get_layers();
+		int tmp = bnn_data.get_layers();
 		weights_solution.resize(tmp);
 		for (size_t l = 1; l < tmp; ++l) {
-			int tmp2 = bnn_data->get_archi(l-1);
+			int tmp2 = bnn_data.get_archi(l-1);
 			weights_solution[l-1].resize(tmp2);
 			for (size_t i = 0; i < tmp2; ++i) {
-				int tmp3 = bnn_data->get_archi(l);
+				int tmp3 = bnn_data.get_archi(l);
 				weights_solution[l-1][i].resize(tmp3);
 				for (size_t j = 0; j < tmp3; ++j) {
 					weights_solution[l-1][i][j] = SolutionIntegerValue(r, weights[l-1][i][j]);
@@ -1119,7 +1114,7 @@ public:
 
 			preactivation_solution.resize(tmp-1);
 			for (size_t l = 0; l < tmp-1; l++) {
-				int tmp2 = bnn_data->get_archi(l+1);
+				int tmp2 = bnn_data.get_archi(l+1);
 				preactivation_solution[l].resize(tmp2);
 				for(size_t j = 0; j < tmp2; j++){
 					preactivation_solution[l][j] = SolutionIntegerValue(r, preactivation[i][l][j]);
@@ -1128,7 +1123,7 @@ public:
 
 			activation_solution.resize(tmp);
 			for (size_t l = 0; l < tmp; l++) {
-				int tmp2 = bnn_data->get_archi(l);
+				int tmp2 = bnn_data.get_archi(l);
 				activation_solution[l].resize(tmp2);
 				for(size_t j = 0; j < tmp2; j++){
 					if(l == 0){
@@ -1276,8 +1271,8 @@ public:
 			else{
 				file <<"\\begin{scope}[every node/.style={circle,thick,draw}]" << std::endl;
 				int height = 0;
-				for (size_t l = 0; l < bnn_data->get_layers(); l++) {
-					for (size_t i = 0; i < bnn_data->get_archi(l); i++) {
+				for (size_t l = 0; l < bnn_data.get_layers(); l++) {
+					for (size_t i = 0; i < bnn_data.get_archi(l); i++) {
 						std::string name("N"+std::to_string(l)+std::to_string(i));
 						file << print_node(name, 2*l, height)<<std::endl;
 						height -= 2;
@@ -1286,9 +1281,9 @@ public:
 				}
 				file << "\\end{scope}"<<std::endl;
 				file << "\\begin{scope}[>={Stealth[black]}, every node/.style={fill=white,circle}, every edge/.style={draw=red,very thick}]" << std::endl;
-				for (size_t l = 1; l < bnn_data->get_layers(); l++) {
-					for (size_t i = 0; i < bnn_data->get_archi(l-1); i++) {
-						for (size_t j = 0; j < bnn_data->get_archi(l); j++) {
+				for (size_t l = 1; l < bnn_data.get_layers(); l++) {
+					for (size_t i = 0; i < bnn_data.get_archi(l-1); i++) {
+						for (size_t j = 0; j < bnn_data.get_archi(l); j++) {
 							std::string origin("N"+std::to_string(l-1)+std::to_string(i));
 							std::string target("N"+std::to_string(l)+std::to_string(j));
 							file << print_arc(origin, target, SolutionIntegerValue(r, weights[l-1][i][j]))<<std::endl;

@@ -67,26 +67,26 @@ namespace operations_research{
       The constructor initialize the data of the problem and the domain of the variables
       Call the constructor launch the method to solve the problem
       */
-      CPModel_MaxClassification(Data *_data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
+      CPModel_MaxClassification(Data _data, const int &_nb_examples, const bool _prod_constraint, const std::string &_output_path):
                         CP_Model(_data, _nb_examples, _prod_constraint, _output_path){
 
       }
 
-      CPModel_MaxClassification(const int &_nb_examples_per_label, Data *_data, const bool _prod_constraint, const std::string &_output_path):
+      CPModel_MaxClassification(const int &_nb_examples_per_label, Data _data, const bool _prod_constraint, const std::string &_output_path):
                         CP_Model(_nb_examples_per_label, _data, _prod_constraint, _output_path){
       }
 
-      CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
+      CPModel_MaxClassification(Data _data, const bool _prod_constraint, const std::string &_output_path, std::vector<std::vector<std::vector<int>>> _weights, const std::vector<int> &_indexes_examples):
                       CP_Model(_data, _prod_constraint, _output_path, _weights, _indexes_examples){
 
       }
 
-      CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
+      CPModel_MaxClassification(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
                       CP_Model(_data, _prod_constraint, _output_path, _input_file){
 
       }
 
-      CPModel_MaxClassification(Data *_data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
+      CPModel_MaxClassification(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
                       CP_Model(_data, _prod_constraint, _output_path, _input_file, _solution_file){
 
       }
@@ -100,10 +100,10 @@ namespace operations_research{
 
       /* model_output_constraint method
 
-         the example is well classified => activation[index_examples][bnn_data->get_layers()-2][label] == 1 and
-                                           activation[index_examples][bnn_data->get_layers()-2][i] == -1
+         the example is well classified => activation[index_examples][bnn_data.get_layers()-2][label] == 1 and
+                                           activation[index_examples][bnn_data.get_layers()-2][i] == -1
 
-        classification[index_examples] = 1 => activation[index_examples][bnn_data->get_layers()-2][label] ==  1
+        classification[index_examples] = 1 => activation[index_examples][bnn_data.get_layers()-2][label] ==  1
         classification[index_examples] = 1 => last_layer == -9
 
       Parameters :
@@ -116,8 +116,8 @@ namespace operations_research{
 
         LinearExpr last_layer(0);
         const int label = labels[index_examples];
-        int tmp = bnn_data->get_archi(bnn_data->get_layers()-1);
-        int tmp2 = bnn_data->get_layers()-2;
+        int tmp = bnn_data.get_archi(bnn_data.get_layers()-1);
+        int tmp2 = bnn_data.get_layers()-2;
         for (size_t i = 0; i < tmp; i++) {
           if (i != label) {
             last_layer.AddVar(activation[index_examples][tmp2][i]);
@@ -155,13 +155,13 @@ namespace operations_research{
       }
 
       void check(const CpSolverResponse &r, const bool &check_sol, const std::string &strategy, const int &index=0){
-    		int tmp = bnn_data->get_layers();
+    		int tmp = bnn_data.get_layers();
     		weights_solution.resize(tmp);
         for (size_t l = 1; l < tmp; ++l) {
-    			int tmp2 = bnn_data->get_archi(l-1);
+    			int tmp2 = bnn_data.get_archi(l-1);
     			weights_solution[l-1].resize(tmp2);
     			for (size_t i = 0; i < tmp2; ++i) {
-    				int tmp3 = bnn_data->get_archi(l);
+    				int tmp3 = bnn_data.get_archi(l);
     				weights_solution[l-1][i].resize(tmp3);
     				for (size_t j = 0; j < tmp3; ++j) {
     					weights_solution[l-1][i][j] = SolutionIntegerValue(r, weights[l-1][i][j]);
@@ -176,7 +176,7 @@ namespace operations_research{
 
     			preactivation_solution.resize(tmp-1);
     			for (size_t l = 0; l < tmp-1; l++) {
-    				int tmp2 = bnn_data->get_archi(l+1);
+    				int tmp2 = bnn_data.get_archi(l+1);
     				preactivation_solution[l].resize(tmp2);
     				for(size_t j = 0; j < tmp2; j++){
     					preactivation_solution[l][j] = SolutionIntegerValue(r, preactivation[i][l][j]);
@@ -185,7 +185,7 @@ namespace operations_research{
 
     			activation_solution.resize(tmp);
     			for (size_t l = 0; l < tmp; l++) {
-    				int tmp2 = bnn_data->get_archi(l);
+    				int tmp2 = bnn_data.get_archi(l);
     				activation_solution[l].resize(tmp2);
     				for(size_t j = 0; j < tmp2; j++){
     					if(l == 0){
@@ -227,7 +227,7 @@ namespace operations_research{
     	  assert (verbose);
     	  if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
 
-    		  int tmp = bnn_data->get_layers();
+    		  int tmp = bnn_data.get_layers();
     		  if (verbose >1)
     		  {
     			  std::cout << "\n s Solution "<< index << " : \n";
@@ -235,10 +235,10 @@ namespace operations_research{
     			  std::cout << "   Weights" << '\n';
     			  for (size_t l = 1; l < tmp; ++l) {
     				  std::cout << "   Layer "<< l << ": \n";
-    				  int tmp2 = bnn_data->get_archi(l-1);
+    				  int tmp2 = bnn_data.get_archi(l-1);
     				  for (size_t i = 0; i < tmp2; ++i) {
-    					  int tmp3 = bnn_data->get_archi(l);
-    					  for (size_t j = 0; j < bnn_data->get_archi(l); ++j) {
+    					  int tmp3 = bnn_data.get_archi(l);
+    					  for (size_t j = 0; j < bnn_data.get_archi(l); ++j) {
     						  std::cout << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " << weights_solution[l-1][i][j];
     					  }
     					  std::cout << '\n';

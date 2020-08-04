@@ -53,7 +53,7 @@ void per_label(const int &nb_examples_per_label, const std::string &path, const 
     auto it = std::find(std::begin(ind), std::end(ind), index_rand);
     if (it == ind.end()) {
       ind.push_back(index_rand);
-      int label = (int)bnn_data->get_dataset().training_labels[index_rand];
+      int label = (int)bnn_data.get_dataset().training_labels[index_rand];
       if(occ[label] < nb_examples_per_label){
         idx_examples.push_back(index_rand);
         compt_ex++;
@@ -148,7 +148,7 @@ void correct(const std::string &_output_file, const std::string &_input_file, co
 
 
   std::vector<int> correct_examples;
-  Data *bnn_data = new Data (_architecture);
+  Data bnn_data(_architecture);
   Evaluation test(weights, bnn_data);
   correct_examples = test.get_correct_examples(false);
 
@@ -160,7 +160,6 @@ void correct(const std::string &_output_file, const std::string &_input_file, co
   file << std::endl;
   file.close();
   std::cout << " c nb correct examples : " << correct_examples.size() << '\n';
-  delete bnn_data;
 }
 
 
