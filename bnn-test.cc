@@ -79,17 +79,11 @@ int main(int argc, char **argv) {
 
 	operations_research::sat::Search_parameters search (_search_strategy , _per_layer_branching , _variable_heuristic , _value_heuristic , _automatic) ;
 
-	operations_research::sat::New_CP_Model model1(bnn_data);
-	model1.set_data(1,1);
-	std::cout << std::endl;
-    operations_research::sat::New_CP_Model model2(bnn_data);
-	model2.set_data(2,1);
-    std::cout << std::endl;
-    operations_research::sat::New_CP_Model model3(bnn_data);
-	model3.set_data("BNN/dataset/random_10_1.data");
-    std::cout << std::endl;
-    operations_research::sat::New_CP_Model model4(bnn_data);
-	model4.set_data("BNN/dataset/correct_1_16.data", "BNN/solutions/solution_1_16.sol");
+
+    operations_research::sat::New_CP_Model model(bnn_data);
+	model.run(_time, search);
+
+
 
 
 	if (_eval) {
@@ -179,7 +173,7 @@ void parseOptions(int argc, char** argv){
 		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", false, 0, "int");
 		cmd.add(nb_ex);
 
-		ValueArg<int> param_k("K", "k", "Robustness parameter", false, 1, "int");
+		ValueArg<int> param_k("K", "k", "Robustness parameter", false, 0, "int");
 		cmd.add(param_k);
 
 		ValueArg<int> nb_ex_per_label("E", "nb_examples_per_label", "Number of examples per label", false, 0, "int");
