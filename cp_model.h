@@ -565,9 +565,12 @@ public:
 		//assert(index_example>=0);
 		//assert(index_example<nb_examples);
 
-		int sum_image = 0;
-		for(std::vector<uint8_t>::iterator it = inputs[index_example].begin(); it != inputs[index_example].end(); ++it)
-			sum_image += (int)*it;
+		int sum_image = 0 , sz = inputs[index_example].size();
+		for(int i= 0; i <   sz; ++i)
+		{
+			if (! weight_fixed_to_0[i])
+				sum_image += (int) inputs[index_example][i]  ;
+		}
 
 		int tmp = bnn_data.get_layers()-1;
 		preactivation[index_example].resize(tmp);
