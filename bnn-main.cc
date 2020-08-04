@@ -293,7 +293,6 @@ int main(int argc, char **argv) {
 
 	}
 
-
 	if (_eval) {
 		if(status == 2 || status == 4){
 			std::cout << " c starting evaluation..." << '\n';

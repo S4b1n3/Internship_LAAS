@@ -114,6 +114,7 @@ protected:
 	std::vector<std::vector<uint8_t>> inputs;
 	std::vector<int> labels;
 	std::vector<int> idx_examples;
+	std::vector<bool> weight_fixed_to_0;
 
 	//weights[a][b][c] is the weight variable of the arc between neuron b on layer a-1 and neuron c on layer a
 	std::vector<std::vector <std::vector<IntVar>>> weights;
@@ -613,9 +614,9 @@ public:
 	void declare_weight_variables() {
 
 		//Initialization of the variables
-
 		int nb_layers = bnn_data.get_layers();
 		weights.resize(nb_layers-1);
+		std::cout << " weight is fixed size is " << bnn_data.get_archi(nb_layers-1) << std::endl;
 		//We use weight_is_0 only for all layers exept the first one (the pre-activation constraints from layer  0 et 0 use a linear constraint).
 		if (prod_constraint)
 			weight_is_0.resize(nb_layers-2);
@@ -651,8 +652,12 @@ public:
 		}
 
 		std::cout << " \n c START SETTING Weights to 0  \n  " << std::endl;
-		int first_layer_size = bnn_data.get_archi(0) , count = 0;
-		if (inputs.size() >1 )
+
+		int first_layer_size = bnn_data.get_archi(0) , count=0 ;
+		weight_fixed_to_0.resize(first_layer_size) ;
+		if (nb_examples> 1){
+
+			int second_layer_size = bnn_data.get_archi(1);
 			for (int i = 0 ; i< first_layer_size ; ++i){
 				int value_pixed = inputs[0][i] ;
 				bool fixed = true;
@@ -662,15 +667,23 @@ public:
 						break;
 					}
 				}
-				if (fixed) {
+				if (fixed)
+				{
 					++count;
-					int second_layer_size = bnn_data.get_archi(1);
+					weight_fixed_to_0.push_back(true);
 					for (int j = 0 ; j< second_layer_size ; ++j)
 						cp_model_builder.AddEquality(weights[0][i][j], 0);
 				}
+				else
+					weight_fixed_to_0.push_back(false);
+
 			}
+		}
 		else
-			std::cout << " \n c SETTING Weights to 0 doesn't work with one training example \n" << std::endl;
+			{
+			std::cout << " \n \n c SETTING Weights to 0 doesn't work with one training example \n" << std::endl;
+			assert (false);
+			}
 
 		std::cout << " \n c " << count << " Weights on the first layer are fixed to 0" << std::endl;
 		std::cout << " d FIRST_LAYER_FIXED_WEIGHTS " << count << std::endl;
@@ -687,12 +700,15 @@ public:
         w_{ilj} variables from the CP paper
 	 */
 	IntVar get_w_ilj(const int &i, const int &l, const int &j){
+
 		assert(l>0);
 		assert(l<bnn_data.get_layers());
 		assert(i>=0);
 		assert(i<bnn_data.get_archi(l-1));
 		assert(j>=0);
 		assert(j<bnn_data.get_archi(l));
+		if ((l==1) && (nb_examples>1) )
+			assert (! weight_fixed_to_0 [i]);
 		return weights[l-1][i][j];
 	}
 
@@ -703,6 +719,9 @@ public:
 		assert(i<bnn_data.get_archi(l-1));
 		assert(j>=0);
 		assert(j<bnn_data.get_archi(l));
+		if ((l==2) && (nb_examples>1) )
+			assert (! weight_fixed_to_0 [i]);
+
 		return weight_is_0[l-2][i][j];
 	}
 
@@ -761,7 +780,9 @@ public:
 			LinearExpr temp(0);
 			int tmp = bnn_data.get_archi(0);
 			for (size_t i = 0; i < tmp; i++) {
-				if (activation_first_layer[index_example][i] != 0) {
+				if (activation_first_layer[index_example][i] != 0)
+				if (! weight_fixed_to_0[i])
+				{
 					temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
 				}
 			}
@@ -860,10 +881,11 @@ public:
 				int current  = bnn_data.get_archi(l);
 				int previous = bnn_data.get_archi(l-1);
 				for(size_t i = 0; i < previous; i++){
-					for (size_t j = 0; j < current; j++){
-						//Todo :  later removed fixed weights
-						w_level[l-1].push_back( weights[l-1][i][j] );
-						++count;
+					if ( ((l ==1) && !weight_fixed_to_0[i]) || (l> 1))
+						for (size_t j = 0; j < current; j++){
+							//Todo :  later removed fixed weights
+							w_level[l-1].push_back( weights[l-1][i][j] );
+							++count;
 					}
 				}
 			}
@@ -876,6 +898,7 @@ public:
 				int current = bnn_data.get_archi(l);
 				int previous = bnn_data.get_archi(l-1);
 				for(size_t i = 0; i < previous; i++){
+					if ( ((l ==1) && !weight_fixed_to_0[i]) || (l> 1))
 					for (size_t j = 0; j < current; j++){
 						//Todo :  later removed fixed weights
 						w.push_back( weights[l-1][i][j] );
