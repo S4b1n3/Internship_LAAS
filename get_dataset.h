@@ -40,7 +40,7 @@ bool fexists(const std::string& filename) {
 }
 
 void per_label(const int &nb_examples_per_label, const std::string &path, const int &index_file) {
-  Data *bnn_data = new Data();
+  Data bnn_data;
   int nb_examples = 10*nb_examples_per_label;
   int compt_ex = 0;
   std::vector<int> occ(10);
@@ -67,11 +67,10 @@ void per_label(const int &nb_examples_per_label, const std::string &path, const 
   }
   file << std::endl;
   file.close();
-  delete bnn_data;
 }
 
 void random(const int &nb_examples, const std::string &path, const int &index_file) {
-  Data *bnn_data = new Data();
+  Data bnn_data;
   int index_rand = rand()%(60000-nb_examples);
   std::string output_path = path+"/random_"+std::to_string(nb_examples)+"_"+std::to_string(index_file)+".data";
   std::ofstream file(output_path.c_str(), std::ios::out);
@@ -81,7 +80,6 @@ void random(const int &nb_examples, const std::string &path, const int &index_fi
   }
   file << std::endl;
   file.close();
-  delete bnn_data;
 }
 
 void correct(const std::string &_output_file, const std::string &_input_file, const std::vector<int> &_architecture) {
