@@ -149,6 +149,9 @@ protected:
 	const std::string output_path;
 
 
+	int simple_robustness;
+
+
 public:
 
 	/*
@@ -182,7 +185,7 @@ public:
 		bnn_data.print_archi();
 		bnn_data.print_dataset();
 
-
+		simple_robustness = 0;
 		index_rand = rand()%(60000-_nb_examples);
 		for (size_t i = 0; i < nb_examples; i++) {
       init_dataset(index_rand+i);
@@ -197,6 +200,7 @@ public:
 		bnn_data.print_archi();
 		bnn_data.print_dataset();
 
+		simple_robustness = 0;
 		std::clock_t c_start = std::clock();
 
 		int compt_ex = 0;
@@ -228,6 +232,7 @@ public:
 		bnn_data.print_archi();
 		bnn_data.print_dataset();
 
+		simple_robustness = 0;
 		for (const int &i : _indexes_examples) {
 			init_dataset(i);
 		}
@@ -236,6 +241,7 @@ public:
 	CP_Model(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file):
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path), nb_examples(0){
 
+		simple_robustness = 0;
 		bnn_data = _data;
 		std::cout << " c NUMBER OF LAYERS : "<<bnn_data.get_layers() << '\n';
 		bnn_data.print_archi();
@@ -271,6 +277,7 @@ public:
 	CP_Model(Data _data, const bool _prod_constraint, const std::string &_output_path, const std::string &_input_file, const std::string &_solution_file):
 		domain(-1,1), activation_domain(Domain::FromValues({-1,1})), file_out("tests/solver_solution_"), prod_constraint(_prod_constraint), output_path(_output_path), nb_examples(0), check_model(true){
 
+		simple_robustness = 0;
 		bnn_data = _data;
 		std::cout << " c NUMBER OF LAYERS : "<<bnn_data.get_layers() << '\n';
 		bnn_data.print_archi();
@@ -572,6 +579,9 @@ public:
 				sum_image += (int) inputs[index_example][i]  ;
 		}
 
+		//int robustness = 10 ;
+		std::cout  << " c Test simple  robustness with k = " << simple_robustness << std::endl;
+
 		int tmp = bnn_data.get_layers()-1;
 		preactivation[index_example].resize(tmp);
 		for (size_t l = 0; l < tmp; l++) {
@@ -581,6 +591,11 @@ public:
 			for(size_t j = 0; j < tmp2; j++){
 				if(l == 0){
 					preactivation[index_example][l][j] = cp_model_builder.NewIntVar(Domain(-sum_image, sum_image));
+					if (simple_robustness > 0)
+					{
+						IntVar abs_preact = cp_model_builder.NewIntVar(Domain(simple_robustness,sum_image));
+						cp_model_builder.AddAbsEquality(abs_preact, preactivation[index_example][l][j]);
+					}
 				}
 				else {
 					preactivation[index_example][l][j] = cp_model_builder.NewIntVar(Domain(-tmp3, tmp3));
@@ -1511,6 +1526,13 @@ public:
 		LOG(INFO) << "Number of solutions found: " << num_solutions;
 	}
 
+	int getRobustness() const {
+		return simple_robustness;
+	}
+
+	void setRobustness(int robustness) {
+		this->simple_robustness = robustness;
+	}
 } ; //close class CPModel
 } //close namespace sat
 } //close namespace operations_research

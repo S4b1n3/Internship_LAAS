@@ -79,8 +79,6 @@ int main(int argc, char **argv) {
 	std::vector<std::vector<std::vector<int>>> weights;
 	Data bnn_data(architecture);
 	int status;
-
-
 	operations_research::sat::Search_parameters search (_search_strategy , _per_layer_branching , _variable_heuristic , _value_heuristic , _automatic) ;
 
 	switch (_index_model) {
@@ -89,6 +87,7 @@ int main(int argc, char **argv) {
 	{
 	if (_input_file != "") {
 		operations_research::sat::CPModel_Satisfaction model(bnn_data, _prod_constraint, filename, _input_file);
+		model.setRobustness(_k);
 		model.run(_time, search);
 		status = model.print_statistics(_check_solution, _strategy);
 		weights = std::move(model.get_weights_solution());
@@ -97,6 +96,7 @@ int main(int argc, char **argv) {
 	} else {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_Satisfaction model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
+			model.setRobustness(_k);
 			model.run(_time, search);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
@@ -106,6 +106,7 @@ int main(int argc, char **argv) {
 		else{
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_Satisfaction model(bnn_data, _nb_examples, _prod_constraint, filename);
+				model.setRobustness(_k);
 				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
@@ -115,6 +116,7 @@ int main(int argc, char **argv) {
 			else{
 				std::cout << " c Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_Satisfaction model(bnn_data, 1, _prod_constraint, filename);
+				model.setRobustness(_k);
 				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
@@ -380,7 +382,7 @@ void parseOptions(int argc, char** argv){
 		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", false, 0, "int");
 		cmd.add(nb_ex);
 
-		ValueArg<int> param_k("K", "k", "Robustness parameter", false, 1, "int");
+		ValueArg<int> param_k("K", "k", "Robustness parameter", false, 0, "int");
 		cmd.add(param_k);
 
 		ValueArg<int> nb_ex_per_label("E", "nb_examples_per_label", "Number of examples per label", false, 0, "int");
