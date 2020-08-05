@@ -42,6 +42,7 @@ bool _check_solution;
 int _print_solution;
 bool _eval;
 std::string _input_file;
+int __workers ;
 
 void parseOptions(int argc, char** argv);
 int rand_a_b(int a, int b);
@@ -88,6 +89,7 @@ int main(int argc, char **argv) {
 	if (_input_file != "") {
 		operations_research::sat::CPModel_Satisfaction model(bnn_data, _prod_constraint, filename, _input_file);
 		model.setRobustness(_k);
+		model.set_workets(__workers) ;
 		model.run(_time, search);
 		status = model.print_statistics(_check_solution, _strategy);
 		weights = std::move(model.get_weights_solution());
@@ -97,6 +99,7 @@ int main(int argc, char **argv) {
 		if (_nb_examples == 0 && _nb_examples_per_label != 0){
 			operations_research::sat::CPModel_Satisfaction model(_nb_examples_per_label, bnn_data, _prod_constraint, filename);
 			model.setRobustness(_k);
+			model.set_workets(__workers) ;
 			model.run(_time, search);
 			status = model.print_statistics(_check_solution, _strategy);
 			weights = std::move(model.get_weights_solution());
@@ -107,6 +110,8 @@ int main(int argc, char **argv) {
 			if (_nb_examples != 0 && _nb_examples_per_label == 0) {
 				operations_research::sat::CPModel_Satisfaction model(bnn_data, _nb_examples, _prod_constraint, filename);
 				model.setRobustness(_k);
+				model.set_workets(__workers) ;
+
 				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
@@ -117,6 +122,7 @@ int main(int argc, char **argv) {
 				std::cout << " c Invalid number of examples : default mode launched" << '\n';
 				operations_research::sat::CPModel_Satisfaction model(bnn_data, 1, _prod_constraint, filename);
 				model.setRobustness(_k);
+				model.set_workets(__workers) ;
 				model.run(_time, search);
 				status = model.print_statistics(_check_solution, _strategy);
 				weights = std::move(model.get_weights_solution());
@@ -431,6 +437,10 @@ void parseOptions(int argc, char** argv){
 		ValueArg<std::string> in_file("I", "input_file", "Path of the input file", false, "", "string");
 		cmd.add(in_file);
 
+		ValueArg<int> workers("W","workers", "number of workers", false, 0, "int");
+		cmd.add(workers);
+
+
 		//
 		// Parse the command line.
 		//
@@ -475,6 +485,8 @@ void parseOptions(int argc, char** argv){
 		_check_solution = check_sol.getValue();
 		_print_solution = print_sol.getValue();
 		_eval = eval.getValue();
+
+		__workers = workers.getValue();
 
 		std::vector<int> v = archi.getValue();
 		for ( int i = 0; static_cast<unsigned int>(i) < v.size(); i++ ){

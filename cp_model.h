@@ -404,6 +404,10 @@ public:
 
 	int decision_variables_size ;
 
+	void set_workets(int w){
+		parameters.set_num_search_workers(w);
+	}
+
 	/* declare_preactivation_variable method
         Parameters :
         - index_example : index of the training example to classifie
