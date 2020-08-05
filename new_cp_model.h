@@ -66,6 +66,7 @@ namespace operations_research{
         CpSolverResponse response;
         Domain domain;
         Domain activation_domain;
+        LinearExpr objective;
 
         int nb_examples;
         std::vector<std::vector<uint8_t>> inputs;
@@ -76,6 +77,7 @@ namespace operations_research{
         bool check_model;
 
         bool prod_constraint;
+        //1 for max_classification and 2 for min_weight
         int optimization_problem;
         bool reified_constraints;
         int simple_robustness;
@@ -88,6 +90,8 @@ namespace operations_research{
         std::vector<bool> weight_fixed_to_0;
         std::vector<std::vector <std::vector<IntVar>>> weights;
         std::vector<std::vector <std::vector<BoolVar>>> weight_is_0;
+
+        std::vector<BoolVar> classification;
 
 
 
@@ -262,6 +266,8 @@ namespace operations_research{
             preactivation.resize(nb_examples);
             activation.resize(nb_examples);
             activation_first_layer.resize(nb_examples);
+            if (optimization_problem==1)
+                classification.resize(nb_examples);
         }
 
         /* Getters */
@@ -381,7 +387,7 @@ namespace operations_research{
                     sum_image += (int) inputs[index_example][i]  ;
             }
 
-            std::cout  << " c Test simple robustness with k = " << simple_robustness << std::endl;
+            //std::cout  << " c Test simple robustness with k = " << simple_robustness << std::endl;
 
             int number_layers = bnn_data.get_layers()-1;
             preactivation[index_example].resize(number_layers);
@@ -484,20 +490,61 @@ namespace operations_research{
 
         }
 
+        void declare_classification_variable(){
+            for (size_t i = 0; i < nb_examples; i++) {
+                classification[i] = cp_model_builder.NewBoolVar();
+            }
+        }
+
+        /* model_objective_maximize_classification method
+          This function sums all the values of classification in the LinearExpr objectif
+          Parameters : None
+          Output : None
+        */
+        void model_declare_objective(){
+            switch (optimization_problem) {
+                case 1: {
+                    //max_classification mode
+                    for (size_t i = 0; i < nb_examples; i++)
+                        objective.AddVar(classification[i]);
+                    break;
+                }
+                case 2: {
+                    //min_weight mode
+                    int nb_layers = bnn_data.get_layers();
+                    for (size_t l = 1; l < nb_layers; l++) {
+                        int size_previous_layer = bnn_data.get_archi(l-1);
+                        for(size_t i = 0; i < size_previous_layer; i++) {
+                            int size_current_layer = bnn_data.get_archi(l);
+                            for (size_t j = 0; j < size_current_layer; j++) {
+                                IntVar abs = cp_model_builder.NewIntVar(Domain(0,1));
+                                cp_model_builder.AddAbsEquality(abs, weights[l-1][i][j]);
+                                objective.AddVar(abs);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         void run(const double &nb_seconds, Search_parameters search) {
-            assert(nb_seconds>0);
+            assert(nb_seconds > 0);
             std::cout << " c declare variables and constraints " << std::endl;
             std::clock_t c_start = std::clock();
 
             declare_weight_variables();
+            if (optimization_problem==1)
+                declare_classification_variable();
             for (size_t i = 0; i < nb_examples; i++) {
                 declare_preactivation_variables(i);
                 declare_activation_variables(i);
             }
+            model_declare_objective();
             std::clock_t c_end = std::clock();
 
-            std::cout << " c Setup finished; CPU setup time is " << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
-            std::cout<< " c running the solver.. " <<std::endl;
+            std::cout << " c Setup finished; CPU setup time is " << (c_end - c_start) / CLOCKS_PER_SEC << " s"
+                      << std::endl;
+            std::cout << " c running the solver.. " << std::endl;
         }
 
 
