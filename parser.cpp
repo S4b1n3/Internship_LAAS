@@ -83,7 +83,7 @@ private:
     int train_accuracy = 0;
     int test_accuracy_max = 0;
     int train_accuracy_max = 0;
-    std::string strategy;
+    std::string input;
 
 public:
 
@@ -96,7 +96,7 @@ public:
         size_t index;
         index = _path.find_last_of("/");
         std::string filename = _path.substr(index+1);
-        strategy = filename.substr(8, filename.size()-13);
+        input = filename.substr(0, filename.size()-5);
         nb_examples = 100;
 
     }
@@ -173,8 +173,8 @@ public:
       return train_accuracy_max;
     }
 
-    std::string get_strategy() const{
-      return strategy;
+    std::string get_input() const{
+      return input;
     }
 
     /* read_file method
@@ -245,40 +245,33 @@ public:
                     if (line.substr(0, 12) == "d CONFLICTS "){
                         nb_conflicts += std::stoi(line.substr(12));
                     }
-                    if(line.substr(0, 12) == "#Variables: "){
-                        std::string temp;
-                        for (auto i : line.substr(12)) {
-                            if (i == ' ')
-                                break;
-                            else
-                                temp += i;
-                        }
-                        nb_variables += std::stoi(temp);
+                    if(line.substr(0, 12) == "d VARIABLES "){
+                        nb_variables += std::stoi(line.substr(12));
                     }
-                    if(line.substr(0,2) == "#k"){
+                    if(line.substr(0,2) == "d CONSTRAINTS "){
                         std::vector<std::string> temp;
                         split(line, temp, ' ');
                         nb_constraints += std::stoi(temp[1]);
                     }
-                    if (line.substr(0, 16) == "d TEST_ACCURACY ") {
+                    if (line.substr(0, 23) == "d TEST_STRONG_ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){
-                    	     test_accuracy += std::stoi(line.substr(16));
+                    	     test_accuracy += std::stoi(line.substr(23));
 			                     count_accuracy += 1;
 			                  }
 		                }
-                    if (line.substr(0, 17) == "d TRAIN_ACCURACY ") {
+                    if (line.substr(0, 24) == "d TRAIN_STRONG_ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){
-                      	   train_accuracy += std::stoi(line.substr(17));
+                      	   train_accuracy += std::stoi(line.substr(24));
 			                  }
                     }
-                    if (line.substr(0, 20) == "d TEST_ACCURACY_MAX ") {
+                    if (line.substr(0, 21) == "d TEST_WEAK_ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){
-                    	     test_accuracy_max += std::stoi(line.substr(20));
+                    	     test_accuracy_max += std::stoi(line.substr(21));
 			                  }
 		                }
-                    if (line.substr(0, 21) == "d TRAIN_ACCURACY_MAX ") {
+                    if (line.substr(0, 22) == "d TRAIN_WEAK_ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){
-                      	   train_accuracy_max += std::stoi(line.substr(21));
+                      	   train_accuracy_max += std::stoi(line.substr(22));
 			                  }
                     }
                 } else {
@@ -334,7 +327,7 @@ private:
     std::vector<std::string> folders;
     std::vector<std::vector<std::string>> files;
     std::vector<std::vector<int>> archi;
-    std::vector<std::string> strategies;
+    std::vector<std::string> inputs;
 
 public:
 
@@ -421,7 +414,7 @@ public:
 
     void get_strategy(const std::string &folder_name){
       std::string folder_temp = folder_name.substr(7);
-      strategies.push_back(folder_temp);
+      inputs.push_back(folder_temp);
     }
 
     /* read_folder method
@@ -534,24 +527,24 @@ public:
 
     void reorder_files(){
         std::vector<std::vector<std::string>> temp;
-        std::vector<std::vector<std::string>> strategies_temp;
-        strategies_temp.resize(files.size());
+        std::vector<std::vector<std::string>> inputs_temp;
+        inputs_temp.resize(files.size());
         for (int j = 0; j < files.size(); ++j) {
-            strategies_temp[j].resize(files[j].size());
+            inputs_temp[j].resize(files[j].size());
             for (int i = 0; i < files[j].size(); ++i) {
                 //std::cout << "stoi1 :"<< files[j][i].substr(7, files[j][i].size()-12) << '\n';
-                strategies_temp[j][i] = files[j][i].substr(7, files[j][i].size()-5);
+                inputs_temp[j][i] = files[j][i].substr(0, files[j][i].size()-5);
             }
         }
         for (int i = 0; i < files.size(); ++i) {
-            std::sort(strategies_temp[i].begin(), strategies_temp[i].end());
+            std::sort(inputs_temp[i].begin(), inputs_temp[i].end());
         }
-        temp.resize(strategies_temp.size());
-        for (int i = 0; i < strategies_temp.size(); ++i) {
-            for (int j = 0; j < strategies_temp[i].size(); ++j) {
+        temp.resize(inputs_temp.size());
+        for (int i = 0; i < inputs_temp.size(); ++i) {
+            for (int j = 0; j < inputs_temp[i].size(); ++j) {
                 for (int k = 0; k < files[i].size(); ++k) {
                     //std::cout << "stoi2 :"<< files[i][k].substr(7, files[i][k].size()-12) << '\n';
-                    if (files[i][k].substr(7, files[i][k].size()-5) == strategies_temp[i][j]){
+                    if (files[i][k].substr(0, files[i][k].size()-5) == inputs_temp[i][j]){
                         temp[i].push_back(files[i][k]);
                     }
                 }
@@ -670,7 +663,7 @@ public:
     Output :
     - header : string containg the header commands in latex*/
     static std::string print_header_table() {
-        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c| } \hline \St & \V & \C & \B & \Cf & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M & \TSA & \TRA & \TSAM & \TRAM \\ \hline)");
+        std::string header(R"(\begin{table} [!ht] \centering \begin{tabular}{ ||c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c| } \hline \I & \V & \C & \B & \Cf & \UNK & \SAT  & \UNSAT & \OPT & \OBJ & \T & \M & \TSA & \TRA & \TSAW & \TRAW \\ \hline)");
         return header;
     }
 
@@ -717,7 +710,7 @@ public:
     */
     std::string print_parser(const int &index_folder, const int &index_file){
         Parser* temp = parsers[index_folder][index_file];
-        std::string parser(temp->get_strategy()+" & "+std::to_string(temp->get_nb_variables())+" & "+
+        std::string parser(temp->get_input()+" & "+std::to_string(temp->get_nb_variables())+" & "+
                         std::to_string(temp->get_nb_constraints())+" & ");
         if(temp->get_nb_branches() > 1000000){
           int temp_branches = (int)temp->get_nb_branches()/1000000;
@@ -803,8 +796,8 @@ public:
 
 int main(int argc, char **argv) {
     num_expe = std::stoi(argv[2]);
-    //const std::string path("/home/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/");
-    const std::string path_folder("/pfcalcul/tmp/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/rocknrun/bnn_cp_model/BNN/results/"+std::string(argv[1]));
+    const std::string path_folder("/home/sabine/Documents/Seafile/Stage LAAS/or-tools_Ubuntu-18.04-64bit_v7.5.7466/BNN/results/"+std::string(argv[1])); ///home/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/
+    //const std::string path_folder("/pfcalcul/tmp/smuzellec/or-tools_Ubuntu-18.04-64bit_v7.5.7466/rocknrun/bnn_cp_model/BNN/results/"+std::string(argv[1]));
     std::cout << path_folder <<std::endl << std::endl;
     Parser_Container first_test(path_folder);
     first_test.create_parsers();

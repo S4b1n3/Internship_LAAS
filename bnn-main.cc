@@ -73,7 +73,10 @@ int main(int argc, char **argv) {
 	}
 	std::string cmd("mkdir -p "+filename);
 	int launch_cmd = system(cmd.c_str());
-	filename.append("/results_"+_strategy+".stat");
+	std::string input_name = _input_file.substr(12);
+	filename.append("/"+input_name.substr(0, input_name.size()-5)+".stat");
+
+	std::cout << "parser : "<<filename<<std::endl;
 
 	double accuracy_train, accuracy_test, accuracy_train_bis, accuracy_test_bis;
 
@@ -327,7 +330,7 @@ int main(int argc, char **argv) {
 			accuracy_train_bis = 0;
 		}
 
-		std::string result_file = filename+"/results_"+_strategy+".stat";
+		std::string result_file = filename;
 		std::ofstream results(result_file.c_str(), std::ios::app);
 		results << "d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
 		results << "d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;
