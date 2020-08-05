@@ -52,24 +52,6 @@ int main(int argc, char **argv) {
 
 	srand(_seed);
 
-	std::string filename;
-	filename.append(_output_path);
-
-	if(_prod_constraint)
-		filename.append("/results/resultsM"+std::to_string(_index_model)+"-C/results");
-	else
-		filename.append("/results/resultsM"+std::to_string(_index_model)+"/results");
-
-	for (size_t i = 1; i < architecture.size()-1; i++) {
-		filename.append("_"+std::to_string(architecture[i]));
-	}
-	if (architecture.size()-2 == 0) {
-		filename.append("_0");
-	}
-	std::string cmd("mkdir -p "+filename);
-	int launch_cmd = system(cmd.c_str());
-	filename.append("/results_"+_strategy+".stat");
-
 	double accuracy_train, accuracy_test, accuracy_train_bis, accuracy_test_bis;
 
 	std::vector<std::vector<std::vector<int>>> weights;
@@ -82,7 +64,11 @@ int main(int argc, char **argv) {
 
     operations_research::sat::New_CP_Model model(bnn_data);
     model.set_data(2,1);
-    model.set_model_config(_k, _prod_constraint, 1, true);
+    model.set_simple_robustness(_k);
+    model.set_prod_constraint(_prod_constraint);
+    model.set_optimization_problem(1);
+    model.set_reified_constraints(true);
+    model.create_result_file(_output_path, "test.stat");
 	model.run(_time, search);
 
 
@@ -91,7 +77,7 @@ int main(int argc, char **argv) {
 	if (_eval) {
 		if(status == 2 || status == 4){
 			std::cout << " c starting evaluation..." << '\n';
-			Evaluation test(weights, bnn_data, filename);
+			Evaluation test(weights, bnn_data, model.get_output_file());
 			std::cout << " c Testing accuracy with strong classification criterion : "<< '\n';
 			accuracy_test = test.run_evaluation(true, true);
 			std::cout << " c Training accuracy with strong classification criterion : "<< '\n';
@@ -114,7 +100,7 @@ int main(int argc, char **argv) {
 			accuracy_train_bis = 0;
 		}
 
-		std::string result_file = filename+"/results_"+_strategy+".stat";
+		std::string result_file = model.get_output_file();
 		std::ofstream results(result_file.c_str(), std::ios::app);
 		results << "d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
 		results << "d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;

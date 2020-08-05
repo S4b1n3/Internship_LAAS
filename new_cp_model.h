@@ -76,6 +76,7 @@ namespace operations_research{
         std::vector<std::vector<std::vector<int>>> weights_reference;
         bool check_model;
 
+        std::string output_file;
         bool prod_constraint;
         //1 for max_classification and 2 for min_weight
         int optimization_problem;
@@ -224,6 +225,10 @@ namespace operations_research{
                             }
                         }
                     }
+                    if (architecture != bnn_data.get_archi()){
+                        std::cout << " c The architecture of the solution file is different from the architecture of the model. Please select an other file." << std::endl;
+                        exit(EXIT_FAILURE);
+                    }
                     if (line.substr(0, 8) == "WEIGHTS ") {
                         int index_str = 8;
                         weights_reference.resize(architecture.size());
@@ -258,11 +263,23 @@ namespace operations_research{
                 init_dataset(i);
         }
 
-        void set_model_config(const int &_simple_robustness, const bool &_prod_constraint, const int &_optimization_problem, const bool &_reified_constraints){
-            simple_robustness = _simple_robustness;
-            prod_constraint = _prod_constraint;
-            optimization_problem = _optimization_problem;
-            reified_constraints = _reified_constraints;
+        void set_simple_robustness(int robustness){
+            this->simple_robustness = robustness;
+        }
+
+        void set_prod_constraint(bool use_product_constraints){
+            this->prod_constraint = use_product_constraints;
+        }
+
+        void set_optimization_problem(int optimization_mode){
+            this->optimization_problem = optimization_mode;
+        }
+
+        void set_reified_constraints(bool use_reified_constraints){
+            this->reified_constraints = use_reified_constraints;
+        }
+
+        void set_model_config(){
             preactivation.resize(nb_examples);
             activation.resize(nb_examples);
             activation_first_layer.resize(nb_examples);
@@ -284,6 +301,10 @@ namespace operations_research{
 
         int get_robustness() const {
             return simple_robustness;
+        }
+
+        std::string get_output_file() const{
+            return output_file;
         }
 
         /* get_a_lj method
@@ -350,13 +371,6 @@ namespace operations_research{
             activation_first_layer[index_example].resize(size);
             for (size_t i = 0; i < size; ++i) {
                 activation_first_layer[index_example][i] = (int)inputs[index_example][i];
-                if (activation_first_layer[index_example][i] == 0) {
-                    int size_second_layer = bnn_data.get_archi(1);
-                    if(!check_model){
-                        for (size_t j = 0; j < size_second_layer; ++j)
-                            cp_model_builder.AddEquality(get_w_ilj(i, 1, j), 0);
-                    }
-                }
             }
 
             int number_remaining_layers = bnn_data.get_layers()-1;
@@ -491,9 +505,30 @@ namespace operations_research{
         }
 
         void declare_classification_variable(){
-            for (size_t i = 0; i < nb_examples; i++) {
+            for (size_t i = 0; i < nb_examples; ++i) {
                 classification[i] = cp_model_builder.NewBoolVar();
             }
+        }
+
+        void create_result_file(std::string _output_path, std::string filename){
+            output_file = _output_path;
+
+            if(prod_constraint)
+                output_file.append("/results/resultsM"+std::to_string(optimization_problem)+"-C/results");
+            else
+                output_file.append("/results/resultsM"+std::to_string(optimization_problem)+"/results");
+
+            int nb_layers_minus_one = bnn_data.get_layers()-1;
+            for (size_t i = 1; i < nb_layers_minus_one; ++i) {
+                output_file.append("_"+std::to_string(bnn_data.get_archi(i)));
+            }
+            if (nb_layers_minus_one-1 == 0) {
+                output_file.append("_0");
+            }
+            std::string cmd = "mkdir -p "+output_file;
+            int launch_cmd = system(cmd.c_str());
+
+            output_file.append("/"+filename+".stat");
         }
 
         /* model_objective_maximize_classification method
@@ -532,6 +567,7 @@ namespace operations_research{
             std::cout << " c declare variables and constraints " << std::endl;
             std::clock_t c_start = std::clock();
 
+            set_model_config();
             declare_weight_variables();
             if (optimization_problem==1)
                 declare_classification_variable();
