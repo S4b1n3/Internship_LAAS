@@ -67,6 +67,8 @@ namespace operations_research{
         Domain domain;
         Domain activation_domain;
         LinearExpr objective;
+        SatParameters parameters;
+        Model model;
 
         int nb_examples;
         std::vector<std::vector<uint8_t>> inputs;
@@ -78,8 +80,8 @@ namespace operations_research{
 
         std::string output_file;
         bool prod_constraint;
-        //1 for max_classification and 2 for min_weight
-        int optimization_problem;
+        //1 for min_weight and 2 for max_classification
+        char optimization_problem;
         bool reified_constraints;
         int simple_robustness;
 
@@ -271,7 +273,7 @@ namespace operations_research{
             this->prod_constraint = use_product_constraints;
         }
 
-        void set_optimization_problem(int optimization_mode){
+        void set_optimization_problem(char optimization_mode){
             this->optimization_problem = optimization_mode;
         }
 
@@ -279,12 +281,21 @@ namespace operations_research{
             this->reified_constraints = use_reified_constraints;
         }
 
+        void set_workets(int w){
+            parameters.set_num_search_workers(w);
+        }
+
         void set_model_config(){
             preactivation.resize(nb_examples);
             activation.resize(nb_examples);
             activation_first_layer.resize(nb_examples);
-            if (optimization_problem==1)
+            if (optimization_problem=='2')
                 classification.resize(nb_examples);
+            if (optimization_problem == '1' && reified_constraints){
+                std::cout << " c Reified contraints can not be used with min weight problem " << std::endl;
+                std::cout << " c Changing boolean reified_constraint to false " << std::endl;
+                reified_constraints = false;
+            }
         }
 
         /* Getters */
@@ -538,28 +549,64 @@ namespace operations_research{
         */
         void model_declare_objective(){
             switch (optimization_problem) {
-                case 1: {
+                case '1': {
+                    //min_weight mode
+                    int nb_layers = bnn_data.get_layers();
+                    for (size_t l = 1; l < nb_layers; l++) {
+                        int size_previous_layer = bnn_data.get_archi(l - 1);
+                        for (size_t i = 0; i < size_previous_layer; i++) {
+                            int size_current_layer = bnn_data.get_archi(l);
+                            for (size_t j = 0; j < size_current_layer; j++) {
+                                IntVar abs = cp_model_builder.NewIntVar(Domain(0, 1));
+                                cp_model_builder.AddAbsEquality(abs, weights[l - 1][i][j]);
+                                objective.AddVar(abs);
+                            }
+                        }
+                    }
+                    break;
+                }
+                case '2': {
                     //max_classification mode
                     for (size_t i = 0; i < nb_examples; i++)
                         objective.AddVar(classification[i]);
                     break;
                 }
-                case 2: {
-                    //min_weight mode
-                    int nb_layers = bnn_data.get_layers();
-                    for (size_t l = 1; l < nb_layers; l++) {
-                        int size_previous_layer = bnn_data.get_archi(l-1);
-                        for(size_t i = 0; i < size_previous_layer; i++) {
-                            int size_current_layer = bnn_data.get_archi(l);
-                            for (size_t j = 0; j < size_current_layer; j++) {
-                                IntVar abs = cp_model_builder.NewIntVar(Domain(0,1));
-                                cp_model_builder.AddAbsEquality(abs, weights[l-1][i][j]);
-                                objective.AddVar(abs);
-                            }
-                        }
-                    }
-                }
             }
+        }
+
+
+        /* model_activation_constraint method
+            Parameters :
+            - index_example : index of the example to classifie
+            - l : layer \in [1, bnn_data.get_layers()]
+            - j : neuron on layer l \in [0, bnn_data.get_archi(l)]
+
+            preactivation[l][j] >= 0 => activation[l][j] = 1
+            preactivation[l][j] < 0 => activation[l][j] = -1
+            Output : None
+    	 */
+        void model_activation_constraints(const int &index_example, const int &l, const int &j){
+            //_temp_bool is true iff preactivation[l][j] < 0
+            //_temp_bool is false iff preactivation[l][j] >= 0
+
+            BoolVar _temp_bool = cp_model_builder.NewBoolVar();
+
+            if (reified_constraints) {
+                cp_model_builder.AddLessThan(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(
+                        {_temp_bool, classification[index_example]});
+                cp_model_builder.AddGreaterOrEqual(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(
+                        {Not(_temp_bool), classification[index_example]});
+                cp_model_builder.AddEquality(activation[index_example][l - 1][j], -1).OnlyEnforceIf(
+                        {_temp_bool, classification[index_example]});
+                cp_model_builder.AddEquality(activation[index_example][l - 1][j], 1).OnlyEnforceIf(
+                        {Not(_temp_bool), classification[index_example]});
+            } else {
+                cp_model_builder.AddLessThan(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(_temp_bool);
+                cp_model_builder.AddGreaterOrEqual(get_a_lj(index_example, l, j), 0).OnlyEnforceIf(Not(_temp_bool));
+                cp_model_builder.AddEquality(activation[index_example][l - 1][j], -1).OnlyEnforceIf(_temp_bool);
+                cp_model_builder.AddEquality(activation[index_example][l - 1][j], 1).OnlyEnforceIf(Not(_temp_bool));
+            }
+
         }
 
         void run(const double &nb_seconds, Search_parameters search) {
@@ -569,11 +616,20 @@ namespace operations_research{
 
             set_model_config();
             declare_weight_variables();
-            if (optimization_problem==1)
+            if (optimization_problem=='2')
                 declare_classification_variable();
             for (size_t i = 0; i < nb_examples; i++) {
                 declare_preactivation_variables(i);
                 declare_activation_variables(i);
+            }
+            for (size_t i = 0; i < nb_examples; i++) {
+                int nb_layers = bnn_data.get_layers();
+                for (size_t l = 1; l < nb_layers; l++) {
+                    int size_current_layer =  bnn_data.get_archi(l);
+                    for (size_t j = 0; j < size_current_layer; j++) {
+                        model_activation_constraints(i, l, j);
+                    }
+                }
             }
             model_declare_objective();
             std::clock_t c_end = std::clock();

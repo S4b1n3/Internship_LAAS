@@ -22,6 +22,14 @@ double _time;
 std::vector<int> architecture;
 int _nb_neurons;
 bool _prod_constraint;
+std::string _output_path;
+bool _check_solution;
+int _print_solution;
+bool _eval;
+std::string _input_file;
+bool _reified_constraints;
+
+
 //This is no longer used : --> Remove it's usage
 std::string _strategy;
 //Use specific search strategy ?
@@ -33,11 +41,7 @@ std::string	_value_heuristic ;
 // Use automatic search ?
 int _automatic ;
 
-std::string _output_path;
-bool _check_solution;
-int _print_solution;
-bool _eval;
-std::string _input_file;
+
 
 void parseOptions(int argc, char** argv);
 int rand_a_b(int a, int b);
@@ -66,8 +70,8 @@ int main(int argc, char **argv) {
     model.set_data(2,1);
     model.set_simple_robustness(_k);
     model.set_prod_constraint(_prod_constraint);
-    model.set_optimization_problem(1);
-    model.set_reified_constraints(true);
+    model.set_optimization_problem(_index_model);
+    model.set_reified_constraints(_reified_constraints);
     model.create_result_file(_output_path, "test.stat");
 	model.run(_time, search);
 
@@ -202,13 +206,18 @@ void parseOptions(int argc, char** argv){
 		ValueArg<int> automatic("J", "automatic", "level of automatic search: 0,1,2 ", false, 0, "double");
 		cmd.add(automatic);
 
+        ValueArg<std::string> out_file("O", "output_file", "Path of the output file", false, "BNN", "string");
+        cmd.add(out_file);
+
+        ValueArg<std::string> in_file("I", "input_file", "Path of the input file", false, "", "string");
+        cmd.add(in_file);
+
+        SwitchArg reified_const("R", "reified", "Use of reified constraints", false);
+        cmd.add(reified_const);
+
 		//END OF SEARCH Arguments
 
-		ValueArg<std::string> out_file("O", "output_file", "Path of the output file", false, "BNN", "string");
-		cmd.add(out_file);
 
-		ValueArg<std::string> in_file("I", "input_file", "Path of the input file", false, "", "string");
-		cmd.add(in_file);
 
 		//
 		// Parse the command line.
@@ -224,6 +233,12 @@ void parseOptions(int argc, char** argv){
 		_k = param_k.getValue();
 		_time = time.getValue();
 		_prod_constraint = bool_prod.getValue();
+        _output_path = out_file.getValue();
+        _input_file = in_file.getValue();
+        _check_solution = check_sol.getValue();
+        _print_solution = print_sol.getValue();
+        _eval = eval.getValue();
+        _reified_constraints = reified_const.getValue();
 
 
 		//Search parameters
@@ -248,12 +263,6 @@ void parseOptions(int argc, char** argv){
 		}
 
 		std::cout << " c _strategy is : " << _strategy << std::endl;
-
-		_output_path = out_file.getValue();
-		_input_file = in_file.getValue();
-		_check_solution = check_sol.getValue();
-		_print_solution = print_sol.getValue();
-		_eval = eval.getValue();
 
 		std::vector<int> v = archi.getValue();
 		for ( int i = 0; static_cast<unsigned int>(i) < v.size(); i++ ){
