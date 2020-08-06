@@ -614,7 +614,7 @@ namespace operations_research{
             if(l == 1){
                 LinearExpr temp(0);
                 int size_first_layer = bnn_data.get_archi(0);
-                for (size_t i = 0; i < size_first_layer; i++) {
+                for (size_t i = 0; i < size_first_layer; ++i) {
                     if (activation_first_layer[index_example][i] != 0)
                         if (! weight_fixed_to_0[i])
                         {
@@ -629,7 +629,7 @@ namespace operations_research{
             else{
                 std::vector<IntVar> temp(bnn_data.get_archi(l-1));
                 int size_previous_layer = bnn_data.get_archi(l-1) ;
-                for (size_t i = 0; i < size_previous_layer; i++) {
+                for (size_t i = 0; i < size_previous_layer; ++i) {
                     temp[i] = cp_model_builder.NewIntVar(domain);
                     if(!prod_constraint){
 
@@ -684,10 +684,6 @@ namespace operations_research{
                             cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b3));
 
                         }
-
-
-
-
                     }
                 }
                 if (reified_constraints)
@@ -696,6 +692,42 @@ namespace operations_research{
                     cp_model_builder.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp));
             }
         }
+
+        /* model_output_constraint method
+          This function forces the output to match the label
+          Parameters :
+          - index_examples : index of examples
+          Output : None
+        */
+        void model_output_constraints(const int &index_examples){
+            int label = labels[index_examples];
+            int size_previous_layer = bnn_data.get_layers()-2;
+            int size_last_layer = bnn_data.get_archi(bnn_data.get_layers()-1);
+
+            switch (optimization_problem) {
+                case '1':{
+                    cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][label], 1);
+                    for (size_t i = 0; i < size_last_layer; i++) {
+                        if (i != label) {
+                            cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][i], -1);
+                        }
+                    }
+                    break;
+                }
+                case '2':{
+                    LinearExpr last_layer(0);
+                    for (size_t i = 0; i < size_last_layer; i++) {
+                        if (i != label) {
+                            last_layer.AddVar(activation[index_examples][size_previous_layer][i]);
+                        }
+                    }
+                    cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][label], 1).OnlyEnforceIf(classification[index_examples]);
+                    cp_model_builder.AddEquality(last_layer, -(size_last_layer - 1)).OnlyEnforceIf(classification[index_examples]);
+                    break;
+                }
+            }
+        }
+
 
         void run(const double &nb_seconds, Search_parameters search) {
             assert(nb_seconds > 0);
@@ -706,19 +738,22 @@ namespace operations_research{
             declare_weight_variables();
             if (optimization_problem=='2')
                 declare_classification_variable();
-            for (size_t i = 0; i < nb_examples; i++) {
+            for (size_t i = 0; i < nb_examples; ++i) {
                 declare_preactivation_variables(i);
                 declare_activation_variables(i);
             }
-            for (size_t i = 0; i < nb_examples; i++) {
+            for (size_t i = 0; i < nb_examples; ++i) {
                 int nb_layers = bnn_data.get_layers();
-                for (size_t l = 1; l < nb_layers; l++) {
+                for (size_t l = 1; l < nb_layers; ++l) {
                     int size_current_layer =  bnn_data.get_archi(l);
-                    for (size_t j = 0; j < size_current_layer; j++) {
+                    for (size_t j = 0; j < size_current_layer; ++j) {
                         model_activation_constraints(i, l, j);
                         model_preactivation_constraints(i, l, j);
                     }
                 }
+            }
+            for (size_t i = 0; i < nb_examples; ++i) {
+                model_output_constraints(i);
             }
             model_declare_objective();
             std::clock_t c_end = std::clock();
@@ -727,7 +762,6 @@ namespace operations_research{
                       << std::endl;
             std::cout << " c running the solver.. " << std::endl;
         }
-
 
     };
 
