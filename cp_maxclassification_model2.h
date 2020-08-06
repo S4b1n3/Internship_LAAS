@@ -148,7 +148,7 @@ namespace operations_research{
     					IntVar sum_temp_1 = cp_model_builder.NewIntVar(Domain(0, 2));
     					cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]})).OnlyEnforceIf(classification[index_example]);
     					cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1)).OnlyEnforceIf(classification[index_example]);
-    					cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);
+    					cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation).OnlyEnforceIf(classification[index_example]);
 
     				}
     				else {

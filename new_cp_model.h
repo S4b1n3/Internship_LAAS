@@ -609,6 +609,94 @@ namespace operations_research{
 
         }
 
+        void model_preactivation_constraints(const int &index_example, const int &l, const int &j){
+
+            if(l == 1){
+                LinearExpr temp(0);
+                int size_first_layer = bnn_data.get_archi(0);
+                for (size_t i = 0; i < size_first_layer; i++) {
+                    if (activation_first_layer[index_example][i] != 0)
+                        if (! weight_fixed_to_0[i])
+                        {
+                            temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
+                        }
+                }
+                if (reified_constraints)
+                    cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp).OnlyEnforceIf(classification[index_example]);
+                else
+                    cp_model_builder.AddEquality(get_a_lj(index_example, 1, j), temp);
+            }
+            else{
+                std::vector<IntVar> temp(bnn_data.get_archi(l-1));
+                int size_previous_layer = bnn_data.get_archi(l-1) ;
+                for (size_t i = 0; i < size_previous_layer; i++) {
+                    temp[i] = cp_model_builder.NewIntVar(domain);
+                    if(!prod_constraint){
+
+                        IntVar sum_weights_activation = cp_model_builder.NewIntVar(Domain(-2,2));
+                        IntVar sum_temp_1 = cp_model_builder.NewIntVar(Domain(0, 2));
+                        if (reified_constraints){
+                            cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]})).OnlyEnforceIf(classification[index_example]);
+                            cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1)).OnlyEnforceIf(classification[index_example]);
+                            cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation).OnlyEnforceIf(classification[index_example]);
+
+                        }else{
+                            cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
+                            cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1));
+                            cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);
+                        }
+                    }
+                    else {
+
+                        /*
+                      (C == 0) ssi (weights == 0)
+                        (C == 0) => (weights == 0) et (weights == 0) => (C == 0)
+                        Not(weights == 0) => Not(C == 0) et Not(C == 0) => (Not weights == 0)
+                      (C == 1) ssi (a == b)
+                        (C == 1) => (a == b) et (a == b) => (C == 1)
+                        Not(a == b) => Not(C == 1) et Not(C == 1) => Not(a == b)
+
+                         */
+
+                        //BoolVar b1 = cp_model_builder.NewBoolVar();
+                        //std::cout << " HERE " << std::endl;
+                        //Implement b1 == (temp[i] == 0)
+                        BoolVar b3 = cp_model_builder.NewBoolVar();
+
+                        if (reified_constraints){
+                            cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf({get_weight_is_0_ilj(i,l,j), classification[index_example]});
+                            cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf({Not(get_weight_is_0_ilj(i,l,j)), classification[index_example]});
+                            // Implement b3 == (temp[i] == 1)
+                            cp_model_builder.AddEquality(temp[i], 1).OnlyEnforceIf({b3, classification[index_example]});
+                            cp_model_builder.AddNotEqual(temp[i], 1).OnlyEnforceIf({Not(b3), classification[index_example]});
+                            //Implement b3 == (weights == activation)
+                            cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf({b3, classification[index_example]});
+                            cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf({Not(b3), classification[index_example]});
+
+                        }else{
+                            cp_model_builder.AddEquality(temp[i], 0).OnlyEnforceIf(get_weight_is_0_ilj (i,l,j));
+                            cp_model_builder.AddNotEqual(temp[i], 0).OnlyEnforceIf(Not(get_weight_is_0_ilj (i,l,j) ) );
+                            // Implement b3 == (temp[i] == 1)
+                            cp_model_builder.AddEquality(temp[i], 1).OnlyEnforceIf(b3);
+                            cp_model_builder.AddNotEqual(temp[i], 1).OnlyEnforceIf(Not(b3));
+                            //Implement b3 == (weights == activation)
+                            cp_model_builder.AddEquality(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(b3);
+                            cp_model_builder.AddNotEqual(get_w_ilj(i, l, j), activation[index_example][l-2][i]).OnlyEnforceIf(Not(b3));
+
+                        }
+
+
+
+
+                    }
+                }
+                if (reified_constraints)
+                    cp_model_builder.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp)).OnlyEnforceIf(classification[index_example]);
+                else
+                    cp_model_builder.AddEquality(get_a_lj(index_example, l, j), LinearExpr::Sum(temp));
+            }
+        }
+
         void run(const double &nb_seconds, Search_parameters search) {
             assert(nb_seconds > 0);
             std::cout << " c declare variables and constraints " << std::endl;
@@ -628,6 +716,7 @@ namespace operations_research{
                     int size_current_layer =  bnn_data.get_archi(l);
                     for (size_t j = 0; j < size_current_layer; j++) {
                         model_activation_constraints(i, l, j);
+                        model_preactivation_constraints(i, l, j);
                     }
                 }
             }
