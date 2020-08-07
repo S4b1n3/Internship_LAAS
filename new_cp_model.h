@@ -36,6 +36,8 @@
 #include <cmath>
 #include <cinttypes>
 
+#include "evaluation.h"
+
 
 
 namespace operations_research{
@@ -88,6 +90,7 @@ namespace operations_research{
         std::ostream* out = &std::cout;
         std::ofstream fout;
 
+        std::vector<BoolVar> classification;
         //ORTools requires coefficients to be int64
         std::vector<std::vector<int64>> activation_first_layer;
         std::vector <std::vector<std::vector<IntVar>>> activation;
@@ -97,7 +100,10 @@ namespace operations_research{
         std::vector<std::vector <std::vector<IntVar>>> weights;
         std::vector<std::vector <std::vector<BoolVar>>> weight_is_0;
 
-        std::vector<BoolVar> classification;
+        std::vector<std::vector <std::vector<int>>> weights_solution;
+        std::vector <std::vector<int>> activation_solution;
+        std::vector <std::vector<int>> preactivation_solution;
+        std::vector<int> classification_solution;
 
 
 
@@ -289,16 +295,28 @@ namespace operations_research{
         }
 
         void set_output_stream(std::string output){
-            fout.open(output, std::ios::app);
-            out = &fout;
+            if (output != ""){
+                fout.open(output, std::ios::app);
+                out = &fout;
+            }
         }
 
         void set_model_config(){
+            //Initialisation of the variables
+            int nb_layers = bnn_data.get_layers();
+            weights.resize(nb_layers-1);
             preactivation.resize(nb_examples);
             activation.resize(nb_examples);
             activation_first_layer.resize(nb_examples);
-            if (optimization_problem=='2')
+
+            weights_solution.resize(nb_layers-1);
+            preactivation_solution.resize(nb_layers-1);
+            activation_solution.resize(nb_layers);
+
+            if (optimization_problem=='2'){
                 classification.resize(nb_examples);
+                classification_solution.resize(nb_examples);
+            }
             if (optimization_problem == '1' && reified_constraints){
                 *out << " c Reified contraints can not be used with min weight problem " << std::endl;
                 *out << " c Changing boolean reified_constraint to false " << std::endl;
@@ -545,11 +563,9 @@ namespace operations_research{
 
         void declare_weight_variables() {
 
-            //Initialisation of the variables
-            int nb_layers = bnn_data.get_layers();
-            weights.resize(nb_layers-1);
             //*out << " c weight is fixed size is " << bnn_data.get_archi(nb_layers-1) << std::endl;
             //We use weight_is_0 only for all layers except the first one (the pre-activation constraints from layer  0 et 0 use a linear constraint).
+            int nb_layers = bnn_data.get_layers();
             if (prod_constraint)
                 weight_is_0.resize(nb_layers-2);
             for (size_t l = 1; l < nb_layers; ++l) {
@@ -903,8 +919,175 @@ namespace operations_research{
 
         }
 
-    };
+        void check(const CpSolverResponse &r, const bool &check_sol, const std::string &strategy) {
+            *out << " c entering check method " << std::endl;
+            int nb_layers = bnn_data.get_layers();
+            for (size_t l = 1; l < nb_layers; ++l) {
+                int size_previous_layer = bnn_data.get_archi(l-1);
+                weights_solution[l-1].resize(size_previous_layer);
+                for (size_t i = 0; i < size_previous_layer; ++i) {
+                    int size_current_layer = bnn_data.get_archi(l);
+                    weights_solution[l-1][i].resize(size_current_layer);
+                    for (size_t j = 0; j < size_current_layer; ++j)
+                        weights_solution[l-1][i][j] = SolutionIntegerValue(r, weights[l-1][i][j]);
+                }
+            }
 
+            int check_count = nb_examples;
+            for (size_t i = 0; i < nb_examples; i++) {
+                bool classif = true;
+
+                if (optimization_problem == '2'){
+                    classification_solution[i] = SolutionIntegerValue(r, classification[i]);
+                    classif = (classification_solution[i] == 1);
+                }
+
+
+                for (size_t l = 0; l < nb_layers - 1; l++) {
+                    int size_next_layer = bnn_data.get_archi(l + 1);
+                    preactivation_solution[l].resize(size_next_layer);
+                    for (size_t j = 0; j < size_next_layer; j++) {
+                        preactivation_solution[l][j] = SolutionIntegerValue(r, preactivation[i][l][j]);
+                    }
+                }
+
+                for (size_t l = 0; l < nb_layers; l++) {
+                    int size_current_layer = bnn_data.get_archi(l);
+                    activation_solution[l].resize(size_current_layer);
+                    for (size_t j = 0; j < size_current_layer; j++) {
+                        if (l == 0) {
+                            activation_solution[l][j] = (int) activation_first_layer[i][j];
+                        } else {
+                            activation_solution[l][j] = SolutionIntegerValue(r, activation[i][l - 1][j]);
+                        }
+                    }
+                }
+
+
+                if (check_sol &&  (!reified_constraints || (reified_constraints && classif))) {
+                    Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution);
+                    if (!check_model) {
+                        check_solution.set_evaluation_config(true, true, classif, true, false);
+                        *out << "d CHECKING_EXAMPLE "<<i << " : ";
+                    }else
+                        check_solution.set_evaluation_config(true, false, classif, true, false);
+                    bool checking = check_solution.run_solution_light(idx_examples[i]);
+                    if (!checking) {
+                        check_count--;
+                    }
+                }
+
+            }
+            *out << "d CHECKING "<<(check_count == nb_examples)<<std::endl;
+        }
+
+        // Print some statistics from the solver: Runtime, number of nodes, number of propagation (filtering, pruning), memory,
+        // Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
+        // Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
+        void print_statistics(const bool &check_solution, const bool &eval, const std::string &strategy){
+            response = SolveCpModel(cp_model_builder.Build(), &model);
+            *out << "\n c Some statistics on the solver response : " << '\n';
+            *out << "d RUN_TIME " << response.wall_time() << std::endl;
+            *out << "d MEMORY " << sysinfo::MemoryUsageProcess() << std::endl;
+            *out << "d STATUS "<<response.status() << std::endl;
+            *out << "d OBJECTIVE "<<response.objective_value() << std::endl;
+            *out << "d BEST_BOUND "<<response.best_objective_bound() << std::endl;
+            *out << "d BOOLEANS " << response.num_booleans() << std::endl;
+            *out << "d CONFLICTS " << response.num_conflicts() << std::endl;
+            *out << "d PROPAGATION " << response.num_binary_propagations() << std::endl;
+            *out << "d INTEGER_PROPAGATION " << response.num_integer_propagations() << std::endl;
+            *out << "d BRANCHES " << response.num_branches() << std::endl;
+            if (response.status()== CpSolverStatus::OPTIMAL || response.status() == CpSolverStatus::FEASIBLE) {
+                check(response, check_solution, strategy);
+                if (eval)
+                    eval_model();
+            }
+        }
+
+        void eval_model(){
+            double accuracy_train, accuracy_test, accuracy_train_bis, accuracy_test_bis;
+            *out << " c starting evaluation..." << '\n';
+            Evaluation test(weights_solution, bnn_data);
+            *out << " c Testing accuracy with strong classification criterion : "<< '\n';
+            accuracy_test = test.run_evaluation(true, true);
+            *out << " c Training accuracy with strong classification criterion : "<< '\n';
+            accuracy_train = test.run_evaluation(false, true);
+            *out << " c Testing accuracy with weak classification criterion : "<< '\n';
+            accuracy_test_bis = test.run_evaluation(true, false);
+            *out << " c Training accuracy with weak classification criterion : "<< '\n';
+            accuracy_train_bis = test.run_evaluation(false, false);
+
+            if (accuracy_test < 0.1) {
+                accuracy_test = 0;
+            }
+            if (accuracy_train < 0.1) {
+                accuracy_train = 0;
+            }
+            if (accuracy_test_bis < 0.1) {
+                accuracy_test_bis = 0;
+            }
+            if (accuracy_train_bis < 0.1) {
+                accuracy_train_bis = 0;
+            }
+
+            *out << " d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
+            *out << " d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;
+            *out << " d TEST_WEAK_ACCURACY " << accuracy_test_bis << std::endl;
+            *out << " d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
+        }
+
+        void print_solution(const CpSolverResponse &r, const int &verbose, const int &index = 0){
+
+            assert(index >=0);
+            assert (verbose);
+            if(r.status() == CpSolverStatus::OPTIMAL || r.status() == CpSolverStatus::FEASIBLE){
+
+                int nb_layers = bnn_data.get_layers();
+                if (verbose >1)
+                {
+                    *out << "\n s Solution "<< index << " : \n";
+
+                    *out << "   Weights" << '\n';
+                    for (size_t l = 1; l < nb_layers; ++l) {
+                        *out << "   Layer "<< l << ": \n";
+                        int size_previous_layer = bnn_data.get_archi(l-1);
+                        for (size_t i = 0; i < size_previous_layer; ++i) {
+                            int size_current_layer = bnn_data.get_archi(l);
+                            for (size_t j = 0; j < size_current_layer; ++j) {
+                                *out << "\t w["<<l<<"]["<<i<<"]["<<j<<"] = " << weights_solution[l-1][i][j];
+                            }
+                            *out << '\n';
+                        }
+                        *out << '\n';
+                    }
+                }
+                for (size_t i = 0; i < nb_examples; i++) {
+                    *out << " s Example "<< i ;
+                    if (verbose >1)
+                        *out << " \n" ;
+                    if (verbose >1)
+                        *out << "   Input : " << '\n';
+                    if (verbose >1)
+                        for (size_t j = 0; j < 784; j++) {
+                            *out << (int)inputs[i][j] << " ";
+                        }
+                    if (verbose >1)
+                        *out << " \n" ;
+                    *out << "  Label : "<< labels[i] ;
+                    if (verbose >1)
+                        *out << " \n" ;
+                    if (optimization_problem == '2')
+                        *out << "   Classification : " << SolutionIntegerValue(r, classification[i]) << '\n';
+                    else
+                        *out << "   Classification : " << 1 << '\n';
+                }
+
+            }
+            if(r.status()==CpSolverStatus::MODEL_INVALID){
+                LOG(INFO) << ValidateCpModel(cp_model_builder.Build());
+            }
+        }
+    };
   }
 }
 

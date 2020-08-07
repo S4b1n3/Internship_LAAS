@@ -1187,10 +1187,10 @@ public:
 			if (check_sol) {
         Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution);
         if (!check_model) {
-          check_solution.set_evaluation_config(false, true, true, true, false);
+          check_solution.set_evaluation_config(true, true, true, true, false);
           std::cout << " d CHECKING "<<i << " : ";
         }else
-          check_solution.set_evaluation_config(false, false, true, true, false);
+          check_solution.set_evaluation_config(true, false, true, true, false);
         bool checking = check_solution.run_solution_light(idx_examples[i]);
         if (!checking) {
           check_count--;
