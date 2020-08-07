@@ -22,7 +22,7 @@ double _time;
 std::vector<int> architecture;
 int _nb_neurons;
 bool _prod_constraint;
-std::string _output_path;
+std::string _output_file;
 bool _check_solution;
 int _print_solution;
 bool _eval;
@@ -67,12 +67,17 @@ int main(int argc, char **argv) {
 
 
     operations_research::sat::New_CP_Model model(bnn_data);
-    model.set_data(2,1);
+    if (_nb_examples != 0)
+        model.set_data(1, _nb_examples);
+    if (_nb_examples_per_label != 0)
+        model.set_data(2,_nb_examples_per_label);
+    if (_input_file != "")
+        model.set_data(_input_file);
     model.set_simple_robustness(_k);
     model.set_prod_constraint(_prod_constraint);
     model.set_optimization_problem(_index_model);
     model.set_reified_constraints(_reified_constraints);
-    model.create_result_file(_output_path, "test.stat");
+    model.set_output_stream(_output_file);
 	model.run(_time, search);
 
 
@@ -233,7 +238,7 @@ void parseOptions(int argc, char** argv){
 		_k = param_k.getValue();
 		_time = time.getValue();
 		_prod_constraint = bool_prod.getValue();
-        _output_path = out_file.getValue();
+        _output_file = out_file.getValue();
         _input_file = in_file.getValue();
         _check_solution = check_sol.getValue();
         _print_solution = print_sol.getValue();

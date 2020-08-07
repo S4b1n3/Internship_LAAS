@@ -80,10 +80,13 @@ namespace operations_research{
 
         std::string output_file;
         bool prod_constraint;
-        //1 for min_weight and 2 for max_classification
+        //0 for satisfaction, 1 for min_weight and 2 for max_classification
         char optimization_problem;
         bool reified_constraints;
         int simple_robustness;
+        int decision_variables_size;
+        std::ostream* out = &std::cout;
+        std::ofstream fout;
 
         //ORTools requires coefficients to be int64
         std::vector<std::vector<int64>> activation_first_layer;
@@ -116,7 +119,7 @@ namespace operations_research{
             activation_domain(Domain::FromValues({-1,1}))
         {
             bnn_data = _data;
-            std::cout << " c NUMBER OF LAYERS "<<bnn_data.get_layers() << '\n';
+            *out << " c NUMBER OF LAYERS "<<bnn_data.get_layers() << '\n';
             bnn_data.print_archi();
             bnn_data.print_dataset();
         }
@@ -180,7 +183,7 @@ namespace operations_research{
                     }
                 }
             } else
-                std::cout << "Error opening input file : " << _input_file << '\n';
+                *out << " c Error opening input file : " << _input_file << '\n';
 
             for(const int &i : index_temp)
                 init_dataset(i);
@@ -205,7 +208,7 @@ namespace operations_research{
                     }
                 }
             } else
-                std::cout << "Error opening dataset file " << _input_file << '\n';
+                *out << " c Error opening dataset file " << _input_file << '\n';
 
             for(const int &i : index_temp)
                 init_dataset(i);
@@ -228,7 +231,7 @@ namespace operations_research{
                         }
                     }
                     if (architecture != bnn_data.get_archi()){
-                        std::cout << " c The architecture of the solution file is different from the architecture of the model. Please select an other file." << std::endl;
+                        *out << " c The architecture of the solution file is different from the architecture of the model. Please select an other file." << std::endl;
                         exit(EXIT_FAILURE);
                     }
                     if (line.substr(0, 8) == "WEIGHTS ") {
@@ -253,7 +256,7 @@ namespace operations_research{
                     }
                 }
             } else
-                std::cout << "Error opening solution file : "<< _solution_file << '\n';
+                *out << " c Error opening solution file : "<< _solution_file << '\n';
 
         }
 
@@ -285,6 +288,11 @@ namespace operations_research{
             parameters.set_num_search_workers(w);
         }
 
+        void set_output_stream(std::string output){
+            fout.open(output, std::ios::app);
+            out = &fout;
+        }
+
         void set_model_config(){
             preactivation.resize(nb_examples);
             activation.resize(nb_examples);
@@ -292,9 +300,108 @@ namespace operations_research{
             if (optimization_problem=='2')
                 classification.resize(nb_examples);
             if (optimization_problem == '1' && reified_constraints){
-                std::cout << " c Reified contraints can not be used with min weight problem " << std::endl;
-                std::cout << " c Changing boolean reified_constraint to false " << std::endl;
+                *out << " c Reified contraints can not be used with min weight problem " << std::endl;
+                *out << " c Changing boolean reified_constraint to false " << std::endl;
                 reified_constraints = false;
+            }
+        }
+
+        void set_porto_heuristic( DecisionStrategyProto* proto , std::string variable_heuristic,
+                                  std::string value_heuristic){
+            if (variable_heuristic == "lex")
+                proto->set_variable_selection_strategy(DecisionStrategyProto::CHOOSE_FIRST);
+            else if  (variable_heuristic == "min_domain")
+                proto->set_variable_selection_strategy(DecisionStrategyProto::CHOOSE_MIN_DOMAIN_SIZE);
+            else
+                assert (variable_heuristic == "none") ;
+
+            if (value_heuristic == "max")
+                proto->set_domain_reduction_strategy(DecisionStrategyProto::SELECT_MAX_VALUE);
+            else if  (value_heuristic == "min")
+                proto->set_domain_reduction_strategy(DecisionStrategyProto::SELECT_MIN_VALUE);
+            else if  (value_heuristic == "median")
+                proto->set_domain_reduction_strategy(DecisionStrategyProto::SELECT_MEDIAN_VALUE);
+            else
+                assert (value_heuristic == "none");
+        }
+
+        void setup_branching( bool branch_per_layer,  std::string variable_heuristic,
+                              std::string value_heuristic, int automatic ){
+            *out << " c setting specific branching :  "
+                      << " branch_per_layer : "
+                      << " var : " << variable_heuristic
+                      << " val : " << value_heuristic
+                      << " automatic " << automatic <<	std::endl;
+            decision_variables_size = cp_model_builder.Build().variables_size() ;
+
+            std::vector<IntVar> w;
+            std::vector<std::vector<IntVar>> w_level;
+
+            if (branch_per_layer){
+                int nb_layers = bnn_data.get_layers();
+                w_level.resize(nb_layers -1) ;
+                int count  = 0 ;
+                for (size_t l = 1; l < nb_layers; l++){
+                    int current  = bnn_data.get_archi(l);
+                    int previous = bnn_data.get_archi(l-1);
+                    for(size_t i = 0; i < previous; i++){
+                        if ( ((l ==1) && !weight_fixed_to_0[i]) || (l> 1))
+                            for (size_t j = 0; j < current; j++){
+                                //Todo :  later removed fixed weights
+                                w_level[l-1].push_back( weights[l-1][i][j] );
+                                ++count;
+                            }
+                    }
+                }
+                decision_variables_size = count ;
+            }
+            else{
+                int nb_layers = bnn_data.get_layers();
+                for (size_t l = 1; l < nb_layers; l++){
+
+                    int current = bnn_data.get_archi(l);
+                    int previous = bnn_data.get_archi(l-1);
+                    for(size_t i = 0; i < previous; i++){
+                        if ( ((l ==1) && !weight_fixed_to_0[i]) || (l> 1))
+                            for (size_t j = 0; j < current; j++){
+                                //Todo :  later removed fixed weights
+                                w.push_back( weights[l-1][i][j] );
+                            }
+                    }
+                }
+                decision_variables_size = w.size();
+            }
+            //std::vector<IntVar> reverse_w(w);
+            //std::reverse(std::begin(reverse_w), std::end(reverse_w));
+            *out << " c number of branching variables is "  << decision_variables_size  << std::endl;
+            CpModelProto* cp_model_ = cp_model_builder.MutableProto() ;
+            if (branch_per_layer){
+                //Branch per layer
+                for (int i =0; i < w_level.size() ; ++i){
+                    DecisionStrategyProto* proto ;
+                    proto = cp_model_->add_search_strategy();
+                    for (const IntVar& var : w_level[i]) {
+                        proto->add_variables(var.index());
+                    }
+                    set_porto_heuristic(proto, variable_heuristic, value_heuristic);
+                }
+            }
+            else {
+                //Branch on all weight variables
+                DecisionStrategyProto* proto ;
+                proto = cp_model_->add_search_strategy();
+                for (const IntVar& var : w) {
+                    proto->add_variables(var.index());
+                }
+                set_porto_heuristic(proto, variable_heuristic, value_heuristic);
+            }
+
+            if (automatic >0)
+                parameters.set_search_branching(SatParameters::AUTOMATIC_SEARCH );
+            if (automatic >1)
+            {
+                parameters.set_interleave_search(true);
+                parameters.set_reduce_memory_usage_in_interleave_mode(true);
             }
         }
 
@@ -412,7 +519,7 @@ namespace operations_research{
                     sum_image += (int) inputs[index_example][i]  ;
             }
 
-            //std::cout  << " c Test simple robustness with k = " << simple_robustness << std::endl;
+            //*out  << " c Test simple robustness with k = " << simple_robustness << std::endl;
 
             int number_layers = bnn_data.get_layers()-1;
             preactivation[index_example].resize(number_layers);
@@ -441,7 +548,7 @@ namespace operations_research{
             //Initialisation of the variables
             int nb_layers = bnn_data.get_layers();
             weights.resize(nb_layers-1);
-            //std::cout << " c weight is fixed size is " << bnn_data.get_archi(nb_layers-1) << std::endl;
+            //*out << " c weight is fixed size is " << bnn_data.get_archi(nb_layers-1) << std::endl;
             //We use weight_is_0 only for all layers except the first one (the pre-activation constraints from layer  0 et 0 use a linear constraint).
             if (prod_constraint)
                 weight_is_0.resize(nb_layers-2);
@@ -476,7 +583,7 @@ namespace operations_research{
                 }
             }
 
-            std::cout << " \n c START SETTING Weights to 0  \n  " << std::endl;
+            *out << " \n c START SETTING Weights to 0  \n  " << std::endl;
 
             int first_layer_size = bnn_data.get_archi(0) , count=0 ;
             weight_fixed_to_0.resize(first_layer_size) ;
@@ -506,12 +613,12 @@ namespace operations_research{
             }
             else
             {
-                std::cout << " \n \n c SETTING Weights to 0 doesn't work with one training example \n" << std::endl;
+                *out << " \n \n c SETTING Weights to 0 doesn't work with one training example \n" << std::endl;
                 assert (false);
             }
 
-            std::cout << " \n c " << count << " Weights on the first layer are fixed to 0" << std::endl;
-            std::cout << " d FIRST_LAYER_FIXED_WEIGHTS " << count << std::endl;
+            *out << " \n c " << count << " Weights on the first layer are fixed to 0" << std::endl;
+            *out << " d FIRST_LAYER_FIXED_WEIGHTS " << count << std::endl;
 
         }
 
@@ -659,7 +766,7 @@ namespace operations_research{
                          */
 
                         //BoolVar b1 = cp_model_builder.NewBoolVar();
-                        //std::cout << " HERE " << std::endl;
+                        //*out << " HERE " << std::endl;
                         //Implement b1 == (temp[i] == 0)
                         BoolVar b3 = cp_model_builder.NewBoolVar();
 
@@ -728,10 +835,16 @@ namespace operations_research{
             }
         }
 
-
+        /* run method
+          This function calls all the necessary methods to run the solver
+          Parameters :
+          - nb_seconds : Sets a time limit of nb_seconds
+          - search : search strategy of the solver
+          Output : None
+        */
         void run(const double &nb_seconds, Search_parameters search) {
             assert(nb_seconds > 0);
-            std::cout << " c declare variables and constraints " << std::endl;
+            *out << " c declare variables and constraints " << std::endl;
             std::clock_t c_start = std::clock();
 
             set_model_config();
@@ -756,11 +869,38 @@ namespace operations_research{
                 model_output_constraints(i);
             }
             model_declare_objective();
+            decision_variables_size = cp_model_builder.Build().variables_size() ;
+            if (search._search_strategy)
+                setup_branching(search._per_layer_branching, search._variable_heuristic,
+                                search._value_heuristic, search._automatic);
+            parameters.set_max_time_in_seconds(nb_seconds);     //Add a timelimit
+            parameters.set_random_seed(1000);
+            model.Add(NewSatParameters(parameters));
             std::clock_t c_end = std::clock();
 
-            std::cout << " c Setup finished; CPU setup time is " << (c_end - c_start) / CLOCKS_PER_SEC << " s"
+            *out << " c Setup finished; CPU setup time is " << (c_end - c_start) / CLOCKS_PER_SEC << " s"
                       << std::endl;
-            std::cout << " c running the solver.. " << std::endl;
+
+            *out << "d SETUP TIME " << (c_end-c_start) / CLOCKS_PER_SEC << std::endl;
+            *out << " c Setup finished; CPU setup time is "  << (c_end-c_start) / CLOCKS_PER_SEC << " s" <<std::endl;
+            *out << "\n c Some statistics on the model : " << std::endl;
+            *out <<  "d VARIABLES " << cp_model_builder.Build().variables_size() << std::endl ;
+            *out <<  "d DECISION_VARIABLES " << decision_variables_size << std::endl ;
+            *out <<  "d CONSTRAINTS " << cp_model_builder.Build().constraints_size() << std::endl ;
+
+            *out << " c running the solver.. " << std::endl;
+
+            switch (optimization_problem) {
+                case 1: {
+                    cp_model_builder.Minimize(objective);
+                    break;
+                }
+                case 2: {
+                    cp_model_builder.Maximize(objective);
+                    break;
+                }
+            }
+
         }
 
     };
