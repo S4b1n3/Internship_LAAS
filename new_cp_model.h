@@ -317,7 +317,7 @@ namespace operations_research{
                 classification.resize(nb_examples);
                 classification_solution.resize(nb_examples);
             }
-            if (optimization_problem == '1' && reified_constraints){
+            if ((optimization_problem == '1' || optimization_problem == '0') && reified_constraints){
                 *out << " c Reified contraints can not be used with min weight problem " << std::endl;
                 *out << " c Changing boolean reified_constraint to false " << std::endl;
                 reified_constraints = false;
@@ -671,29 +671,25 @@ namespace operations_research{
           Output : None
         */
         void model_declare_objective(){
-            switch (optimization_problem) {
-                case '1': {
-                    //min_weight mode
-                    int nb_layers = bnn_data.get_layers();
-                    for (size_t l = 1; l < nb_layers; l++) {
-                        int size_previous_layer = bnn_data.get_archi(l - 1);
-                        for (size_t i = 0; i < size_previous_layer; i++) {
-                            int size_current_layer = bnn_data.get_archi(l);
-                            for (size_t j = 0; j < size_current_layer; j++) {
-                                IntVar abs = cp_model_builder.NewIntVar(Domain(0, 1));
-                                cp_model_builder.AddAbsEquality(abs, weights[l - 1][i][j]);
-                                objective.AddVar(abs);
-                            }
+            if (optimization_problem == '1' || optimization_problem == '0'){
+                //min_weight mode
+                int nb_layers = bnn_data.get_layers();
+                for (size_t l = 1; l < nb_layers; l++) {
+                    int size_previous_layer = bnn_data.get_archi(l - 1);
+                    for (size_t i = 0; i < size_previous_layer; i++) {
+                        int size_current_layer = bnn_data.get_archi(l);
+                        for (size_t j = 0; j < size_current_layer; j++) {
+                            IntVar abs = cp_model_builder.NewIntVar(Domain(0, 1));
+                            cp_model_builder.AddAbsEquality(abs, weights[l - 1][i][j]);
+                            objective.AddVar(abs);
                         }
                     }
-                    break;
                 }
-                case '2': {
-                    //max_classification mode
-                    for (size_t i = 0; i < nb_examples; i++)
-                        objective.AddVar(classification[i]);
-                    break;
-                }
+            }
+            if (optimization_problem == '2') {
+                //max_classification mode
+                for (size_t i = 0; i < nb_examples; i++)
+                    objective.AddVar(classification[i]);
             }
         }
 
@@ -827,27 +823,24 @@ namespace operations_research{
             int size_previous_layer = bnn_data.get_layers()-2;
             int size_last_layer = bnn_data.get_archi(bnn_data.get_layers()-1);
 
-            switch (optimization_problem) {
-                case '1':{
-                    cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][label], 1);
-                    for (size_t i = 0; i < size_last_layer; i++) {
-                        if (i != label) {
-                            cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][i], -1);
-                        }
+            if (optimization_problem == '1' || optimization_problem == '0'){
+                cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][label], 1);
+                for (size_t i = 0; i < size_last_layer; i++) {
+                    if (i != label) {
+                        cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][i], -1);
                     }
-                    break;
                 }
-                case '2':{
-                    LinearExpr last_layer(0);
-                    for (size_t i = 0; i < size_last_layer; i++) {
-                        if (i != label) {
-                            last_layer.AddVar(activation[index_examples][size_previous_layer][i]);
-                        }
+            }
+
+            if (optimization_problem == '2'){
+                LinearExpr last_layer(0);
+                for (size_t i = 0; i < size_last_layer; i++) {
+                    if (i != label) {
+                        last_layer.AddVar(activation[index_examples][size_previous_layer][i]);
                     }
-                    cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][label], 1).OnlyEnforceIf(classification[index_examples]);
-                    cp_model_builder.AddEquality(last_layer, -(size_last_layer - 1)).OnlyEnforceIf(classification[index_examples]);
-                    break;
                 }
+                cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][label], 1).OnlyEnforceIf(classification[index_examples]);
+                cp_model_builder.AddEquality(last_layer, -(size_last_layer - 1)).OnlyEnforceIf(classification[index_examples]);
             }
         }
 
@@ -907,11 +900,11 @@ namespace operations_research{
             *out << " c running the solver.. " << std::endl;
 
             switch (optimization_problem) {
-                case 1: {
+                case '1': {
                     cp_model_builder.Minimize(objective);
                     break;
                 }
-                case 2: {
+                case '2': {
                     cp_model_builder.Maximize(objective);
                     break;
                 }

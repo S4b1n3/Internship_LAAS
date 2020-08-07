@@ -115,7 +115,7 @@ void parseOptions(int argc, char** argv){
 		//
 		// Define arguments
 		//
-		ValueArg<char> imodel ("M", "index_model", "Index of the model to run", true, '1', "char");
+		ValueArg<char> imodel ("M", "index_model", "Index of the model to run : 0 for satisfaction, 1 for min weight and 2 for max classification", true, '1', "char");
 		cmd.add(imodel);
 
 		ValueArg<int> seed ("S", "seed", "Seed", false, 1, "int");
