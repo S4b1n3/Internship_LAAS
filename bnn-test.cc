@@ -23,6 +23,7 @@ std::vector<int> architecture;
 int _nb_neurons;
 bool _prod_constraint;
 std::string _output_file;
+std::string _output_path;
 bool _check_solution;
 int _print_solution;
 std::string _input_file;
@@ -73,7 +74,7 @@ int main(int argc, char **argv) {
     model.set_prod_constraint(_prod_constraint);
     model.set_optimization_problem(_index_model);
     model.set_reified_constraints(_reified_constraints);
-    model.set_output_stream(_output_file);
+    model.set_output_stream(_output_file, _output_path);
 	model.run(_time, search);
 	model.print_statistics(_check_solution, _eval, _strategy);
 	if (_print_solution)
@@ -164,8 +165,11 @@ void parseOptions(int argc, char** argv){
 		ValueArg<int> automatic("J", "automatic", "level of automatic search: 0,1,2 ", false, 0, "double");
 		cmd.add(automatic);
 
-        ValueArg<std::string> out_file("O", "output_file", "Path of the output file", false, "", "string");
+        ValueArg<std::string> out_file("O", "output_file", "Name of the output file", false, "", "string");
         cmd.add(out_file);
+
+        ValueArg<std::string> out_path("U", "output_path", "Path of the output file", false, "BNN", "string");
+        cmd.add(out_path);
 
         ValueArg<std::string> in_file("I", "input_file", "Path of the input file", false, "", "string");
         cmd.add(in_file);
@@ -192,6 +196,7 @@ void parseOptions(int argc, char** argv){
 		_time = time.getValue();
 		_prod_constraint = bool_prod.getValue();
         _output_file = out_file.getValue();
+        _output_path = out_path.getValue();
         _input_file = in_file.getValue();
         _check_solution = check_sol.getValue();
         _print_solution = print_sol.getValue();

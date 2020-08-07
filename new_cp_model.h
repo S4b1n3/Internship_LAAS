@@ -294,9 +294,10 @@ namespace operations_research{
             parameters.set_num_search_workers(w);
         }
 
-        void set_output_stream(std::string output){
-            if (output != ""){
-                fout.open(output, std::ios::app);
+        void set_output_stream(std::string _output_file, std::string _output_path){
+            if (_output_file != ""){
+                create_result_file(_output_path, _output_file);
+                fout.open(output_file, std::ios::app);
                 out = &fout;
             }
         }
@@ -662,7 +663,7 @@ namespace operations_research{
             std::string cmd = "mkdir -p "+output_file;
             int launch_cmd = system(cmd.c_str());
 
-            output_file.append("/"+filename+".stat");
+            output_file.append("/"+filename);
         }
 
         /* model_objective_maximize_classification method
