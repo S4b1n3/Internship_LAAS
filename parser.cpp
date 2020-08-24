@@ -248,10 +248,8 @@ public:
                     if(line.substr(0, 12) == "d VARIABLES "){
                         nb_variables += std::stoi(line.substr(12));
                     }
-                    if(line.substr(0,2) == "d CONSTRAINTS "){
-                        std::vector<std::string> temp;
-                        split(line, temp, ' ');
-                        nb_constraints += std::stoi(temp[1]);
+                    if(line.substr(0,14) == "d CONSTRAINTS "){
+                        nb_constraints += std::stoi(line.substr(14));
                     }
                     if (line.substr(0, 23) == "d TEST_STRONG_ACCURACY ") {
 		                    if(status_temp == 2 || status_temp == 4){

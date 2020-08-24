@@ -82,6 +82,7 @@ namespace operations_research{
 
         std::string output_file;
         bool prod_constraint;
+        bool weak_metric;
         //0 for satisfaction, 1 for min_weight and 2 for max_classification
         char optimization_problem;
         bool reified_constraints;
@@ -280,6 +281,10 @@ namespace operations_research{
 
         void set_prod_constraint(bool use_product_constraints){
             this->prod_constraint = use_product_constraints;
+        }
+
+        void set_weak_metric(bool use_weak_metric){
+          this->weak_metric = use_weak_metric;
         }
 
         void set_optimization_problem(char optimization_mode){
@@ -648,10 +653,16 @@ namespace operations_research{
         void create_result_file(std::string _output_path, std::string filename){
             output_file = _output_path;
 
+            output_file.append("/results/resultsM"+std::to_string(optimization_problem));
+
             if(prod_constraint)
-                output_file.append("/results/resultsM"+std::to_string(optimization_problem)+"-C/results");
-            else
-                output_file.append("/results/resultsM"+std::to_string(optimization_problem)+"/results");
+                output_file.append("-C");
+
+            if(reified_constraints)
+                output_file.append("-R");
+
+
+            output_file.append("/results");
 
             int nb_layers_minus_one = bnn_data.get_layers()-1;
             for (size_t i = 1; i < nb_layers_minus_one; ++i) {
@@ -756,9 +767,9 @@ namespace operations_research{
                         IntVar sum_weights_activation = cp_model_builder.NewIntVar(Domain(-2,2));
                         IntVar sum_temp_1 = cp_model_builder.NewIntVar(Domain(0, 2));
                         if (reified_constraints){
-                            cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]})).OnlyEnforceIf(classification[index_example]);
-                            cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1)).OnlyEnforceIf(classification[index_example]);
-                            cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation).OnlyEnforceIf(classification[index_example]);
+                          cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]})).OnlyEnforceIf(classification[index_example]);
+                          cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1)).OnlyEnforceIf(classification[index_example]);
+                          cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation).OnlyEnforceIf(classification[index_example]);
 
                         }else{
                             cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
@@ -816,32 +827,46 @@ namespace operations_research{
         /* model_output_constraint method
           This function forces the output to match the label
           Parameters :
-          - index_examples : index of examples
+          - index_example : index of examples
           Output : None
         */
-        void model_output_constraints(const int &index_examples){
-            int label = labels[index_examples];
-            int size_previous_layer = bnn_data.get_layers()-2;
+        void model_output_constraints(const int &index_example){
+            int label = labels[index_example];
+            int last_layer = bnn_data.get_layers()-2;
             int size_last_layer = bnn_data.get_archi(bnn_data.get_layers()-1);
 
+            IntVar max_value = cp_model_builder.NewIntVar(Domain(-size_last_layer, size_last_layer));
+            cp_model_builder.AddMaxEquality(max_value, preactivation[index_example][last_layer]);
+
             if (optimization_problem == '1' || optimization_problem == '0'){
-                cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][label], 1);
-                for (size_t i = 0; i < size_last_layer; i++) {
-                    if (i != label) {
-                        cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][i], -1);
-                    }
+                if (weak_metric) {
+                  cp_model_builder.AddEquality(preactivation[index_example][last_layer][label], max_value);
                 }
+                else {
+                  cp_model_builder.AddEquality(activation[index_example][last_layer][label], 1);
+                  for (size_t i = 0; i < size_last_layer; i++) {
+                      if (i != label) {
+                          cp_model_builder.AddEquality(activation[index_example][last_layer][i], -1);
+                      }
+                  }
+                }
+
             }
 
             if (optimization_problem == '2'){
-                LinearExpr last_layer(0);
+              if (weak_metric) {
+                cp_model_builder.AddEquality(preactivation[index_example][last_layer][label], max_value).OnlyEnforceIf(classification[index_example]);
+              }
+              else {
+                LinearExpr last_layer_sum(0);
                 for (size_t i = 0; i < size_last_layer; i++) {
                     if (i != label) {
-                        last_layer.AddVar(activation[index_examples][size_previous_layer][i]);
+                        last_layer_sum.AddVar(activation[index_example][last_layer][i]);
                     }
                 }
-                cp_model_builder.AddEquality(activation[index_examples][size_previous_layer][label], 1).OnlyEnforceIf(classification[index_examples]);
-                cp_model_builder.AddEquality(last_layer, -(size_last_layer - 1)).OnlyEnforceIf(classification[index_examples]);
+                cp_model_builder.AddEquality(activation[index_example][last_layer][label], 1).OnlyEnforceIf(classification[index_example]);
+                cp_model_builder.AddEquality(last_layer_sum, -(size_last_layer - 1)).OnlyEnforceIf(classification[index_example]);
+              }
             }
         }
 
@@ -870,8 +895,10 @@ namespace operations_research{
                 for (size_t l = 1; l < nb_layers; ++l) {
                     int size_current_layer =  bnn_data.get_archi(l);
                     for (size_t j = 0; j < size_current_layer; ++j) {
-                        model_activation_constraints(i, l, j);
                         model_preactivation_constraints(i, l, j);
+                        if ((weak_metric && j != nb_layers-1) || !weak_metric) {
+                          model_activation_constraints(i, l, j);
+                        }
                     }
                 }
             }
@@ -910,6 +937,8 @@ namespace operations_research{
                     break;
                 }
             }
+
+            response = SolveCpModel(cp_model_builder.Build(), &model);
 
         }
 
@@ -961,10 +990,10 @@ namespace operations_research{
                 if (check_sol &&  (!reified_constraints || (reified_constraints && classif))) {
                     Solution check_solution(bnn_data, weights_solution, activation_solution, preactivation_solution);
                     if (!check_model) {
-                        check_solution.set_evaluation_config(true, true, classif, true, false);
+                        check_solution.set_evaluation_config(true, true, classif, !weak_metric, false);
                         *out << "d CHECKING_EXAMPLE "<<i << " : ";
                     }else
-                        check_solution.set_evaluation_config(true, false, classif, true, false);
+                        check_solution.set_evaluation_config(true, false, classif, !weak_metric, false);
                     bool checking = check_solution.run_solution_light(idx_examples[i]);
                     if (!checking) {
                         check_count--;
@@ -979,7 +1008,6 @@ namespace operations_research{
         // Status: Optimal, suboptimal, satisfiable, unsatisfiable, unkown
         // Output Status: {OPTIMAL, FEASIBLE, INFEASIBLE, MODEL_INVALID, UNKNOWN}
         void print_statistics(const bool &check_solution, const bool &eval, const std::string &strategy){
-            response = SolveCpModel(cp_model_builder.Build(), &model);
             *out << "\n c Some statistics on the solver response : " << '\n';
             *out << "d RUN_TIME " << response.wall_time() << std::endl;
             *out << "d MEMORY " << sysinfo::MemoryUsageProcess() << std::endl;
@@ -1024,10 +1052,10 @@ namespace operations_research{
                 accuracy_train_bis = 0;
             }
 
-            *out << " d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
-            *out << " d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;
-            *out << " d TEST_WEAK_ACCURACY " << accuracy_test_bis << std::endl;
-            *out << " d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
+            *out << "d TEST_STRONG_ACCURACY " << accuracy_test << std::endl;
+            *out << "d TRAIN_STRONG_ACCURACY " << accuracy_train << std::endl;
+            *out << "d TEST_WEAK_ACCURACY " << accuracy_test_bis << std::endl;
+            *out << "d TRAIN_WEAK_ACCURACY " << accuracy_train_bis << std::endl;
         }
 
         void print_solution(const CpSolverResponse &r, const int &verbose, const int &index = 0){

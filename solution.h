@@ -391,6 +391,7 @@ public:
 				  std::cout<<" \n v The output label does not correspond to the maximum preactivation "<<std::endl;
 				  std::cout<<" v True neuron to be activated is " <<  example_label << std::endl;
           std::cout << " v First wrong activated neuron is " << first_wrong_output << '\n';
+          exit(1);
 			  }
 		  }
 	  }
@@ -421,7 +422,6 @@ public:
   bool run_solution_light(const int &index_example = 0){
 
 	  bool pred = true;
-	  bool act_preact = true;
 	  //init(_init, test_set, index_example);
 	  idx_example = index_example;
 	  if (__strong_classification)
@@ -429,9 +429,9 @@ public:
 	  else
 		  pred = weak_metric();
 
-	  if (pred  && __verification_mode) {
+	  if (pred)
 		  std::cout << " c OK" << '\n';
-	  }
+	
 	  return pred ;
   }
 
