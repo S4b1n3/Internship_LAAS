@@ -30,6 +30,7 @@ std::string _input_file;
 bool _reified_constraints;
 bool _eval;
 bool _weak_metric;
+int __workers ;
 
 
 //This is no longer used : --> Remove it's usage
@@ -75,6 +76,7 @@ int main(int argc, char **argv) {
     model.set_prod_constraint(_prod_constraint);
 		model.set_weak_metric(_weak_metric);
     model.set_optimization_problem(_index_model);
+		model.set_workets(__workers) ;
     model.set_reified_constraints(_reified_constraints);
     model.set_output_stream(_output_file, _output_path);
 		model.run(_time, search);
@@ -152,6 +154,9 @@ void parseOptions(int argc, char** argv){
 		ValueArg<int> param_k("K", "k", "Robustness parameter", false, 0, "int");
 		cmd.add(param_k);
 
+		SwitchArg weak_metric("L", "weak_metric", "indicates the metric used to classify examples", false);
+		cmd.add(weak_metric);
+
 		ValueArg<char> imodel ("M", "index_model", "Index of the model to run : 0 for satisfaction, 1 for min weight and 2 for max classification", true, '1', "char");
 		cmd.add(imodel);
 
@@ -176,8 +181,8 @@ void parseOptions(int argc, char** argv){
 		SwitchArg check_sol("V","check", "indicates if the solution returned has to be tested", false);
 		cmd.add(check_sol);
 
-		SwitchArg weak_metric("W", "weak_metric", "indicates the metric used to classify examples", false);
-		cmd.add(weak_metric);
+		ValueArg<int> workers("W","workers", "number of workers", false, 0, "int");
+		cmd.add(workers);
 
 		ValueArg<int> nb_ex("X", "nb_examples", "Number of examples", false, 0, "int");
 		cmd.add(nb_ex);
@@ -209,6 +214,7 @@ void parseOptions(int argc, char** argv){
     _reified_constraints = reified_const.getValue();
     _eval = eval.getValue();
 		_weak_metric = weak_metric.getValue();
+		__workers = workers.getValue();
 
 
 		//Search parameters

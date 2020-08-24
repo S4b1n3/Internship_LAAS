@@ -429,9 +429,9 @@ public:
 	  else
 		  pred = weak_metric();
 
-	  if (pred)
+	  if (pred && __verification_mode)
 		  std::cout << " c OK" << '\n';
-	
+
 	  return pred ;
   }
 
