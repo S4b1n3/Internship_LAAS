@@ -73,8 +73,13 @@ int main(int argc, char **argv) {
 	}
 	std::string cmd("mkdir -p "+filename);
 	int launch_cmd = system(cmd.c_str());
-	std::string input_name = _input_file.substr(12);
-	filename.append("/"+input_name.substr(0, input_name.size()-5)+".stat");
+	if (_input_file != "") {
+		std::string input_name = _input_file.substr(12);
+		filename.append("/"+input_name.substr(0, input_name.size()-5)+".stat");
+	} else {
+		filename.append("/test.stat");
+	}
+
 
 	std::cout << "parser : "<<filename<<std::endl;
 

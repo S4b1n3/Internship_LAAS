@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     model.set_optimization_problem(_index_model);
 		model.set_workets(__workers) ;
     model.set_reified_constraints(_reified_constraints);
-    model.set_output_stream(_output_file, _output_path);
+    model.set_output_stream(_output_file, _output_path, _input_file);
 		model.run(_time, search);
 		model.print_statistics(_check_solution, _eval, _strategy);
 		if (_print_solution){

@@ -307,6 +307,15 @@ namespace operations_research{
             }
         }
 
+        void set_output_stream(std::string _output_file, std::string _output_path, std::string _input_file){
+            if (_output_file != ""){
+                create_result_file(_output_path, _output_file, _input_file);
+                fout.open(output_file, std::ios::app);
+                out = &fout;
+            }
+        }
+
+
         void set_model_config(){
             //Initialisation of the variables
             int nb_layers = bnn_data.get_layers();
@@ -677,6 +686,23 @@ namespace operations_research{
             output_file.append("/"+filename);
         }
 
+        void create_result_file(std::string _output_path, std::string filename, std::string _input_file){
+            output_file = _output_path;
+
+            int index = _input_file.find_last_of("/");
+            std::string input_filename = _input_file.substr(index+1);
+
+
+            output_file.append("/results/results_"+input_filename.substr(10, 1));
+
+            output_file.append("/results_"+input_filename.substr(12, input_filename.size()-17));
+
+            std::string cmd = "mkdir -p "+output_file;
+            int launch_cmd = system(cmd.c_str());
+
+            output_file.append("/"+filename);
+        }
+
         /* model_objective_maximize_classification method
           This function sums all the values of classification in the LinearExpr objectif
           Parameters : None
@@ -769,7 +795,7 @@ namespace operations_research{
                         if (reified_constraints){
                           cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]})).OnlyEnforceIf(classification[index_example]);
                           cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1)).OnlyEnforceIf(classification[index_example]);
-                          cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation).OnlyEnforceIf(classification[index_example]);
+                          cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);//.OnlyEnforceIf(classification[index_example]);
 
                         }else{
                             cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
@@ -896,9 +922,7 @@ namespace operations_research{
                     int size_current_layer =  bnn_data.get_archi(l);
                     for (size_t j = 0; j < size_current_layer; ++j) {
                         model_preactivation_constraints(i, l, j);
-                        if ((weak_metric && j != nb_layers-1) || !weak_metric) {
-                          model_activation_constraints(i, l, j);
-                        }
+                        model_activation_constraints(i, l, j);
                     }
                 }
             }

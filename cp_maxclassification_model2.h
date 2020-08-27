@@ -130,8 +130,10 @@ namespace operations_research{
     		if(l == 1){
     			LinearExpr temp(0);
     			int tmp = bnn_data.get_archi(0);
-    			for (size_t i = 0; i < tmp; i++) {
-            if (activation_first_layer[index_example][i] != 0) {
+          for (size_t i = 0; i < tmp; i++) {
+    				if (activation_first_layer[index_example][i] != 0)
+    				if (! weight_fixed_to_0[i])
+    				{
     					temp.AddTerm(get_w_ilj(i, l, j), activation_first_layer[index_example][i]);
     				}
     			}
