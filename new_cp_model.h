@@ -795,7 +795,7 @@ namespace operations_research{
                         if (reified_constraints){
                           cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]})).OnlyEnforceIf(classification[index_example]);
                           cp_model_builder.AddEquality(sum_temp_1, temp[i].AddConstant(1)).OnlyEnforceIf(classification[index_example]);
-                          cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);//.OnlyEnforceIf(classification[index_example]);
+                          cp_model_builder.AddAbsEquality(sum_temp_1, sum_weights_activation);// If we add .OnlyEnforceIf(classification[index_example]); with AbsEquality constraint, ORTools indicates "Enforcement literal not supported in constraint: enforcement_literal". It looks like AbsEquality can not be reified
 
                         }else{
                             cp_model_builder.AddEquality(sum_weights_activation, LinearExpr::Sum({get_w_ilj(i, l, j), activation[index_example][l-2][i]}));
